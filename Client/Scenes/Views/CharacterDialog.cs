@@ -1461,7 +1461,7 @@ namespace Client.Scenes.Views
 
                 if (check.Checked)
                 {
-                    DXMessageBox box = new DXMessageBox("确认要提升魔法量?", "Hermit Confirmation", DXMessageBoxButtons.YesNo);
+                    DXMessageBox box = new DXMessageBox("确认要提升魔法量?", "修炼确认", DXMessageBoxButtons.YesNo);
 
                     box.YesButton.MouseClick += (o1, e1) =>
                     {

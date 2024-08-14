@@ -130,9 +130,9 @@ namespace Client.Scenes.Views
 
                 HistoryPanel.Enabled = true;
 
-                SearchNumberSoldBox.TextBox.Text = "Searching...";
-                SearchLastPriceBox.TextBox.Text = "Searching...";
-                SearchAveragePriceBox.TextBox.Text = "Searching...";
+                SearchNumberSoldBox.TextBox.Text = "查找中...";
+                SearchLastPriceBox.TextBox.Text = "查找中...";
+                SearchAveragePriceBox.TextBox.Text = "查找中...";
 
                 CEnvir.Enqueue(new C.MarketPlaceHistory { Index = nValue.MarketInfo.Item.Info.Index, PartIndex = nValue.MarketInfo.Item.AddedStats[Stat.ItemIndex], Display = 1 });
             }
@@ -1494,7 +1494,7 @@ namespace Client.Scenes.Views
                 message.Append(" (使用帮会资金)");
 
 
-            DXMessageBox box = new DXMessageBox(message.ToString(), "Buy Confirmation", DXMessageBoxButtons.YesNo);
+            DXMessageBox box = new DXMessageBox(message.ToString(), "购买确认", DXMessageBoxButtons.YesNo);
 
             box.YesButton.MouseClick += (o1, e1) =>
             {
@@ -1524,9 +1524,9 @@ namespace Client.Scenes.Views
 
             message.Append("\n\n");
 
-            message.Append($"总费用: {StoreBuyTotalBox.TextBox.Text} ({(UseHuntGoldBox.Checked ? "Hunt" : "Game")} Gold)");
+            message.Append($"总费用: {StoreBuyTotalBox.TextBox.Text} ({(UseHuntGoldBox.Checked ? "狩猎" : "游戏")} 币)");
 
-            DXMessageBox box = new DXMessageBox(message.ToString(), "Buy Confirmation", DXMessageBoxButtons.YesNo);
+            DXMessageBox box = new DXMessageBox(message.ToString(), "购买确认", DXMessageBoxButtons.YesNo);
 
             box.YesButton.MouseClick += (o1, e1) =>
             {

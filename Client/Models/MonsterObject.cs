@@ -3411,7 +3411,7 @@ namespace Client.Models
         {
             if (GameScene.Game.HasQuest(MonsterInfo, GameScene.Game.MapControl.MapInfo)) //Todo Optimize by variable.
 
-                Title = "(Quest)";
+                Title = "(任务)";
             else
                 Title = string.Empty;
         }

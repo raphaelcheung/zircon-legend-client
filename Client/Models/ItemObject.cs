@@ -37,13 +37,13 @@ namespace Client.Models
             {
                 itemInfo = Globals.ItemInfoList.Binding.First(x => x.Index == Item.AddedStats[Stat.ItemIndex]);
 
-                Title = "[Part]";
+                Title = "[碎片]";
             }
 
             Name = Item.Count > 1 ? $"{itemInfo.ItemName} ({Item.Count})" : itemInfo.ItemName;
 
             if ((Item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem)
-                Title = "(Quest)";
+                Title = "(任务)";
 
 
 

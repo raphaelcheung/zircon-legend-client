@@ -43,7 +43,7 @@ namespace Client.Controls
                 Location = new Point(Size.Width/2 + 10, Size.Height - 43),
                 Size = new Size(80, DefaultHeight),
                 Parent = this,
-                Label = { Text = "Confirm" }
+                Label = { Text = "确认" }
             };
             ConfirmButton.MouseClick += (o, e) => Dispose();
 

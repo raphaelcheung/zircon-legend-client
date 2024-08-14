@@ -4062,7 +4062,7 @@ namespace Client.Scenes.Views
                 if (!string.IsNullOrEmpty(UserCompanion.CharacterName))
                 {
                     RetrieveButton.Enabled = false;
-                    RetrieveButton.Hint = $"The Companion is currently with {UserCompanion.CharacterName}.";
+                    RetrieveButton.Hint = $"这个伴侣当前与 {UserCompanion.CharacterName} 在一起.";
                 }
                 else
                 {

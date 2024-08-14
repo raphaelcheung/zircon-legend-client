@@ -22,7 +22,7 @@ namespace Client
     public sealed class TargetForm : RenderForm
     {
         public bool Resizing { get; private set; }
-        public TargetForm() : base("云归传奇客户端")
+        public TargetForm() : base("皓石传奇三客户端")
         {
             AutoScaleMode = AutoScaleMode.None;
 

@@ -2791,7 +2791,7 @@ namespace Client.Scenes.Views
         {
             string owner = GameScene.Game.CastleOwners[Castle];
 
-            CastleOwnerLabel.Text = string.IsNullOrEmpty(owner) ? "None" : owner;
+            CastleOwnerLabel.Text = string.IsNullOrEmpty(owner) ? "无" : owner;
         }
 
         public override void Process()

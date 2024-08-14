@@ -262,7 +262,7 @@ namespace Client.Scenes.Views
                     text = $"PK 点\n";
                     break;
                 case BuffType.Redemption:
-                    text = $"Redemption Key Stone\n";
+                    text = $"救赎之钥石\n";
                     break;
                 case BuffType.Castle:
                     text = $"城堡主\n";

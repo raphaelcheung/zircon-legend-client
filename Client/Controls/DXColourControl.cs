@@ -121,14 +121,14 @@ namespace Client.Controls
         public DXColourPicker()
         {
             Size = new Size(380, 253);
-            TitleLabel.Text = "Colour Picker";
+            TitleLabel.Text = "颜色选择器";
             Modal = true;
             HasFooter = true;
 
             CancelButton = new DXButton
             {
                 Parent = this,
-                Label = { Text = "Cancel" },
+                Label = { Text = "取消" },
                 Location = new Point(Size.Width / 2 + 10, Size.Height - 43),
                 Size = new Size(80, DefaultHeight),
             };
@@ -138,7 +138,7 @@ namespace Client.Controls
             SelectButton = new DXButton
             {
                 Parent = this,
-                Label = { Text = "Select" },
+                Label = { Text = "选择" },
                 Location = new Point((Size.Width) / 2 - 80 - 10, Size.Height - 43),
                 Size = new Size(80, DefaultHeight),
             };
@@ -171,7 +171,7 @@ namespace Client.Controls
             DXLabel label = new DXLabel
             {
                 Parent = this,
-                Text = "Red:",
+                Text = "红:",
             };
             label.Location = new Point(RedBox.Location.X - label.Size.Width - 5, (RedBox.Size.Height - label.Size.Height) / 2 + RedBox.Location.Y);
 
@@ -187,7 +187,7 @@ namespace Client.Controls
             label = new DXLabel
             {
                 Parent = this,
-                Text = "Green:",
+                Text = "绿:",
             };
             label.Location = new Point(GreenBox.Location.X - label.Size.Width - 5, (GreenBox.Size.Height - label.Size.Height) / 2 + GreenBox.Location.Y);
 
@@ -203,7 +203,7 @@ namespace Client.Controls
             label = new DXLabel
             {
                 Parent = this,
-                Text = "Blue:",
+                Text = "蓝:",
             };
             label.Location = new Point(BlueBox.Location.X - label.Size.Width - 5, (BlueBox.Size.Height - label.Size.Height) / 2 + BlueBox.Location.Y);
 
@@ -221,7 +221,7 @@ namespace Client.Controls
             label = new DXLabel
             {
                 Parent = this,
-                Text = "Colour:",
+                Text = "颜色:",
             };
             label.Location = new Point(BlueBox.Location.X - label.Size.Width - 5, (ColourBox.Size.Height - label.Size.Height) / 2 + ColourBox.Location.Y);
 

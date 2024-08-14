@@ -62,7 +62,7 @@ namespace Client.Controls
                 Location = new Point((Size.Width) / 2 - 80 - 10, Size.Height - 43),
                 Size = new Size(80, DefaultHeight),
                 Parent = this,
-                Label = { Text = "Confirm" }
+                Label = { Text = "确认" }
             };
             ConfirmButton.MouseClick += (o, e) => Dispose();
 
@@ -71,7 +71,7 @@ namespace Client.Controls
                 Location = new Point(Size.Width / 2 + 10, Size.Height - 43),
                 Size = new Size(80, DefaultHeight),
                 Parent = this,
-                Label = { Text = "Cancel" }
+                Label = { Text = "取消" }
             };
             CancelButton.MouseClick += (o, e) => Dispose();
 
