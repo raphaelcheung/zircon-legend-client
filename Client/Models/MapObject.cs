@@ -75,7 +75,7 @@ namespace Client.Models
 
         public uint AttackerID;
 
-        public MagicType MagicType;
+        public MagicType MagicType { get; set; }
         public Element AttackElement;
         public List<MapObject> AttackTargets;
         public List<Point> MagicLocations;
@@ -296,7 +296,7 @@ namespace Client.Models
         public static int OffSetX => MapControl.OffSetX;
         public static int OffSetY => MapControl.OffSetY;
 
-        public List<ObjectAction> ActionQueue = new List<ObjectAction>();
+        public List<ObjectAction> ActionQueue { get; } = new List<ObjectAction>();
 
         
         public virtual void Process()

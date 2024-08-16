@@ -231,7 +231,9 @@ namespace Client.Models
         
         public Dictionary<MagicInfo, ClientUserMagic> Magics = new Dictionary<MagicInfo, ClientUserMagic>();
 
-        public DateTime NextActionTime, ServerTime, AttackTime, NextMagicTime, BuffTime = CEnvir.Now, LotusTime, CombatTime;
+        public DateTime NextActionTime { get; set; }
+        public DateTime AttackTime { get; set; }
+        public DateTime ServerTime, NextMagicTime, BuffTime = CEnvir.Now, LotusTime, CombatTime;
         public MagicType AttackMagic;
         public DateTime MoveTime { get; set; }
         public DateTime NextRunTime { get; set; }
@@ -511,8 +513,7 @@ namespace Client.Models
                         }
                     }
 
-                    if (CanThrusting && GameScene.Game.MapControl.CanEnergyBlast(action.Direction) 
-                        && attackMagic != MagicType.Slaying && attackMagic != MagicType.HalfMoon)
+                    if (CanThrusting && attackMagic != MagicType.Slaying && attackMagic != MagicType.HalfMoon)
                     {
                         foreach (KeyValuePair<MagicInfo, ClientUserMagic> pair in Magics)
                         {
@@ -593,7 +594,11 @@ namespace Client.Models
                 case MirAction.Attack:
                     attackDelay = Globals.AttackDelay - Stats[Stat.AttackSpeed]*Globals.ASpeedRate;
                     attackDelay = Math.Max(800, attackDelay);
-                    AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
+
+                    if (MagicType == MagicType.Thrusting)
+                        AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * 2 / 3);
+                    else
+                        AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
 
                     if (BagWeight > Stats[Stat.BagWeight])
                         AttackTime += TimeSpan.FromMilliseconds(attackDelay);
