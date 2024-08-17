@@ -229,7 +229,7 @@ namespace Client.Models
 
         public List<ClientBuffInfo> Buffs = new List<ClientBuffInfo>();
         
-        public Dictionary<MagicInfo, ClientUserMagic> Magics = new Dictionary<MagicInfo, ClientUserMagic>();
+        public Dictionary<MagicInfo, ClientUserMagic> Magics { get; } = new Dictionary<MagicInfo, ClientUserMagic>();
 
         public DateTime NextActionTime { get; set; }
         public DateTime AttackTime { get; set; }
@@ -596,9 +596,25 @@ namespace Client.Models
                     attackDelay = Math.Max(800, attackDelay);
 
                     if (MagicType == MagicType.Thrusting)
-                        AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * 2 / 3);
+                    {
+                        int level = -1;
+                        foreach (var pair in Magics)
+                        {
+                            if (pair.Key.Magic == MagicType.Thrusting)
+                            {
+                                level = pair.Value.Level;
+                                break;
+                            }
+                        }
+
+                        if (level >= 0)
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (9 - level) / 9);
+                        else
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
+                    }
                     else
                         AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
+
 
                     if (BagWeight > Stats[Stat.BagWeight])
                         AttackTime += TimeSpan.FromMilliseconds(attackDelay);

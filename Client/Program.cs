@@ -42,7 +42,12 @@ namespace Client
             
             DXControl.ActiveScene = new LoginScene(Config.IntroSceneSize);
 
-            MessagePump.Run(CEnvir.Target, CEnvir.GameLoop);
+            try { MessagePump.Run(CEnvir.Target, CEnvir.GameLoop); }
+            catch(Exception ex)
+            {
+                CEnvir.SaveError(ex.Message);
+                CEnvir.SaveError(ex.StackTrace);
+            }
 
             ConfigReader.Save();
 
