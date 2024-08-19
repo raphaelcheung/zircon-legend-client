@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Client.Envir;
 using Client.Scenes;
@@ -21,7 +22,7 @@ namespace Client.Controls
         //Grpahics
         public DXTab GraphicsTab;
         public DXCheckBox FullScreenCheckBox, VSyncCheckBox, LimitFPSCheckBox, ClipMouseCheckBox, DebugLabelCheckBox;
-        private DXComboBox GameSizeComboBox, LanguageComboBox;
+        private DXComboBox GameSizeComboBox, LanguageComboBox, PickUpComboBox;
 
         //Sound
         public DXTab SoundTab;
@@ -30,7 +31,7 @@ namespace Client.Controls
 
         //Game 
         public DXTab GameTab;
-        private DXCheckBox ItemNameCheckBox, MonsterNameCheckBox, PlayerNameCheckBox, UserHealthCheckBox, MonsterHealthCheckBox, DamageNumbersCheckBox, EscapeCloseAllCheckBox, ShiftOpenChatCheckBox, RightClickDeTargetCheckBox, MonsterBoxVisibleCheckBox, LogChatCheckBox, DrawEffectsCheckBox;
+        private DXCheckBox ItemNameCheckBox, MonsterNameCheckBox, UserHealthCheckBox, MonsterHealthCheckBox, DamageNumbersCheckBox, EscapeCloseAllCheckBox, ShiftOpenChatCheckBox, RightClickDeTargetCheckBox, MonsterBoxVisibleCheckBox, LogChatCheckBox, DrawEffectsCheckBox;
         public DXButton KeyBindButton;
 
         //Network
@@ -74,7 +75,6 @@ namespace Client.Controls
 
             ItemNameCheckBox.Checked= Config.ShowItemNames;
             MonsterNameCheckBox.Checked = Config.ShowMonsterNames;
-            PlayerNameCheckBox.Checked = Config.ShowPlayerNames;
             UserHealthCheckBox.Checked = Config.ShowUserHealth;
             MonsterHealthCheckBox.Checked = Config.ShowMonsterHealth;
             DamageNumbersCheckBox.Checked = Config.ShowDamageNumbers;
@@ -84,6 +84,7 @@ namespace Client.Controls
             MonsterBoxVisibleCheckBox.Checked = Config.MonsterBoxVisible;
             LogChatCheckBox.Checked = Config.LogChat;
             DrawEffectsCheckBox.Checked = Config.DrawEffects;
+            PickUpComboBox.ListBox.SelectItem(Config.PickType);  
 
             LocalColourBox.BackColour = Config.LocalTextColour;
             GMWhisperInColourBox.BackColour = Config.GMWhisperInTextColour;
@@ -359,33 +360,26 @@ namespace Client.Controls
             };
             MonsterNameCheckBox.Location = new Point(120 - MonsterNameCheckBox.Size.Width, 35);
 
-            PlayerNameCheckBox = new DXCheckBox
-            {
-                Label = { Text = "玩家名称:" },
-                Parent = GameTab,
-            };
-            PlayerNameCheckBox.Location = new Point(120 - PlayerNameCheckBox.Size.Width, 60);
-
             UserHealthCheckBox = new DXCheckBox
             {
                 Label = { Text = "自己血量:" },
                 Parent = GameTab,
             };
-            UserHealthCheckBox.Location = new Point(120 - UserHealthCheckBox.Size.Width, 85);
+            UserHealthCheckBox.Location = new Point(120 - UserHealthCheckBox.Size.Width, 60);
 
             MonsterHealthCheckBox = new DXCheckBox
             {
                 Label = { Text = "怪物血量:" },
                 Parent = GameTab,
             };
-            MonsterHealthCheckBox.Location = new Point(120 - MonsterHealthCheckBox.Size.Width, 110);
+            MonsterHealthCheckBox.Location = new Point(120 - MonsterHealthCheckBox.Size.Width, 85);
 
             DamageNumbersCheckBox = new DXCheckBox
             {
                 Label = { Text = "伤害信息:" },
                 Parent = GameTab,
             };
-            DamageNumbersCheckBox.Location = new Point(120 - DamageNumbersCheckBox.Size.Width, 135);
+            DamageNumbersCheckBox.Location = new Point(120 - DamageNumbersCheckBox.Size.Width, 110);
 
 
             EscapeCloseAllCheckBox = new DXCheckBox
@@ -441,7 +435,51 @@ namespace Client.Controls
                 Label = { Text = "绑定按键" }
             };
             KeyBindButton.MouseClick += (o, e) => KeyBindWindow.Visible = !KeyBindWindow.Visible;
-            
+
+
+            label = new DXLabel
+            {
+                Text = "物品捡拾：",
+                Outline = true,
+                Parent = GameTab,
+            };
+            label.Location = new Point(114 - label.Size.Width, 135);
+
+            PickUpComboBox = new DXComboBox
+            {
+                Parent = GameTab,
+                Location = new Point(40, 160),
+                Size = new Size(120, DXComboBox.DefaultNormalHeight),
+            };
+
+            new DXListBoxItem
+            {
+                Parent = PickUpComboBox.ListBox,
+                Label = { Text = "手动按顺序捡拾" },
+                Item = PickType.Sequence
+            };
+
+            new DXListBoxItem
+            {
+                Parent = PickUpComboBox.ListBox,
+                Label = { Text = "自动捡拾所有物品" },
+                Item = PickType.All
+            };
+
+            new DXListBoxItem
+            {
+                Parent = PickUpComboBox.ListBox,
+                Label = { Text = "自动捡拾金币" },
+                Item = PickType.Gold
+            };
+
+            new DXListBoxItem
+            {
+                Parent = PickUpComboBox.ListBox,
+                Label = { Text = "自动捡拾贵重物品" },
+                Item = PickType.Valuable
+            };
+
             #endregion
 
             #region Network
@@ -763,6 +801,12 @@ namespace Client.Controls
                 }
             }
 
+
+            if (PickUpComboBox.SelectedItem is PickType type && type != Config.PickType)
+            {
+                Config.PickType = type;
+            }
+
             if (LanguageComboBox.SelectedItem is string && Config.Language != (string)LanguageComboBox.SelectedItem)
             {
 
@@ -831,7 +875,6 @@ namespace Client.Controls
 
             Config.ShowItemNames = ItemNameCheckBox.Checked;
             Config.ShowMonsterNames = MonsterNameCheckBox.Checked;
-            Config.ShowPlayerNames = PlayerNameCheckBox.Checked;
             Config.ShowUserHealth = UserHealthCheckBox.Checked;
             Config.ShowMonsterHealth = MonsterHealthCheckBox.Checked;
             Config.ShowDamageNumbers = DamageNumbersCheckBox.Checked;
@@ -1127,14 +1170,6 @@ namespace Client.Controls
                     MonsterNameCheckBox = null;
                 }
 
-                if (PlayerNameCheckBox != null)
-                {
-                    if (!PlayerNameCheckBox.IsDisposed)
-                        PlayerNameCheckBox.Dispose();
-
-                    PlayerNameCheckBox = null;
-                }
-
                 if (UserHealthCheckBox != null)
                 {
                     if (!UserHealthCheckBox.IsDisposed)
@@ -1173,6 +1208,14 @@ namespace Client.Controls
                         ShiftOpenChatCheckBox.Dispose();
 
                     ShiftOpenChatCheckBox = null;
+                }
+
+                if (PickUpComboBox != null)
+                {
+                    if (!PickUpComboBox.IsDisposed)
+                        PickUpComboBox.Dispose();
+
+                    PickUpComboBox = null;
                 }
 
                 if (RightClickDeTargetCheckBox != null)

@@ -85,7 +85,7 @@ namespace Client.Scenes
 
         #endregion
 
-        public bool GoldPickedUp;
+        public bool GoldPickedUp { get; set; }
 
         public MapObject MagicObject, MouseObject, TargetObject, FocusObject;
         public DXControl ItemLabel, MagicLabel;
@@ -946,6 +946,8 @@ namespace Client.Scenes
                 if (mob != null && mob.CompanionObject == null && !FocusObject.Dead)
                     MonsterBox.Monster = mob;
             }
+
+            AutoPickUp();
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -1120,7 +1122,7 @@ namespace Client.Scenes
 
                         if (CEnvir.Now > PickUpTime)
                         {
-                            CEnvir.Enqueue(new C.PickUp());
+                            CEnvir.Enqueue(new C.PickUp() { PickType = (byte)PickType.Sequence });
                             PickUpTime = CEnvir.Now.AddMilliseconds(250);
                         }
                         break;
@@ -3986,6 +3988,73 @@ namespace Client.Scenes
                 if (member.ObjectID == objectID) return true;
 
             return false;
+        }
+
+        public void AutoPickUp()
+        {
+            if (Observer || Config.PickType == PickType.Sequence) return;
+
+            if (CEnvir.Now <= PickUpTime) return;
+            
+            int range = MapControl.User.Stats[Stat.PickUpRadius];
+
+            bool need = false;
+
+            for(int r = 0; r <= range; r++)
+            {
+                for (int y = MapControl.User.CurrentLocation.Y - r; y <= MapControl.User.CurrentLocation.Y + r; y++)
+                {
+                    if (y < 0) continue;
+                    if (y >= MapControl.Height) break;
+
+                    for (int x = MapControl.User.CurrentLocation.X - r; x <= MapControl.User.CurrentLocation.X + r; x += Math.Abs(y - MapControl.User.CurrentLocation.Y) == r ? 1 : r * 2)
+                    {
+                        if (x < 0) continue;
+                        if (x >= MapControl.Width) break;
+
+                        Cell cell = MapControl.Cells[x, y];
+                        if (cell?.Objects == null) continue;
+
+                        foreach(MapObject obj in cell.Objects)
+                        {
+                            if (obj is ItemObject item)
+                            {
+                                switch (Config.PickType)
+                                {
+                                    case PickType.All:
+                                        need = true;
+                                        break;
+                                    case PickType.Gold:
+                                        if (item.Item.Info.ItemType == ItemType.Nothing
+                                            && item.Item.Info.Effect == ItemEffect.Gold)
+                                            need = true;
+                                        break;
+                                    case PickType.Valuable:
+                                        if (item.Item.AddedStats.Values.Count > 0 
+                                            || item.Item.Info.Rarity != Rarity.Common)
+                                            need = true;
+                                        break;
+                                }
+                            }
+
+                            if (need) break;
+                        }
+
+                        if (need) break;
+                    }
+
+                    if (need) break;
+                }
+
+                if (need) break;
+            }
+
+            if (need)
+            {
+                CEnvir.Enqueue(new C.PickUp() { PickType = (byte)Config.PickType });
+                PickUpTime = CEnvir.Now.AddMilliseconds(250);
+            }
+
         }
 
         #endregion

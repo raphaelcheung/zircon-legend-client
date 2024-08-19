@@ -612,6 +612,27 @@ namespace Client.Models
                         else
                             AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
                     }
+                    else if(MagicType == MagicType.Slaying)
+                    {
+                        int level = -1;
+                        foreach (var pair in Magics)
+                        {
+                            if (pair.Key.Magic == MagicType.Slaying)
+                            {
+                                level = pair.Value.Level;
+                                break;
+                            }
+                        }
+
+                        if (level >= 0)
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (18 - level) / 18);
+                        else
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
+                    }
+                    else if (MagicType == MagicType.FlamingSword)
+                    {
+                        AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * 15 / 18);
+                    }
                     else
                         AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
 

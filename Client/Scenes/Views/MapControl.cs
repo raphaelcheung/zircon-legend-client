@@ -8,6 +8,7 @@ using Client.Controls;
 using Client.Envir;
 using Client.Models;
 using Library;
+using Library.Network.ClientPackets;
 using Library.SystemModels;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -141,7 +142,7 @@ namespace Client.Scenes.Views
 
         public List<DXControl> MapInfoObjects = new List<DXControl>();
         public List<MapObject> Objects = new List<MapObject>();
-        public List<MirEffect> Effects = new List<MirEffect>();
+        public List<MirEffect> Effects { get; private set; } = new List<MirEffect>();
 
         public const int CellWidth = 48, CellHeight = 32;
 
@@ -752,7 +753,7 @@ namespace Client.Scenes.Views
                             if (CEnvir.Now <= GameScene.Game.PickUpTime) return;
 
 
-                            CEnvir.Enqueue(new C.PickUp());
+                            CEnvir.Enqueue(new C.PickUp() { PickType = (byte)PickType.Sequence });
                             GameScene.Game.PickUpTime = CEnvir.Now.AddMilliseconds(250);
 
                             return;
