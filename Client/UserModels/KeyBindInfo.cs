@@ -168,102 +168,102 @@ namespace Client.UserModels
     {
         None,
 
-        [Description("Config Window")]
+        [Description("设置窗口")]
         ConfigWindow,
-        [Description("Character Window")]
+        [Description("角色窗口")]
         CharacterWindow,
-        [Description("Inventory Window")]
+        [Description("背包窗口")]
         InventoryWindow,
-        [Description("Magic List Window")]
+        [Description("技能列表窗口")]
         MagicWindow,
-        [Description("Magic Bar Window")]
+        [Description("技能栏")]
         MagicBarWindow,
-        [Description("Ranking Window")]
+        [Description("排名窗口")]
         RankingWindow,
-        [Description("Game Store Window")]
+        [Description("游戏商城窗口")]
         GameStoreWindow,
-        [Description("Companion Window")]
+        [Description("同伴窗口")]
         CompanionWindow,
-        [Description("Group Window")]
+        [Description("组队窗口")]
         GroupWindow,
-        [Description("Auto Potion Window")]
+        [Description("自动喝药窗口")]
         AutoPotionWindow,
-        [Description("Storage Window")]
+        [Description("仓库窗口")]
         StorageWindow,
         [Description("Block List Window")]
         BlockListWindow,
-        [Description("Guild Window")]
+        [Description("行会窗口")]
         GuildWindow,
-        [Description("Quest Log Window")]
+        [Description("任务记录窗口")]
         QuestLogWindow,
-        [Description("Quest Tracker Window")]
+        [Description("任务追踪")]
         QuestTrackerWindow,
-        [Description("Belt Window")]
+        [Description("腰带")]
         BeltWindow,
         [Description("Market Place Window")]
         MarketPlaceWindow,
-        [Description("Mini Map Window")]
+        [Description("迷你地图")]
         MapMiniWindow,
-        [Description("Big Map Window")]
+        [Description("大地图")]
         MapBigWindow,
-        [Description("Mail Box Window")]
+        [Description("收件箱窗口")]
         MailBoxWindow,
-        [Description("Mail Send Window")]
+        [Description("发件箱窗口")]
         MailSendWindow,
-        [Description("Chat Options Window")]
+        [Description("聊天选项窗口")]
         ChatOptionsWindow,
-        [Description("Exit Game Window")]
+        [Description("退出游戏窗口")]
         ExitGameWindow,
 
 
-        [Description("Change Attack Mode")]
+        [Description("切换攻击模式")]
         ChangeAttackMode,
-        [Description("Change Pet Mode")]
+        [Description("切换宠物攻击模式")]
         ChangePetMode,
 
-        [Description("Toggle Allow Group")]
+        [Description("切换同意组队")]
         GroupAllowSwitch,
-        [Description("Add Target To Group")]
+        [Description("跟目标组队")]
         GroupTarget,
 
-        [Description("Request Trade")]
+        [Description("请求交易")]
         TradeRequest,
-        [Description("Toggle Allow Trade")]
+        [Description("切换同意交易")]
         TradeAllowSwitch,
 
-        [Description("Pick Up Item")]
+        [Description("捡拾物品")]
         ItemPickUp,
 
-        [Description("Wedding Teleport")]
+        [Description("夫妻传送")]
         PartnerTeleport,
 
         [Description("Toggle Mount")]
         MountToggle,
-        [Description("Toggle Auto Run")]
+        [Description("切换自动奔跑")]
         AutoRunToggle,
-        [Description("Change Chat Mode")]
+        [Description("切换聊天模式")]
         ChangeChatMode,
 
 
-        [Description("Use Belt Item 1")]
+        [Description("使用腰带栏道具 1")]
         UseBelt01,
-        [Description("Use Belt Item 2")]
+        [Description("使用腰带栏道具 2")]
         UseBelt02,
-        [Description("Use Belt Item 3")]
+        [Description("使用腰带栏道具 3")]
         UseBelt03,
-        [Description("Use Belt Item 4")]
+        [Description("使用腰带栏道具 4")]
         UseBelt04,
-        [Description("Use Belt Item 5")]
+        [Description("使用腰带栏道具 5")]
         UseBelt05,
-        [Description("Use Belt Item 6")]
+        [Description("使用腰带栏道具 6")]
         UseBelt06,
-        [Description("Use Belt Item 7")]
+        [Description("使用腰带栏道具 7")]
         UseBelt07,
-        [Description("Use Belt Item 8")]
+        [Description("使用腰带栏道具 8")]
         UseBelt08,
-        [Description("Use Belt Item 9")]
+        [Description("使用腰带栏道具 9")]
         UseBelt09,
-        [Description("Use Belt Item 10")]
+        [Description("使用腰带栏道具 10")]
         UseBelt10,
 
         [Description("Spell Set 1")]
@@ -275,58 +275,58 @@ namespace Client.UserModels
         [Description("Spell Set 4")]
         SpellSet04,
 
-        [Description("Use Spell 1")]
+        [Description("释放技能 1")]
         SpellUse01,
-        [Description("Use Spell 2")]
+        [Description("释放技能 2")]
         SpellUse02,
-        [Description("Use Spell 3")]
+        [Description("释放技能 3")]
         SpellUse03,
-        [Description("Use Spell 4")]
+        [Description("释放技能 4")]
         SpellUse04,
-        [Description("Use Spell 5")]
+        [Description("释放技能 5")]
         SpellUse05,
-        [Description("Use Spell 6")]
+        [Description("释放技能 6")]
         SpellUse06,
-        [Description("Use Spell 7")]
+        [Description("释放技能 7")]
         SpellUse07,
-        [Description("Use Spell 8")]
+        [Description("释放技能 8")]
         SpellUse08,
-        [Description("Use Spell 9")]
+        [Description("释放技能 9")]
         SpellUse09,
-        [Description("Use Spell 10")]
+        [Description("释放技能 10")]
         SpellUse10,
-        [Description("Use Spell 11")]
+        [Description("释放技能 11")]
         SpellUse11,
-        [Description("Use Spell 12")]
+        [Description("释放技能 12")]
         SpellUse12,
-        [Description("Use Spell 13")]
+        [Description("释放技能 13")]
         SpellUse13,
-        [Description("Use Spell 14")]
+        [Description("释放技能 14")]
         SpellUse14,
-        [Description("Use Spell 15")]
+        [Description("释放技能 15")]
         SpellUse15,
-        [Description("Use Spell 16")]
+        [Description("释放技能 16")]
         SpellUse16,
-        [Description("Use Spell 17")]
+        [Description("释放技能 17")]
         SpellUse17,
-        [Description("Use Spell 18")]
+        [Description("释放技能 18")]
         SpellUse18,
-        [Description("Use Spell 19")]
+        [Description("释放技能 19")]
         SpellUse19,
-        [Description("Use Spell 20")]
+        [Description("释放技能 20")]
         SpellUse20,
-        [Description("Use Spell 21")]
+        [Description("释放技能 21")]
         SpellUse21,
-        [Description("Use Spell 22")]
+        [Description("释放技能 22")]
         SpellUse22,
-        [Description("Use Spell 23")]
+        [Description("释放技能 23")]
         SpellUse23,
-        [Description("Use Spell 24")]
+        [Description("释放技能 24")]
         SpellUse24,
-        [Description("Toggle Item Lock")]
+        [Description("切换物品锁定状态")]
         ToggleItemLock,
 
-        [Description("Fortune Window")]
+        [Description("财富窗口")]
         FortuneWindow
     }
 }

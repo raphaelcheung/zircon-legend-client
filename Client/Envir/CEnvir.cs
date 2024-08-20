@@ -50,7 +50,7 @@ namespace Client.Envir
         public static ClientUserItem[] Storage, MainStorage;
         
         public static List<ClientBlockInfo> BlockList = new List<ClientBlockInfo>();
-        public static DBCollection<KeyBindInfo> KeyBinds;
+        public static DBCollection<KeyBindInfo> KeyBinds { get; set; }
         public static DBCollection<WindowSetting> WindowSettings;
         public static DBCollection<CastleInfo> CastleInfoList;
         public static Session Session;
@@ -418,346 +418,346 @@ namespace Client.Envir
             switch (action)
             {
                 case KeyBindAction.ConfigWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.O;
                     break;
                 case KeyBindAction.CharacterWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.Q;
                     break;
                 case KeyBindAction.InventoryWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.W;
                     break;
                 case KeyBindAction.MagicWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.E;
                     break;
                 case KeyBindAction.MagicBarWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.E;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.RankingWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.R;
                     break;
                 case KeyBindAction.GameStoreWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.Y;
                     break;
                 case KeyBindAction.CompanionWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.U;
                     break;
                 case KeyBindAction.GroupWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.P;
                     break;
                 case KeyBindAction.AutoPotionWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.A;
                     break;
                 case KeyBindAction.StorageWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.S;
                     break;
                 case KeyBindAction.BlockListWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.F;
                     break;
                 case KeyBindAction.GuildWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.G;
                     break;
                 case KeyBindAction.QuestLogWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.J;
                     break;
                 case KeyBindAction.QuestTrackerWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.L;
                     break;
                 case KeyBindAction.BeltWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.Z;
                     break;
                 case KeyBindAction.MarketPlaceWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.C;
                     break;
                 case KeyBindAction.MapMiniWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.V;
                     break;
                 case KeyBindAction.MapBigWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.B;
                     break;
                 case KeyBindAction.MailBoxWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.Oemcomma;
                     break;
                 case KeyBindAction.MailSendWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.OemPeriod;
                     break;
                 case KeyBindAction.ChatOptionsWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.O;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.ExitGameWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.Q;
                     bind.Alt1 = true;
                     bind.Key2 = Keys.X;
                     bind.Alt2 = true;
                     break;
                 case KeyBindAction.ChangeAttackMode:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.H;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.ChangePetMode:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.A;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.GroupAllowSwitch:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.P;
                     bind.Alt1 = true;
                     break;
                 case KeyBindAction.GroupTarget:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.G;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.TradeRequest:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.T;
                     break;
                 case KeyBindAction.TradeAllowSwitch:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.T;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.MountToggle:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.M;
                     break;
                 case KeyBindAction.AutoRunToggle:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.D;
                     break;
                 case KeyBindAction.ChangeChatMode:
-                    bind.Category = "Functions";
+                    bind.Category = "功能";
                     bind.Key1 = Keys.K;
                     break;
                 case KeyBindAction.ItemPickUp:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.Tab;
                     break;
                 case KeyBindAction.PartnerTeleport:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.Z;
                     bind.Shift1 = true;
                     break;
                 case KeyBindAction.ToggleItemLock:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.Scroll;
                     break;
                 case KeyBindAction.UseBelt01:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D1;
                     bind.Key2 = Keys.D1;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt02:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D2;
                     bind.Key2 = Keys.D2;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt03:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D3;
                     bind.Key2 = Keys.D3;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt04:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D4;
                     bind.Key2 = Keys.D4;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt05:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D5;
                     bind.Key2 = Keys.D5;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt06:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D6;
                     bind.Key2 = Keys.D6;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt07:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D7;
                     bind.Key2 = Keys.D7;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt08:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D8;
                     bind.Key2 = Keys.D8;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt09:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D9;
                     bind.Key2 = Keys.D9;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.UseBelt10:
-                    bind.Category = "Items";
+                    bind.Category = "物品";
                     bind.Key1 = Keys.D0;
                     bind.Key2 = Keys.D0;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellSet01:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F1;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.SpellSet02:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F2;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.SpellSet03:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F3;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.SpellSet04:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F4;
                     bind.Control1 = true;
                     break;
                 case KeyBindAction.SpellUse01:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F1;
                     bind.Key2 = Keys.F1;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse02:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F2;
                     bind.Key2 = Keys.F2;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse03:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F3;
                     bind.Key2 = Keys.F3;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse04:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F4;
                     bind.Key2 = Keys.F4;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse05:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F5;
                     bind.Key2 = Keys.F5;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse06:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F6;
                     bind.Key2 = Keys.F6;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse07:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F7;
                     bind.Key2 = Keys.F7;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse08:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F8;
                     bind.Key2 = Keys.F8;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse09:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F9;
                     bind.Key2 = Keys.F9;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse10:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F10;
                     bind.Key2 = Keys.F10;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse11:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F11;
                     bind.Key2 = Keys.F11;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse12:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     bind.Key1 = Keys.F12;
                     bind.Key2 = Keys.F12;
                     bind.Shift2 = true;
                     break;
                 case KeyBindAction.SpellUse13:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse14:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse15:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse16:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse17:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse18:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse19:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse20:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse21:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse22:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse23:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.SpellUse24:
-                    bind.Category = "Magic";
+                    bind.Category = "技能";
                     break;
                 case KeyBindAction.FortuneWindow:
-                    bind.Category = "Windows";
+                    bind.Category = "窗口";
                     bind.Key1 = Keys.W;
                     bind.Control1 = true;
                     break;

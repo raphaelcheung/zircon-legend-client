@@ -413,7 +413,7 @@ namespace Client.Controls
         #endregion
 
         public static Dictionary<string, bool> ExpandedInfo = new Dictionary<string, bool>();
-        public Dictionary<string, List<TempBindInfo>> TreeList = new Dictionary<string, List<TempBindInfo>>();
+        public Dictionary<string, List<TempBindInfo>> TreeList { get; private set; } = new Dictionary<string, List<TempBindInfo>>();
 
         private DXVScrollBar ScrollBar;
 
