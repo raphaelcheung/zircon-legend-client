@@ -17,6 +17,7 @@ namespace Client.Envir
         public const int DefaultPort = 17000;
 
         [ConfigSection("Network")]
+        public static bool IPV6 { get; set; } = false;
         public static bool UseNetworkConfig { get; set; } = false;
         public static string IPAddress { get; set; } = DefaultIPAddress;
         public static int Port { get; set; } = DefaultPort;

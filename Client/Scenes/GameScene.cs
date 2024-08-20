@@ -321,6 +321,7 @@ namespace Client.Scenes
 
         public uint InspectID;
         public DateTime PickUpTime, UseItemTime, NPCTime, ToggleTime, InspectTime, ItemTime = CEnvir.Now;
+        public DateTime AutoPickUpTime = CEnvir.Now;
         public DateTime ReincarnationPillTime { get; set; }
         public DateTime ItemReviveTime { get; set; }
         public float DayTime
@@ -3994,7 +3995,7 @@ namespace Client.Scenes
         {
             if (Observer || Config.PickType == PickType.Sequence) return;
 
-            if (CEnvir.Now <= PickUpTime) return;
+            if (CEnvir.Now <= AutoPickUpTime || CEnvir.Now <= PickUpTime) return;
             
             int range = MapControl.User.Stats[Stat.PickUpRadius];
 
@@ -4030,7 +4031,9 @@ namespace Client.Scenes
                                             need = true;
                                         break;
                                     case PickType.Valuable:
-                                        if (item.Item.AddedStats.Values.Count > 0 
+                                        if ((item.Item.Info.ItemType == ItemType.Nothing
+                                            && item.Item.Info.Effect == ItemEffect.Gold)
+                                            || item.Item.AddedStats.Values.Count > 0 
                                             || item.Item.Info.Rarity != Rarity.Common)
                                             need = true;
                                         break;
@@ -4053,6 +4056,7 @@ namespace Client.Scenes
             {
                 CEnvir.Enqueue(new C.PickUp() { PickType = (byte)Config.PickType });
                 PickUpTime = CEnvir.Now.AddMilliseconds(250);
+                AutoPickUpTime = CEnvir.Now.AddMilliseconds(600);
             }
 
         }

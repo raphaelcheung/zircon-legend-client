@@ -300,7 +300,7 @@ namespace Client.Scenes
             if (CEnvir.Now < ConnectionTime) return;
 
             ConnectingClient?.Close();
-            ConnectingClient = new TcpClient();
+            ConnectingClient = new TcpClient(Config.IPV6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
             if (Config.UseNetworkConfig)
                 ConnectingClient.BeginConnect(Config.IPAddress, Config.Port, Connecting, ConnectingClient);
             else
