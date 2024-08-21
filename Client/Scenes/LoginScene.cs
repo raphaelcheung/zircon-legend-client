@@ -8,9 +8,10 @@ using Client.Envir;
 using Client.Scenes.Views;
 using Client.UserModels;
 using Library;
+using Library.Network.ClientPackets;
 using SlimDX.Direct3D9;
 using C = Library.Network.ClientPackets;
-
+using System.IO;
 //Cleaned
 namespace Client.Scenes
 {
@@ -86,6 +87,8 @@ namespace Client.Scenes
         #endregion
 
         public DXMessageBox ConnectionBox;
+        public DXMessageBox CheckDbBox;
+
         public DXButton ConfigButton;
         public DXConfigWindow ConfigBox;
         public LoginDialog LoginBox;
@@ -200,6 +203,7 @@ namespace Client.Scenes
             LoginBox = new LoginDialog
             {
                 Parent = this,
+                Visible = false,
             };
             LoginBox.Location = new Point((Size.Width - LoginBox.Size.Width) / 2, (Size.Height - LoginBox.Size.Height) / 2);
 
@@ -256,27 +260,61 @@ namespace Client.Scenes
         }
         
         #region Methods
+        private bool CheckDbVersion()
+        {
+            if (CEnvir.DbVersionChecked) return true;
+
+            if (CEnvir.DbVersionChecking) return false;
+
+            if (CheckDbBox != null) return false;
+
+            CEnvir.DbVersionChecking = true;
+            CheckDbBox = new DXMessageBox("正在检查数据更新...\n" +
+                                 "请等待...", "数据更新中", DXMessageBoxButtons.None);
+
+            CheckDbBox.CloseButton.Visible = true;
+            ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+            CheckDbBox.Modal = true;
+
+            var datas = File.ReadAllBytes(@"./Data/System.db");
+
+
+            CEnvir.Connection.Enqueue(new C.CheckClientDb()
+            {
+                Hash = Functions.CalcMD5(datas),
+            });
+            
+            return false;
+        }
+
+        private bool LoadDb()
+        {
+            if (!CEnvir.Loaded)
+            {
+                if (ConnectionBox != null) return false;
+
+                ConnectionBox = new DXMessageBox("正在加载客户端数据...\n" +
+                                                 "请等待...", "加载中", DXMessageBoxButtons.None);
+
+                ConnectionBox.Disposing += (o, e1) => ConnectionBox = null;
+                ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+                ConnectionBox.CloseButton.Visible = true;
+                ConnectionBox.Modal = true;
+
+                CEnvir.LoadDatabase();
+
+                return false;
+            }
+
+            return true;
+        }
+
+        
 
         public override void Process()
         {
             base.Process();
 
-            if (!CEnvir.Loaded)
-            {
-                if (ConnectionBox != null) return;
-
-                ConnectionBox = new DXMessageBox("正在加载客户端数据...\n" +
-                                                 "请等待...", "加载中", DXMessageBoxButtons.Cancel);
-
-                ConnectionBox.Disposing += (o, e1) => ConnectionBox = null;
-                ConnectionBox.CancelButton.MouseClick += (o, e1) => CEnvir.Target.Close();
-                ConnectionBox.CloseButton.Visible = false;
-                ConnectionBox.Modal = false;
-
-                LoginBox.Visible = false;
-
-                return;
-            }
             Loaded = CEnvir.Loaded;
 
             if (CEnvir.WrongVersion)
@@ -295,19 +333,44 @@ namespace Client.Scenes
                 ConnectionBox = null;
                 return;
             }
-            
-            if (CEnvir.Connection != null && CEnvir.Connection.ServerConnected) return;
-            if (CEnvir.Now < ConnectionTime) return;
 
-            ConnectingClient?.Close();
-            ConnectingClient = new TcpClient(Config.IPV6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
-            if (Config.UseNetworkConfig)
-                ConnectingClient.BeginConnect(Config.IPAddress, Config.Port, Connecting, ConnectingClient);
-            else
-                ConnectingClient.BeginConnect(Config.DefaultIPAddress, Config.DefaultPort, Connecting, ConnectingClient);
+            if (CEnvir.Connection == null || !CEnvir.Connection.ServerConnected)
+            {
+                if (CEnvir.Now >= ConnectionTime)
+                {
+                    ConnectingClient?.Close();
+                    ConnectingClient = new TcpClient(Config.IPV6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+                    if (Config.UseNetworkConfig)
+                        ConnectingClient.BeginConnect(Config.IPAddress, Config.Port, Connecting, ConnectingClient);
+                    else
+                        ConnectingClient.BeginConnect(Config.DefaultIPAddress, Config.DefaultPort, Connecting, ConnectingClient);
 
-            ConnectionTime = CEnvir.Now.AddSeconds(5);
-            ConnectionAttempt++;
+                    ConnectionTime = CEnvir.Now.AddSeconds(5);
+                    ConnectionAttempt++;
+                }
+
+                return;
+            }
+
+
+            if (!CheckDbVersion()) return;
+
+            if (CheckDbBox != null)
+            {
+                CheckDbBox.Dispose();
+                CheckDbBox = null;
+            }
+
+            if (!LoadDb()) return;
+
+ 
+            if (ConnectionBox != null)
+            {
+                ConnectionBox.Dispose();
+                ConnectionBox = null;
+            }
+
+            LoginBox.Visible = true;
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -360,7 +423,7 @@ namespace Client.Scenes
         public void ShowLogin()
         {
             ConnectionBox.Dispose();
-            LoginBox.Visible = true;
+            LoginBox.Visible = false;
         }
         public void Disconnected()
         {

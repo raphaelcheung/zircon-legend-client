@@ -42,8 +42,8 @@ namespace Client.Envir
         public static DateTime Now;
         public static Point MouseLocation;
 
-        public static CConnection Connection;
-        public static bool WrongVersion;
+        public static CConnection Connection { get; set; }
+        public static bool WrongVersion { get; set; }
 
         public static Dictionary<LibraryFile, MirLibrary> LibraryList = new Dictionary<LibraryFile, MirLibrary>();
 
@@ -57,11 +57,16 @@ namespace Client.Envir
         
         public static ConcurrentQueue<string> ChatLog = new ConcurrentQueue<string>();
 
-        public static bool Loaded;
+        public static bool Loaded { get; set; }
         public static string BuyAddress;
         public static string C;
 
         public static bool TestServer;
+
+        private static bool LoadingDb = false;
+
+        public static bool DbVersionChecked { get; set; } = false;
+        public static bool DbVersionChecking { get; set; } = false;
 
         public static StringMessages Language { get; set; }
 
@@ -295,6 +300,10 @@ namespace Client.Envir
 
         public static void LoadDatabase()
         {
+            if (LoadingDb) return;
+
+            LoadingDb = true;
+
             Task.Run(() =>
             {
                 Session = new Session(SessionMode.Users, @".\Data\"){ BackUp = false};
@@ -321,6 +330,7 @@ namespace Client.Envir
                 CheckKeyBinds();
 
                 Loaded = true;
+                LoadingDb = false;
             });
         }
 

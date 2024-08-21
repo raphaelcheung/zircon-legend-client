@@ -347,11 +347,11 @@ namespace Client.Scenes.Views
                     label.ForeColour = Config.HintTextColour;
                     break;
                 case MessageType.System:
-                    label.BackColour = Color.FromArgb(200, 255, 255, 255);
+                    label.BackColour = Color.FromArgb(255, 255, 255, 255);
                     label.ForeColour = Config.SystemTextColour;
                     break;
                 case MessageType.Announcement:
-                    label.BackColour = Color.FromArgb(200, 255, 255, 255);
+                    label.BackColour = Color.FromArgb(255, 255, 255, 255);
                     label.ForeColour = Config.AnnouncementTextColour;
                     break;
                 case MessageType.WhisperIn:
@@ -359,7 +359,7 @@ namespace Client.Scenes.Views
                     label.ForeColour = Config.WhisperInTextColour;
                     break;
                 case MessageType.GMWhisperIn:
-                    label.BackColour = Color.FromArgb(200, 255, 255, 255);
+                    label.BackColour = Color.FromArgb(255, 255, 255, 255);
                     label.ForeColour = Config.GMWhisperInTextColour;
                     break;
                 case MessageType.WhisperOut:

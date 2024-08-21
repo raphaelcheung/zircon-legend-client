@@ -27,6 +27,8 @@ namespace Client.Envir
 
         public int Ping;
 
+        private readonly List<byte> DbUpgrade = new List<byte>();
+
         public CConnection(TcpClient client)
             : base(client)
         {
@@ -3874,6 +3876,36 @@ namespace Client.Envir
 
             GameScene.Game.BigMapBox.Update(data);
             GameScene.Game.MiniMapBox.Update(data);
+        }
+
+        public void Process(S.CheckClientDb p)
+        {
+            if (!CEnvir.DbVersionChecking) return;
+
+            if (p.IsUpgrading)
+            {
+                if (p.CurrentIndex == 0)
+                    DbUpgrade.Clear();
+
+                DbUpgrade.AddRange(p.Datas);
+
+                if (p.CurrentIndex >= (p.TotalCount - 1))
+                {
+
+                    byte[] bytes = DbUpgrade.ToArray();
+                    DbUpgrade.Clear();
+                    
+                    File.WriteAllBytes(@"./Data/System.db", bytes);
+                    CEnvir.DbVersionChecking = false;
+                    CEnvir.DbVersionChecked = true;
+                }
+            }
+            else
+            {
+                DbUpgrade.Clear();
+                CEnvir.DbVersionChecking = false;
+                CEnvir.DbVersionChecked = true;
+            }
         }
         public void Process(S.DataObjectRemove p)
         {

@@ -33,7 +33,7 @@ namespace Client
 
             ConfigReader.Load();
             
-            CEnvir.LoadDatabase();
+            //CEnvir.LoadDatabase();
 
             CEnvir.Target = new TargetForm();
             CEnvir.Target.ClientSize = Config.GameSize;
