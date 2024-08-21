@@ -273,7 +273,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Legend.ico" />
-    <Content Include="SlimDX.dll" />
     <None Include="Resources\Legend.ico" />
   </ItemGroup>
   <ItemGroup>
