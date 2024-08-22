@@ -48,7 +48,7 @@
 
 包含了海量地图和道具资源，压缩后仍有 3GB大小，只能通过百度网盘来分享。
 
-【[百度网盘分享 2024-8-14](链接：https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
+【[百度网盘 2024-8-14](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
 
 
 ### 安装依赖组件
