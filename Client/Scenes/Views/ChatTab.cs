@@ -221,9 +221,10 @@ namespace Client.Scenes.Views
                     label.MouseUp += (o, e) =>
                     {
                         string[] parts = label.Text.Split(':', ' ');
-                        if (parts.Length == 0) return;
+                        if (parts.Length == 0 || string.IsNullOrEmpty(parts[0])) return;
 
-                        GameScene.Game.ChatTextBox.StartPM(Regex.Replace(parts[0], "[^A-Za-z0-9]", ""));
+
+                        GameScene.Game.ChatTextBox.StartPM(parts[0]);
                     };
                     break;
             }
