@@ -370,7 +370,7 @@ namespace Client.Scenes
                 ConnectionBox = null;
             }
 
-            LoginBox.Visible = true;
+            LoginBox.Visible = !AccountBox.Visible && !ChangeBox.Visible && !ResetBox.Visible;
         }
 
         public override void OnKeyDown(KeyEventArgs e)
