@@ -12,6 +12,8 @@ using Library.Network.ClientPackets;
 using SlimDX.Direct3D9;
 using C = Library.Network.ClientPackets;
 using System.IO;
+using System.Net;
+using System.Runtime.InteropServices;
 //Cleaned
 namespace Client.Scenes
 {
@@ -48,6 +50,7 @@ namespace Client.Scenes
 
         #region ConnectionAttempt
 
+        private bool DnsRefreshed = false;
         public int ConnectionAttempt
         {
             get => _ConnectionAttempt;
@@ -99,7 +102,10 @@ namespace Client.Scenes
         public ActivationDialog ActivationBox;
         public RequestActivationKeyDialog RequestActivationBox;
         public RankingDialog RankingBox;
-        
+
+        private bool QueringDns = false;
+        private IPAddress IpServer = null;
+
         private TcpClient ConnectingClient;
         private DateTime ConnectionTime;
 
@@ -183,7 +189,7 @@ namespace Client.Scenes
                 Parent = background,
                 UseOffSet = true,
             };
-            
+
             ConfigButton = new DXButton
             {
                 LibraryFile = LibraryFile.GameInter,
@@ -258,7 +264,7 @@ namespace Client.Scenes
 
             DXSoundManager.Play(SoundIndex.LoginScene);
         }
-        
+
         #region Methods
         private bool CheckDbVersion()
         {
@@ -273,7 +279,7 @@ namespace Client.Scenes
                                  "请等待...", "数据更新中", DXMessageBoxButtons.None);
 
             CheckDbBox.CloseButton.Visible = true;
-            ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+            CheckDbBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
             CheckDbBox.Modal = true;
 
             var datas = File.ReadAllBytes(@"./Data/System.db");
@@ -283,7 +289,7 @@ namespace Client.Scenes
             {
                 Hash = Functions.CalcMD5(datas),
             });
-            
+
             return false;
         }
 
@@ -309,7 +315,50 @@ namespace Client.Scenes
             return true;
         }
 
-        
+        private void AttemptConnect(IPAddress ip)
+        {
+            ConnectingClient = new TcpClient(ip.AddressFamily);
+            if (Config.UseNetworkConfig)
+                ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
+            else
+                ConnectingClient.BeginConnect(ip, Config.DefaultPort, Connecting, ConnectingClient);
+
+        }
+
+        [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+        private static extern int DnsFlushResolverCache();
+
+        private void ProcDnsConnect()
+        {
+            if (!DnsRefreshed && Config.DynamicServerIp)
+            {
+                DnsFlushResolverCache();
+                DnsRefreshed = true;
+            }
+
+            if (CEnvir.Now >= ConnectionTime)
+            {
+                ConnectingClient?.Close();
+
+                var result = Dns.GetHostEntry(Config.IPAddress);
+
+
+                foreach (var ip in result.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork
+                        || ip.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        IpServer = ip;
+                        break;
+                    }
+                }
+
+                AttemptConnect(IpServer);
+
+                ConnectionTime = CEnvir.Now.AddSeconds(5);
+                ConnectionAttempt++;
+            }
+        }
 
         public override void Process()
         {
@@ -334,24 +383,18 @@ namespace Client.Scenes
                 return;
             }
 
+
             if (CEnvir.Connection == null || !CEnvir.Connection.ServerConnected)
             {
-                if (CEnvir.Now >= ConnectionTime)
-                {
-                    ConnectingClient?.Close();
-                    ConnectingClient = new TcpClient(Config.IPV6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
-                    if (Config.UseNetworkConfig)
-                        ConnectingClient.BeginConnect(Config.IPAddress, Config.Port, Connecting, ConnectingClient);
-                    else
-                        ConnectingClient.BeginConnect(Config.DefaultIPAddress, Config.DefaultPort, Connecting, ConnectingClient);
-
-                    ConnectionTime = CEnvir.Now.AddSeconds(5);
-                    ConnectionAttempt++;
-                }
-
+                ProcDnsConnect();
                 return;
             }
 
+            if (ConnectionBox != null)
+            {
+                ConnectionBox.Dispose();
+                ConnectionBox = null;
+            }
 
             if (!CheckDbVersion()) return;
 
@@ -363,14 +406,14 @@ namespace Client.Scenes
 
             if (!LoadDb()) return;
 
- 
+
             if (ConnectionBox != null)
             {
                 ConnectionBox.Dispose();
                 ConnectionBox = null;
             }
 
-            LoginBox.Visible = !AccountBox.Visible && !ChangeBox.Visible && !ResetBox.Visible;
+            LoginBox.Visible = true;
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -422,7 +465,7 @@ namespace Client.Scenes
 
         public void ShowLogin()
         {
-            ConnectionBox.Dispose();
+            ConnectionBox?.Dispose();
             LoginBox.Visible = false;
         }
         public void Disconnected()
@@ -499,7 +542,7 @@ namespace Client.Scenes
                         ChangeBox.Dispose();
                     ChangeBox = null;
                 }
-                
+
                 if (RequestPassswordBox != null)
                 {
                     if (!RequestPassswordBox.IsDisposed)
@@ -629,7 +672,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             public bool CanLogin => EMailValid && PasswordValid && !LoginAttempted;
 
             public DXTextBox EMailTextBox, PasswordTextBox;
@@ -662,7 +705,7 @@ namespace Client.Scenes
             public override bool CustomSize => false;
             public override bool AutomaticVisiblity => false;
             #endregion
-            
+
             public LoginDialog()
             {
                 Size = new Size(300, 250);
@@ -782,9 +825,9 @@ namespace Client.Scenes
                     PasswordTextBox.TextBox.Text = Config.RememberedPassword;
                 }
             }
-            
+
             #region Methods
-            
+
 
             public void Login()
             {
@@ -1134,7 +1177,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             public bool CanCreate => EMailValid && Password1Valid && Password2Valid && RealNameValid && BirthDateValid && ReferralValid && !CreateAttempted;
 
             public DXButton CreateButton, CancelButton;
@@ -1672,7 +1715,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             #region CurrentPasswordValid
 
             public bool CurrentPasswordValid
@@ -1697,7 +1740,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             #region NewPassword1Valid
 
             public bool NewPassword1Valid
@@ -1772,7 +1815,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             public bool CanChange => EMailValid && CurrentPasswordValid && NewPassword1Valid && NewPassword2Valid && !ChangeAttempted;
 
             public DXButton ChangeButton, CancelButton;
@@ -2207,7 +2250,7 @@ namespace Client.Scenes
             #endregion
 
             public bool CanReset => EMailValid && !RequestAttempted;
-            
+
             public DXButton RequestButton, CancelButton;
 
             public DXTextBox EMailTextBox;
@@ -2295,7 +2338,7 @@ namespace Client.Scenes
                 HaveKeyLabel.MouseClick += HaveKeyLabel_MouseClick;
                 HaveKeyLabel.Location = new Point(EMailTextBox.Location.X + (EMailTextBox.Size.Width - HaveKeyLabel.Size.Width) / 2, 70);
             }
-            
+
             #region Methods
 
             public void Request()
@@ -2521,9 +2564,9 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             public bool CanReset => ResetKeyValid && NewPassword1Valid && NewPassword2Valid && !ResetAttempted;
-            
+
             public DXButton ResetButton, CancelButton;
 
             public DXTextBox ResetKeyTextBox, NewPassword1TextBox, NewPassword2TextBox;
@@ -2807,7 +2850,7 @@ namespace Client.Scenes
 
                         ResetHelpLabel = null;
                     }
-                    
+
                     if (NewPassword1HelpLabel != null)
                     {
                         if (!NewPassword1HelpLabel.IsDisposed)
@@ -2885,7 +2928,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             public bool CanActivate => ActivationKeyValid && !ActivationAttempted;
 
             public DXWindow PreviousWindow;
@@ -2906,7 +2949,7 @@ namespace Client.Scenes
             public override WindowType Type => WindowType.None;
             public override bool CustomSize => false;
             public override bool AutomaticVisiblity => false;
-            
+
             #endregion
 
             public ActivationDialog()
@@ -3127,7 +3170,7 @@ namespace Client.Scenes
             }
 
             #endregion
-            
+
             #region RequestAttempted
 
             public bool RequestAttempted
