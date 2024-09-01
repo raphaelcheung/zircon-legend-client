@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>C:\Users\zrf\Desktop\Test\Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -49,16 +49,35 @@
     <Compile Include="CConnection.cs" />
     <Compile Include="CEnvir.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Library\BaseConnection.cs" />
+    <Compile Include="Library\ClientPackets.cs" />
+    <Compile Include="Library\ConfigReader.cs" />
+    <Compile Include="Library\Enum.cs" />
+    <Compile Include="Library\Functions.cs" />
+    <Compile Include="Library\GeneralPackets.cs" />
+    <Compile Include="Library\Globals.cs" />
+    <Compile Include="Library\Packet.cs" />
+    <Compile Include="Library\ServerPackets.cs" />
+    <Compile Include="Library\Time.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewAccountForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewAccountForm.Designer.cs">
+      <DependentUpon>NewAccountForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewAccountForm.resx">
+      <DependentUpon>NewAccountForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -81,12 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\library\Library\Library.csproj">
-      <Project>{cdb4e695-fed9-481d-b636-ada5106ad844}</Project>
-      <Name>Library</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -12,7 +12,7 @@ namespace Client.Envir
     public static class Config
     {
         [ConfigSection("Network")]
-        public static bool DynamicServerIp { get; set; } = false;
+        public static bool DynamicServerIp { get; set; } = true;
         public static string IPAddress { get; set; } = "127.0.0.1";
         public static int Port { get; set; } = 7000;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
@@ -23,8 +23,8 @@ namespace Client.Envir
         public static Size GameSize { get; set; } = new Size(800, 600);
 
         [ConfigSection("Login")]
-        public static bool RememberDetails { get; set; } = false;
-        public static string RememberedEMail { get; set; } = string.Empty;
-        public static string RememberedPassword { get; set; } = string.Empty;
+        public static bool Remember { get; set; } = false;
+        public static string Account { get; set; } = string.Empty;
+        public static string Password { get; set; } = string.Empty;
     }
 }

@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Windows.Forms;
 using Library.Network;
 using Library;
-using Library.SystemModels;
 using G = Library.Network.GeneralPackets;
 using S = Library.Network.ServerPackets;
 using C = Library.Network.ClientPackets;
@@ -28,7 +27,7 @@ namespace Client.Envir
         public CConnection(TcpClient client)
             : base(client)
         {
-            //OnException += (o, e) => CEnvir.SaveError(e.ToString());
+            OnException += (o, e) => CEnvir.Log(e.ToString());
 
             UpdateTimeOut();
 
@@ -109,59 +108,28 @@ namespace Client.Envir
         {
             Ping = p.Ping;
         }
+        public void Process(G.GoodVersion p)
+        {
+            Enqueue(new C.SelectLanguage { Language = "Chinese" });
+        }
 
-        //public void Process(S.NewAccount p)
-        //{
-        //    LoginScene login = DXControl.ActiveScene as LoginScene;
-        //    if (login == null) return;
+        public void Process(S.UpgradeClient p)
+        {
+            CEnvir.Upgrade(p.FileKey, p.TotalSize, p.StartIndex, p.Datas);
+        }
 
-        //    login.AccountBox.CreateAttempted = false;
+        public void Process(S.SelectLogout p)
+        { }
 
-        //    switch (p.Result)
-        //    {
-        //        case NewAccountResult.Disabled:
-        //            login.AccountBox.Clear();
-        //            DXMessageBox.Show("创建账号的功能被禁用.", "创建账号");
-        //            break;
-        //        case NewAccountResult.BadEMail:
-        //            login.AccountBox.EMailTextBox.SetFocus();
-        //            DXMessageBox.Show("E-Mail 地址不符合规范.", "创建账号");
-        //            break;
-        //        case NewAccountResult.BadPassword:
-        //            login.AccountBox.Password1TextBox.SetFocus();
-        //            DXMessageBox.Show("密码不符合规范.", "创建账号");
-        //            break;
-        //        case NewAccountResult.BadRealName:
-        //            login.AccountBox.RealNameTextBox.SetFocus();
-        //            DXMessageBox.Show("真实名称不符合规范.", "创建账号");
-        //            break;
-        //        case NewAccountResult.AlreadyExists:
-        //            login.AccountBox.EMailTextBox.TextBox.Text = string.Empty;
-        //            login.AccountBox.EMailTextBox.SetFocus();
-        //            DXMessageBox.Show("E-Mail 地址已被使用.", "创建账号");
-        //            break;
-        //        case NewAccountResult.BadReferral:
-        //            login.AccountBox.ReferralTextBox.SetFocus();
-        //            DXMessageBox.Show("推荐人的 E-Mail 地址不符合规范.", "创建账号");
-        //            break;
-        //        case NewAccountResult.ReferralNotFound:
-        //            login.AccountBox.ReferralTextBox.SetFocus();
-        //            DXMessageBox.Show("找不到推荐人的 E-Mail 地址.", "创建账号");
-        //            break;
-        //        case NewAccountResult.ReferralNotActivated:
-        //            login.AccountBox.EMailTextBox.SetFocus();
-        //            DXMessageBox.Show("推荐人的 E-Mail 地址没有激活.", "创建账号");
-        //            break;
-        //        case NewAccountResult.Success:
-        //            login.LoginBox.EMailTextBox.TextBox.Text = login.AccountBox.EMailTextBox.TextBox.Text;
-        //            login.LoginBox.PasswordTextBox.TextBox.Text = login.AccountBox.Password1TextBox.TextBox.Text;
-        //            login.AccountBox.Clear();
-        //            DXMessageBox.Show("你的账号创建成功.\n" +
-        //                              "祝你游戏愉快.", "创建账号");
-        //            break;
-        //    }
+        public void Process(S.LoginSimple p)
+        {
+            CEnvir.ResponseLogin(p);
+        }
 
-        //}
+        public void Process(S.NewAccount p)
+        {
+            CEnvir.ResponseCreateAccount(p);
+        }
         //public void Process(S.ChangePassword p)
         //{
         //    LoginScene login = DXControl.ActiveScene as LoginScene;
@@ -311,7 +279,7 @@ namespace Client.Envir
         //            login.RequestActivationBox.Visible = false;
 
         //            CEnvir.TestServer = p.TestServer;
-                    
+
         //            if (Config.RememberDetails)
         //            {
         //                Config.RememberedEMail = login.LoginBox.EMailTextBox.TextBox.Text;
@@ -337,7 +305,7 @@ namespace Client.Envir
         //            CEnvir.BlockList = p.BlockList;
 
         //            if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "登录消息");
-                    
+
         //            break;
         //        default:
         //            throw new ArgumentOutOfRangeException();
@@ -380,7 +348,7 @@ namespace Client.Envir
         //    if (select == null) return;
 
         //    select.CharacterBox.CreateAttempted = false;
-            
+
         //    switch (p.Result)
         //    {
         //        case NewCharacterResult.Disabled:
@@ -464,7 +432,7 @@ namespace Client.Envir
         //{
         //    try
         //    {
-                
+
         //    SelectScene select = DXControl.ActiveScene as SelectScene;
         //    if (select == null) return;
 
@@ -524,7 +492,7 @@ namespace Client.Envir
 
         //            GameScene.Game.NPCCompanionStorageBox.Companions = p.StartInformation.Companions;
         //            GameScene.Game.NPCCompanionStorageBox.UpdateScrollBar();
-                    
+
         //            GameScene.Game.Companion = GameScene.Game.NPCCompanionStorageBox.Companions.FirstOrDefault(x => x.Index == p.StartInformation.Companion);
 
         //            scene.User = new UserObject(p.StartInformation);
@@ -563,7 +531,7 @@ namespace Client.Envir
 
         //            byte[] bytes = DbUpgrade.ToArray();
         //            DbUpgrade.Clear();
-                    
+
         //            File.WriteAllBytes(@"./Data/System.db", bytes);
         //            CEnvir.DbVersionChecking = false;
         //            CEnvir.DbVersionChecked = true;
