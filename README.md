@@ -38,11 +38,11 @@
 <img src="Images/chuansong.jpg" title="Docker 运行截图">
 <br/>
 
-## 服务器部署
+## 服务器 部署指南
 
 参见项目 【[ZirconLegend-Server](https://gitee.com/raphaelcheung/zircon-legend-server)】
 
-## 客户端运行
+## 客户端 运行指南
 
 ### 下载依赖数据
 
@@ -64,6 +64,10 @@
 根据自己的情况修改` Legend.ini `中的服务器地址、端口。
 
 客户端窗口化运行还存在一些 UI 问题，建议使用全屏模式，分辨率采用显示器推荐分辨率。
+
+## 客户端启动器 运行指南
+
+参见项目 【[ZirconLegend-Client](https://gitee.com/raphaelcheung/zircon-legend-launcher)】
 
 ## 代码编译
 
