@@ -50,6 +50,8 @@ namespace Client.Scenes.Views
         public DXButton UpButton, DownButton;
         public DXLabel SetLabel;
 
+        public override bool NeedSaveSetting => false;
+
         Dictionary<SpellKey, DXImageControl> Icons = new Dictionary<SpellKey, DXImageControl>();
         Dictionary<SpellKey, DXLabel> Cooldowns = new Dictionary<SpellKey, DXLabel>();
 

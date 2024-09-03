@@ -11,6 +11,7 @@ using SlimDX;
 using C = Library.Network.ClientPackets;
 using System.ComponentModel;
 using System.Reflection;
+using static Client.Scenes.SelectScene;
 //Cleaned
 namespace Client.Scenes
 {
@@ -31,6 +32,7 @@ namespace Client.Scenes
 
         public SelectScene(Size size) : base(size)
         {
+
             DXImageControl background = new DXImageControl
             {
                 Index = 50,
@@ -114,6 +116,14 @@ namespace Client.Scenes
 
             foreach (DXWindow window in DXWindow.Windows)
                 window.LoadSettings();
+
+            if (CEnvir.IsQuickGame)
+            {
+                CEnvir.Enqueue(new C.StartGame
+                {
+                    CharacterIndex = CEnvir.QuickSelectCharacter
+                });
+            }
         }
 
         #region Methods
