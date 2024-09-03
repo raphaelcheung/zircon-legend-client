@@ -44,12 +44,17 @@
 
 ## 客户端 运行指南
 
+### 注意
+
+- 直接运行客户端或者通过 [启动器](https://gitee.com/raphaelcheung/zircon-legend-launcher) 运行都可以正常进入游戏。
+
+- 如果需要客户端自动更新，则必须通过 [启动器](https://gitee.com/raphaelcheung/zircon-legend-launcher) 来启动。
+
 ### 下载依赖数据
 
 包含了海量地图和道具资源，压缩后仍有 3GB 大小，只能通过百度网盘来分享。
 
 【[百度网盘 2024-8-14](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
-
 
 ### 安装依赖组件
 

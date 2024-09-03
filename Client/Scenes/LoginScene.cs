@@ -76,9 +76,8 @@ namespace Client.Scenes
                 ConnectionBox = new DXMessageBox(message, "连接中", DXMessageBoxButtons.Cancel);
                 ConnectionBox.Disposing += (o, e1) => ConnectionBox = null;
                 ConnectionBox.CancelButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+                //ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
                 ConnectionBox.CloseButton.Visible = false;
-                //ConnectionBox.Size = new Size(ConnectionBox.Size.Width, ConnectionBox.Size.Height - 70);
-                //ConnectionBox.Label.Size = new Size(ConnectionBox.Label.Size.Width, ConnectionBox.Label.Size.Height - 70);
                 ConnectionBox.Modal = false;
 
                 LoginBox.Visible = false;
@@ -105,6 +104,7 @@ namespace Client.Scenes
 
         private bool QueringDns = false;
         private IPAddress IpServer = null;
+        private bool Logining = false;
 
         private TcpClient ConnectingClient;
         private DateTime ConnectionTime;
@@ -300,12 +300,14 @@ namespace Client.Scenes
                 if (ConnectionBox != null) return false;
 
                 ConnectionBox = new DXMessageBox("正在加载客户端数据...\n" +
-                                                 "请等待...", "加载中", DXMessageBoxButtons.None);
+                                                 "请等待...", "加载中", DXMessageBoxButtons.Cancel);
 
                 ConnectionBox.Disposing += (o, e1) => ConnectionBox = null;
-                ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
-                ConnectionBox.CloseButton.Visible = true;
-                ConnectionBox.Modal = true;
+                ConnectionBox.CancelButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+
+                //ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+                ConnectionBox.CloseButton.Visible = false;
+                ConnectionBox.Modal = false;
 
                 CEnvir.LoadDatabase();
 
@@ -396,24 +398,51 @@ namespace Client.Scenes
                 ConnectionBox = null;
             }
 
-            if (!CheckDbVersion()) return;
-
-            if (CheckDbBox != null)
+            if (!CEnvir.IsQuickGame)
             {
-                CheckDbBox.Dispose();
-                CheckDbBox = null;
+                if (!CheckDbVersion()) return;
+
+                if (CheckDbBox != null)
+                {
+                    CheckDbBox.Dispose();
+                    CheckDbBox = null;
+                }
             }
+
 
             if (!LoadDb()) return;
 
-
-            if (ConnectionBox != null)
+            if (CEnvir.IsQuickGame)
             {
-                ConnectionBox.Dispose();
-                ConnectionBox = null;
-            }
+                LoginBox.Visible = false;
 
-            LoginBox.Visible = true;
+                if (!Logining)
+                {
+                    Logining = true;
+
+                    ConnectionBox?.Dispose();
+                    ConnectionBox = new DXMessageBox("正在登录中,请稍候...", "登录中", DXMessageBoxButtons.Cancel);
+
+                    ConnectionBox.Disposing += (o, e1) => ConnectionBox = null;
+                    ConnectionBox.CancelButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+                    //ConnectionBox.CloseButton.MouseClick += (o, e1) => CEnvir.Target.Close();
+                    ConnectionBox.CloseButton.Visible = false;
+                    ConnectionBox.Modal = false;
+
+                    C.Login packet = new C.Login
+                    {
+                        EMailAddress = Config.RememberedEMail,
+                        Password = Config.RememberedPassword,
+                        CheckSum = CEnvir.C,
+                    };
+
+                    CEnvir.Enqueue(packet);
+                }
+            }
+            else
+            {
+                LoginBox.Visible = true;
+            }
         }
 
         public override void OnKeyDown(KeyEventArgs e)

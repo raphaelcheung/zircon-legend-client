@@ -23,6 +23,8 @@ using System.Security.Policy;
 using System.Security.Permissions;
 using System.Security.Cryptography.X509Certificates;
 using Client.Envir.Translations;
+using System.Reflection;
+using C = Library.Network.ClientPackets;
 
 namespace Client.Envir
 {
@@ -31,6 +33,8 @@ namespace Client.Envir
         public static TargetForm Target { get; set; }
         public static Random Random = new Random();
 
+        public static string RootPath { get; private set; }
+
         private static DateTime _FPSTime;
         private static int FPSCounter;
         private static int FPSCount;
@@ -38,9 +42,16 @@ namespace Client.Envir
         public static int DPSCounter;
         private static int DPSCount;
 
+        public static bool IsQuickGame { get; set; } = false;
+        private static bool LauncherUpgrading { get; set; } = false;
+        public static int QuickSelectCharacter { get; set; } = -1;
+
         public static bool Shift, Alt, Ctrl;
         public static DateTime Now;
         public static Point MouseLocation;
+
+        public static string LauncherHash { get; set; }
+        public static byte[] LauncherDatas { get; set; }
 
         public static CConnection Connection { get; set; }
         public static bool WrongVersion { get; set; }
@@ -51,7 +62,7 @@ namespace Client.Envir
         
         public static List<ClientBlockInfo> BlockList = new List<ClientBlockInfo>();
         public static DBCollection<KeyBindInfo> KeyBinds { get; set; }
-        public static DBCollection<WindowSetting> WindowSettings;
+        public static DBCollection<WindowSetting> WindowSettings { get; set; }
         public static DBCollection<CastleInfo> CastleInfoList;
         public static Session Session;
         
@@ -73,6 +84,9 @@ namespace Client.Envir
 
         static CEnvir()
         {
+            RootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+
             Thread workThread = new Thread(SaveChatLoop) { IsBackground = true };
             workThread.Start();
 
@@ -115,6 +129,66 @@ namespace Client.Envir
 
         }
 
+        public static void CheckLauncherUpgrade()
+        {
+            if (LauncherUpgrading || string.IsNullOrEmpty(LauncherHash)) return;
+            LauncherUpgrading = true;
+
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            path = Path.Combine(path, "Launcher.exe");
+            var datas = File.ReadAllBytes(path);
+            if (Functions.CalcMD5(datas) == LauncherHash)
+                LauncherUpgrading = false;
+
+            LauncherDatas = null;
+            Connection.Enqueue(new C.UpgradeClient()
+            {
+                FileKey = "./Launcher.exe",
+            });
+        }
+
+        public static void Upgrade(string file, int total_size, int index, byte[] datas)
+        {
+            if (!LauncherUpgrading) return;
+
+            if (total_size <= 0)
+            {
+                SaveError($"更新 Launcher.exe 时收到 0 大小的异常数据包，更新失败");
+                LauncherUpgrading = false;
+                LauncherDatas = null;
+
+                return;
+            }
+
+            if (LauncherDatas == null)
+                LauncherDatas = new byte[total_size];
+
+            try
+            {
+                datas.CopyTo(LauncherDatas, index);
+
+                if ((index + datas.Length) >= total_size)
+                {
+                    string path = Path.Combine(RootPath, "Launcher.exe");
+                    File.WriteAllBytes(path, LauncherDatas);
+
+                    SaveError($"更新成功 {path}，文件大小 {Functions.BytesToString(total_size)}");
+
+                    LauncherDatas = null;
+                    LauncherUpgrading = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                SaveError($"更新异常 Launcher.exe");
+                SaveError(ex.Message);
+                SaveError(ex.StackTrace);
+                LauncherDatas = null;
+                LauncherUpgrading = false;
+                Connection.TryDisconnect();
+            }
+        }
+
         public static void SaveChatLoop()
         {
             List<string> lines = new List<string>();
@@ -148,7 +222,7 @@ namespace Client.Envir
             UpdateGame();
             RenderGame();
 
-            if (Config.LimitFPS)
+            //if (Config.LimitFPS)
                 Thread.Sleep(1);;
         }
         private static void UpdateGame()

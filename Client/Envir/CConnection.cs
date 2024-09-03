@@ -153,7 +153,10 @@ namespace Client.Envir
         {
             Ping = p.Ping;
         }
-
+        public void Process(S.UpgradeClient p)
+        {
+            CEnvir.Upgrade(p.FileKey, p.TotalSize, p.StartIndex, p.Datas);
+        }
         public void Process(S.NewAccount p)
         {
             LoginScene login = DXControl.ActiveScene as LoginScene;
@@ -475,26 +478,26 @@ namespace Client.Envir
             switch (p.Result)
             {
                 case LoginResult.Disabled:
-                    DXMessageBox.Show("当前禁止登录.", "登录");
+                    DXMessageBox.Show("当前禁止登录.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.BadEMail:
                     login.LoginBox.EMailTextBox.SetFocus();
-                    DXMessageBox.Show("账号不符合规范.", "登录");
+                    DXMessageBox.Show("账号不符合规范.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.BadPassword:
                     login.LoginBox.PasswordTextBox.SetFocus();
-                    DXMessageBox.Show("密码不符合规范.", "登录");
+                    DXMessageBox.Show("密码不符合规范.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.AccountNotExists:
                     login.LoginBox.EMailTextBox.SetFocus();
-                    DXMessageBox.Show("账号不存在.", "登录");
+                    DXMessageBox.Show("账号不存在.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.AccountNotActivated:
                     login.ShowActivationBox(login.LoginBox);
                     break;
                 case LoginResult.WrongPassword:
                     login.LoginBox.PasswordTextBox.SetFocus();
-                    DXMessageBox.Show("密码错误.", "登录");
+                    DXMessageBox.Show("密码错误.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.Banned:
                     DateTime expiry = CEnvir.Now.Add(p.Duration);
@@ -502,7 +505,8 @@ namespace Client.Envir
                     DXMessageBox box = DXMessageBox.Show($"该账号已被禁用.\n\n" +
                                                          $"原因: {p.Message}\n" +
                                                          $"解禁时间: {expiry}\n" +
-                                                         $"距离解禁还有: {Math.Floor(p.Duration.TotalHours):#,##0} 小时, {p.Duration.Minutes} 分, {p.Duration.Seconds} 秒", "登录");
+                                                         $"距离解禁还有: {Math.Floor(p.Duration.TotalHours):#,##0} 小时, {p.Duration.Minutes} 分, {p.Duration.Seconds} 秒", "登录"
+                                                         , CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
 
                     box.ProcessAction = () =>
                     {
@@ -524,16 +528,16 @@ namespace Client.Envir
                     break;
                 case LoginResult.AlreadyLoggedIn:
                     login.LoginBox.EMailTextBox.SetFocus();
-                    DXMessageBox.Show("该账号正在使用中，稍候再试.", "登录");
+                    DXMessageBox.Show("该账号正在使用中，稍候再试.", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.AlreadyLoggedInPassword:
                     login.LoginBox.EMailTextBox.SetFocus();
                     DXMessageBox.Show("该账号正在使用中\n" +
-                                      "新密码已发到 E-Mail 邮箱..", "登录");
+                                      "新密码已发到 E-Mail 邮箱..", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.AlreadyLoggedInAdmin:
                     login.LoginBox.EMailTextBox.SetFocus();
-                    DXMessageBox.Show("账号正在被管理员接管", "登录");
+                    DXMessageBox.Show("账号正在被管理员接管", "登录", CEnvir.IsQuickGame ? DialogAction.Close : DialogAction.None);
                     break;
                 case LoginResult.Success:
                     login.LoginBox.Visible = false;
@@ -546,7 +550,7 @@ namespace Client.Envir
 
                     CEnvir.TestServer = p.TestServer;
                     
-                    if (Config.RememberDetails)
+                    if (!CEnvir.IsQuickGame && Config.RememberDetails)
                     {
                         Config.RememberedEMail = login.LoginBox.EMailTextBox.TextBox.Text;
                         Config.RememberedPassword = login.LoginBox.PasswordTextBox.TextBox.Text;
@@ -572,7 +576,7 @@ namespace Client.Envir
 
                     if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "登录消息");
                     
-                    break;
+                    return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

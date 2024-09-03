@@ -48,6 +48,7 @@ namespace Client.Scenes.Views
 
             UpdateLinks();
         }
+        public override bool NeedSaveSetting => false;
 
         public override WindowType Type => WindowType.BeltBox;
         public override bool CustomSize => true;
@@ -69,7 +70,7 @@ namespace Client.Scenes.Views
             for (int i = 0; i < Globals.MaxBeltCount; i++)
                 Links[i] = new ClientBeltLink { Slot = i };
 
-            Size = GetAcceptableResize(Size.Empty);
+            Size = GetAcceptableResize(new Size(10000, 10000));
         }
 
         #region Methods
@@ -86,6 +87,7 @@ namespace Client.Scenes.Views
                     Grid.Grid[link.Slot].QuickItem = GameScene.Game.Inventory.FirstOrDefault(x => x?.Index == link.LinkItemIndex);
             }
         }
+
         public override Size GetAcceptableResize(Size size)
         {
             Rectangle area = GetClientArea(size);

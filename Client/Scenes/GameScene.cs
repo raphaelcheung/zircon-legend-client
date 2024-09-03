@@ -191,7 +191,7 @@ namespace Client.Scenes
         public CompanionDialog CompanionBox;
         public BlockDialog BlockBox;
         public MonsterDialog MonsterBox;
-        public MagicBarDialog MagicBarBox;
+        public MagicBarDialog MagicBarBox { get; set; }
         public EditCharacterDialog EditCharacterBox;
         public FortuneCheckerDialog FortuneCheckerBox;
         public NPCWeaponCraftWindow NPCWeaponCraftBox;
@@ -228,6 +228,9 @@ namespace Client.Scenes
             }
         }
         private bool _AutoRun;
+
+        private KeyBindInfo LastAttackModeKey { get; set; }
+        private KeyBindInfo LastPetModeKey { get; set; }
 
         #region StorageSize
 
@@ -415,6 +418,7 @@ namespace Client.Scenes
             BeltBox = new BeltDialog
             {
                 Parent = this,
+                Visible = true,
             };
             NPCBox = new NPCDialog
             {
@@ -615,7 +619,7 @@ namespace Client.Scenes
             MagicBarBox = new MagicBarDialog
             {
                 Parent = this,
-                Visible = false,
+                Visible = true,
             };
 
             FortuneCheckerBox = new FortuneCheckerDialog
@@ -636,6 +640,10 @@ namespace Client.Scenes
 
             foreach (DXWindow window in DXWindow.Windows)
                 window.LoadSettings();
+
+            CEnvir.CheckLauncherUpgrade();
+
+            CEnvir.IsQuickGame = false;
         }
 
         #region Methods
@@ -663,9 +671,16 @@ namespace Client.Scenes
 
             MainPanel.Location = new Point((Size.Width - MainPanel.Size.Width)/2, Size.Height - MainPanel.Size.Height);
 
+
+            MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
+                , MainPanel.Location.Y - MagicBarBox.Size.Height);
+
+            BeltBox.Location = new Point(MagicBarBox.Location.X + MagicBarBox.Size.Width - BeltBox.Size.Width
+                , MagicBarBox.Location.Y - BeltBox.Size.Height);
+
             ChatTextBox.Location = new Point(MainPanel.Location.X, MainPanel.Location.Y - ChatTextBox.Size.Height);
 
-            BeltBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - BeltBox.Size.Width, MainPanel.Location.Y - BeltBox.Size.Height);
+            //BeltBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - BeltBox.Size.Width, MainPanel.Location.Y - BeltBox.Size.Height);
             
             NPCBox.Location = Point.Empty;
 
@@ -824,6 +839,9 @@ namespace Client.Scenes
         public override void Process()
         {
             base.Process();
+
+            UpdateAttackModeTips();
+            UpdatePetModeTips();
 
             if (CEnvir.Now >= MoveTime)
             {
@@ -3637,6 +3655,57 @@ namespace Client.Scenes
             DescriptionAttribute description = infos[0].GetCustomAttribute<DescriptionAttribute>();
 
             MainPanel.AttackModeLabel.Text = description?.Description ?? User.AttackMode.ToString();
+        }
+
+        public void UpdatePetModeTips()
+        {
+            KeyBindInfo key = CEnvir.GetKeyBind(KeyBindAction.ChangePetMode);
+
+            if (key == LastPetModeKey) return;
+
+            LastPetModeKey = key;
+
+            if (key.Key1 == Keys.None && key.Key2 == Keys.None)
+            {
+                MainPanel.PetModeLabel.Hint = "\n请去设置窗口游戏页配置切换宠物攻击模式的快捷键\n";
+            }
+            else
+            {
+                string desc = key.Control1 || key.Control2 ? "Ctrl + " : "";
+                desc += (key.Alt1 || key.Alt2 ? " Alt + " : "");
+                desc += (key.Shift1 || key.Shift2 ? " Shift + " : "");
+                if (key.Key1 != Keys.None)
+                    desc += key.Key1.ToString();
+                else
+                    desc += key.Key2.ToString();
+
+                MainPanel.PetModeLabel.Hint = $"\n{desc} 切换宠物攻击模式\n";
+            }
+        }
+        public void UpdateAttackModeTips()
+        {
+            KeyBindInfo key = CEnvir.GetKeyBind(KeyBindAction.ChangeAttackMode);
+
+            if (key == LastAttackModeKey) return;
+
+            LastAttackModeKey = key;
+
+            if (key.Key1 == Keys.None && key.Key2 == Keys.None)
+            {
+                MainPanel.AttackModeLabel.Hint = "\n请去设置窗口游戏页配置切换攻击模式的快捷键\n";
+            }
+            else
+            {
+                string desc = key.Control1 || key.Control2 ? "Ctrl + " : "";
+                desc += (key.Alt1 || key.Alt2 ? " Alt + " : "");
+                desc += (key.Shift1 || key.Shift2 ? " Shift + " : "");
+                if (key.Key1 != Keys.None)
+                    desc += key.Key1.ToString();
+                else
+                    desc += key.Key2.ToString();
+
+                MainPanel.AttackModeLabel.Hint = $"\n{desc} 切换攻击模式\n";
+            }
         }
         public void PetModeChanged()
         {

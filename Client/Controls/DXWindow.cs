@@ -18,6 +18,8 @@ namespace Client.Controls
 
         public static List<DXWindow> Windows = new List<DXWindow>();
 
+        public virtual bool NeedSaveSetting => true;
+
         #region HasTopBorder
 
         public bool HasTopBorder
@@ -485,7 +487,8 @@ namespace Client.Controls
         {
             if (Type == WindowType.None || !CEnvir.Loaded) return;
 
-            Settings = CEnvir.WindowSettings.Binding.FirstOrDefault(x => x.Resolution == Config.GameSize && x.Window == Type);
+            if (NeedSaveSetting)
+                Settings = CEnvir.WindowSettings.Binding.FirstOrDefault(x => x.Resolution == Config.GameSize && x.Window == Type);
 
             if (Settings != null)
             {
