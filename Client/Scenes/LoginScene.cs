@@ -332,7 +332,7 @@ namespace Client.Scenes
 
         private void ProcDnsConnect()
         {
-            if (!DnsRefreshed && Config.DynamicServerIp)
+            if (!DnsRefreshed)
             {
                 DnsFlushResolverCache();
                 DnsRefreshed = true;
