@@ -1244,7 +1244,6 @@ namespace Client.Scenes.Views
 
 
         #endregion
-        
         #region Manage Tab
 
         public void CreateManageTab()

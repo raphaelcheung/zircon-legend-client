@@ -13,6 +13,7 @@ namespace Client.Controls
 {
     public class DXTextBox : DXControl
     {
+        public delegate void TextBoxFocusType(DXTextBox sender, bool focus);
         #region Static
 
         public static DXTextBox ActiveTextBox
@@ -39,6 +40,8 @@ namespace Client.Controls
         #endregion
 
         #region Properties
+
+        public event TextBoxFocusType FocusEvent; 
 
         #region Editable
 
@@ -322,6 +325,8 @@ namespace Client.Controls
 
             if (TextBox.Visible && CEnvir.Target.ActiveControl != TextBox)
                 CEnvir.Target.ActiveControl = TextBox;
+
+            FocusEvent?.Invoke(this, true);
         }
         public virtual void OnDeactivated()
         {
@@ -330,6 +335,8 @@ namespace Client.Controls
 
             TextBox.Visible = false;
             CEnvir.Target.ActiveControl = null;
+
+            FocusEvent?.Invoke(this, false);
         }
 
         public override void OnMouseEnter()

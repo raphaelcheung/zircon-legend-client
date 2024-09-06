@@ -38,6 +38,8 @@ namespace Client.Scenes.Views
 
             if (ChatModeButton != null)
                 ChatModeButton.Label.Text = Mode.ToString();
+
+            OpenChat();
         }
 
         #endregion
@@ -64,8 +66,8 @@ namespace Client.Scenes.Views
             if (TextBox == null || ChatModeButton == null || OptionsButton == null) return;
 
             ChatModeButton.Location = new Point(ClientArea.Location.X, ClientArea.Y - 1);
-            TextBox.Size = new Size(ClientArea.Width - ChatModeButton.Size.Width - 10 - OptionsButton.Size.Width, 20);
-            TextBox.Location = new Point(ClientArea.Location.X + ChatModeButton.Size.Width + 5, ClientArea.Y);
+            TextBox.Size = new Size(ClientArea.Width - ChatModeButton.Size.Width - 20 - OptionsButton.Size.Width, 25);
+            TextBox.Location = new Point(ClientArea.Location.X + ChatModeButton.Size.Width + 15, ClientArea.Y);
             OptionsButton.Location = new Point(ClientArea.Location.X + TextBox.Size.Width + ChatModeButton.Size.Width + 10, ClientArea.Y - 1);
         }
 
@@ -78,7 +80,7 @@ namespace Client.Scenes.Views
         public ChatTextBox()
         {
 
-            Size = new Size(400, 25);
+            Size = new Size(400, 30);
 
             Opacity = 0.6F;
 
@@ -118,11 +120,16 @@ namespace Client.Scenes.Views
                 Size = new Size(350, 20),
                 Parent = this,
                 MaxLength = Globals.MaxChatLength,
-                Opacity = 0.35f,
+                Opacity = 1f,
             };
             TextBox.TextBox.KeyPress += TextBox_KeyPress;
+            TextBox.FocusEvent += (sender, focus) =>
+            {
+                TextBox.BackColour = focus ? Color.White : Color.DarkGray;
+                TextBox.ForeColour = Color.Black;
+            };
           //  TextBox.TextBox.KeyDown += TextBox_KeyDown;
-         //   TextBox.TextBox.KeyUp += TextBox_KeyUp;
+          //   TextBox.TextBox.KeyUp += TextBox_KeyUp;
 
             SetClientSize(new Size(TextBox.Size.Width + ChatModeButton.Size.Width + 15 + OptionsButton.Size.Width, TextBox.Size.Height));
 
@@ -172,7 +179,7 @@ namespace Client.Scenes.Views
             {
                 case '@':
                     TextBox.SetFocus();
-                    TextBox.TextBox.Text = @"@";
+                    TextBox.TextBox.Text = @"@ ";
                     TextBox.Visible = true;
                     TextBox.TextBox.SelectionLength = 0;
                     TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
@@ -181,7 +188,7 @@ namespace Client.Scenes.Views
                 case '!':
                     if (!Config.ShiftOpenChat) return;
                     TextBox.SetFocus();
-                    TextBox.TextBox.Text = @"!";
+                    TextBox.TextBox.Text = @"! ";
                     TextBox.Visible = true;
                     TextBox.TextBox.SelectionLength = 0;
                     TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
@@ -211,25 +218,25 @@ namespace Client.Scenes.Views
             if (string.IsNullOrEmpty(TextBox.TextBox.Text))
                 switch (Mode)
                 {
-                    case ChatMode.Shout:
-                        TextBox.TextBox.Text = @"!";
+                    case ChatMode.喊话:
+                        TextBox.TextBox.Text = @"! ";
                         break;
-                    case ChatMode.Whisper:
-                        if (!string.IsNullOrWhiteSpace(LastPM))
-                            TextBox.TextBox.Text = LastPM + " ";
+                    //case ChatMode.低语:
+                    //    if (!string.IsNullOrWhiteSpace(LastPM))
+                    //        TextBox.TextBox.Text = LastPM + " ";
+                    //    break;
+                    case ChatMode.队伍:
+                        TextBox.TextBox.Text = @"!! ";
                         break;
-                    case ChatMode.Group:
-                        TextBox.TextBox.Text = @"!!";
+                    case ChatMode.行会:
+                        TextBox.TextBox.Text = @"!~ ";
                         break;
-                    case ChatMode.Guild:
-                        TextBox.TextBox.Text = @"!~";
+                    case ChatMode.全服:
+                        TextBox.TextBox.Text = @"!@ ";
                         break;
-                    case ChatMode.Global:
-                        TextBox.TextBox.Text = @"!@";
-                        break;
-                    case ChatMode.Observer:
-                        TextBox.TextBox.Text = @"#";
-                        break;
+                    //case ChatMode.观察:
+                    //    TextBox.TextBox.Text = @"# ";
+                    //    break;
                 }
 
             TextBox.SetFocus();
@@ -291,13 +298,13 @@ namespace Client.Scenes.Views
 
     public enum ChatMode
     {
-        Local,
-        Whisper,
-        Group,
-        Guild,
-        Shout,
-        Global,
-        Observer, //7
+        本地,
+        //低语,
+        队伍,
+        行会,
+        喊话,
+        全服,
+        //观察, //7
     }
 
     public class Message

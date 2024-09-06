@@ -30,6 +30,21 @@ namespace Client.Envir
 {
     public static class CEnvir
     {
+        #region 颜色定义
+        public static Color LocalTextColour { get; } = Color.White;
+        public static Color GMWhisperInTextColour { get; } = Color.Red;
+        public static Color WhisperInTextColour { get;  } = Color.Cyan;
+        public static Color WhisperOutTextColour { get;  } = Color.Aquamarine;
+        public static Color GroupTextColour { get;  } = Color.Plum;
+        public static Color GuildTextColour { get; } = Color.LightPink;
+        public static Color ShoutTextColour { get; } = Color.Yellow;
+        public static Color GlobalTextColour { get; } = Color.Orange;
+        public static Color ObserverTextColour { get; } = Color.Silver;
+        public static Color HintTextColour { get; } = Color.AntiqueWhite;
+        public static Color SystemTextColour { get; } = Color.Red;
+        public static Color GainsTextColour { get; } = Color.GreenYellow;
+        public static Color AnnouncementTextColour { get; } = Color.DarkBlue;
+        #endregion
         public static TargetForm Target { get; set; }
         public static Random Random = new Random();
 
@@ -44,6 +59,7 @@ namespace Client.Envir
 
         public static bool IsQuickGame { get; set; } = false;
         private static bool LauncherUpgrading { get; set; } = false;
+
         public static int QuickSelectCharacter { get; set; } = -1;
 
         public static bool Shift, Alt, Ctrl;
@@ -131,6 +147,21 @@ namespace Client.Envir
 
         public static void CheckLauncherUpgrade()
         {
+            if (IsQuickGame && string.IsNullOrEmpty(LauncherHash))
+            { 
+                SaveError($"快速启动时命令行没有发送启动器的 Hash 码，即将强行更新..."); 
+                if (!LauncherUpgrading)
+                {
+                    LauncherUpgrading = true;
+                    LauncherDatas = null;
+                    Connection.Enqueue(new C.UpgradeClient()
+                    {
+                        FileKey = "./Launcher.exe",
+                    });
+                    return;
+                }
+            }
+
             if (LauncherUpgrading || string.IsNullOrEmpty(LauncherHash)) return;
             LauncherUpgrading = true;
 
@@ -156,7 +187,6 @@ namespace Client.Envir
                 SaveError($"更新 Launcher.exe 时收到 0 大小的异常数据包，更新失败");
                 LauncherUpgrading = false;
                 LauncherDatas = null;
-
                 return;
             }
 
@@ -180,13 +210,14 @@ namespace Client.Envir
             }
             catch (Exception ex)
             {
-                SaveError($"更新异常 Launcher.exe");
+                SaveError($"更新 Launcher.exe 时发现异常");
                 SaveError(ex.Message);
                 SaveError(ex.StackTrace);
                 LauncherDatas = null;
                 LauncherUpgrading = false;
-                Connection.TryDisconnect();
             }
+
+            Thread.Sleep(1);
         }
 
         public static void SaveChatLoop()
@@ -266,7 +297,7 @@ namespace Client.Envir
 
 
             DXControl.DebugLabel.Text = debugText;
-            
+
             if (Connection != null)
             {
                 const decimal KB = 1024;

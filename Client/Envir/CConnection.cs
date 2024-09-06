@@ -157,6 +157,7 @@ namespace Client.Envir
         {
             CEnvir.Upgrade(p.FileKey, p.TotalSize, p.StartIndex, p.Datas);
         }
+        public void Process(S.CheckClientHash p) { }
         public void Process(S.NewAccount p)
         {
             LoginScene login = DXControl.ActiveScene as LoginScene;

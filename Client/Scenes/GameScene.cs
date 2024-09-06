@@ -362,6 +362,7 @@ namespace Client.Scenes
             foreach (NPCInfo info in Globals.NPCInfoList.Binding)
                 info.CurrentIcon = QuestIcon.None;
 
+            #region 创建组件
             MapControl = new MapControl
             {
                 Parent = this,
@@ -384,7 +385,7 @@ namespace Client.Scenes
                 Parent = this,
                 Visible = false,
                 NetworkTab = { Enabled = false, TabButton = { Visible = false } },
-                ColourTab = { TabButton = { Visible = true } },
+                //ColourTab = { TabButton = { Visible = true } },
                 ExitButton = { Visible = true },
             };
             ConfigBox.ExitButton.MouseClick += (o, e) => ExitBox.Visible = true;
@@ -633,6 +634,7 @@ namespace Client.Scenes
                 Visible = false,
                 Parent = this,
             };
+            #endregion
 
             SetDefaultLocations();
 

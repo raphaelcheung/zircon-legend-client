@@ -124,7 +124,7 @@ namespace Client.Scenes.Views
                     if (label.Size.Width == TextPanel.Size.Width) continue;
 
                     Size size = DXLabel.GetHeight(label, TextPanel.Size.Width);
-                    label.Size = new Size(size.Width, size.Height);
+                    label.Size = new Size(size.Width, size.Height + 1);
 
                     //label.Size = new Size(TextPanel.Size.Width, DXLabel.GetHeight(label, TextPanel.Size.Width).Height);
                 }
@@ -140,7 +140,7 @@ namespace Client.Scenes.Views
             foreach (DXLabel control in History)
             {
                 control.Location = new Point(0, y);
-                y += control.Size.Height;
+                y += control.Size.Height + 1;
             }
 
         }
@@ -152,7 +152,7 @@ namespace Client.Scenes.Views
             int height = 0;
 
             foreach (DXLabel control in History)
-                height += control.Size.Height;
+                height += control.Size.Height + 1;
 
             ScrollBar.MaxValue = height;
         }
@@ -232,7 +232,7 @@ namespace Client.Scenes.Views
             UpdateColours(label);
 
             Size size = DXLabel.GetHeight(label, TextPanel.Size.Width);
-            label.Size = new Size(size.Width, size.Height);
+            label.Size = new Size(size.Width, size.Height + 1);
 
             History.Add(label);
 
@@ -268,6 +268,7 @@ namespace Client.Scenes.Views
                         Outline = false,
                         DrawFormat = TextFormatFlags.WordBreak | TextFormatFlags.WordEllipsis,
                         Parent = TextPanel,
+                        Opacity = 1f,
                     };
                     label.MouseClick += (o, e) =>
                     {
@@ -329,55 +330,69 @@ namespace Client.Scenes.Views
             {
                 case MessageType.Normal:
                     label.BackColour = empty;
-                    label.ForeColour = Config.LocalTextColour;
+                    label.ForeColour = CEnvir.LocalTextColour;
+                    label.Outline = true;
                     break;
                 case MessageType.Shout:
                     label.BackColour = empty;
-                    label.ForeColour = Config.ShoutTextColour;
+                    label.ForeColour = CEnvir.ShoutTextColour;
+                    label.Outline = true;
                     break;
                 case MessageType.Group:
                     label.BackColour = empty;
-                    label.ForeColour = Config.GroupTextColour;
+                    label.ForeColour = CEnvir.GroupTextColour;
+                    label.Outline = true;
                     break;
                 case MessageType.Global:
                     label.BackColour = empty;
-                    label.ForeColour = Config.GlobalTextColour;
+                    label.ForeColour = CEnvir.GlobalTextColour;
+                    label.Outline = true;
                     break;
                 case MessageType.Hint:
                     label.BackColour = empty;
-                    label.ForeColour = Config.HintTextColour;
+                    label.ForeColour = CEnvir.HintTextColour;
+                    label.Outline = true;
+
                     break;
                 case MessageType.System:
-                    label.BackColour = Color.FromArgb(255, 255, 255, 255);
-                    label.ForeColour = Config.SystemTextColour;
+                    label.BackColour = CEnvir.SystemTextColour;
+                    label.ForeColour = Color.White;
                     break;
                 case MessageType.Announcement:
-                    label.BackColour = Color.FromArgb(255, 255, 255, 255);
-                    label.ForeColour = Config.AnnouncementTextColour;
+                    label.BackColour = Color.White;
+                    label.ForeColour = CEnvir.AnnouncementTextColour;
                     break;
                 case MessageType.WhisperIn:
                     label.BackColour = empty;
-                    label.ForeColour = Config.WhisperInTextColour;
+                    label.ForeColour = CEnvir.WhisperInTextColour;
+                    label.Outline = true;
+
                     break;
                 case MessageType.GMWhisperIn:
                     label.BackColour = Color.FromArgb(255, 255, 255, 255);
-                    label.ForeColour = Config.GMWhisperInTextColour;
+                    label.ForeColour = CEnvir.GMWhisperInTextColour;
+                    label.Outline = true;
+
                     break;
                 case MessageType.WhisperOut:
                     label.BackColour = empty;
-                    label.ForeColour = Config.WhisperOutTextColour;
+                    label.ForeColour = CEnvir.WhisperOutTextColour;
+                    label.Outline = true;
+
                     break;
                 case MessageType.Combat:
                     label.BackColour = empty;
-                    label.ForeColour = Config.GainsTextColour;
+                    label.ForeColour = CEnvir.GainsTextColour;
                     break;
                 case MessageType.ObserverChat:
                     label.BackColour = empty;
-                    label.ForeColour = Config.ObserverTextColour;
+                    label.ForeColour = CEnvir.ObserverTextColour;
                     break;
                 case MessageType.Guild:
                     label.BackColour = empty;
-                    label.ForeColour = Config.GuildTextColour;
+                    label.ForeColour = CEnvir.GuildTextColour;
+                    label.Outline = true;
+
                     break;
             }
 

@@ -74,20 +74,5 @@ namespace Client.Envir
         public static int RankingClass { get; set; } = (int)RequiredClass.All;
         public static bool RankingOnline { get; set; } = true;
         public static PickType PickType { get; set; } = PickType.Gold;
-
-        [ConfigSection("Colours")]
-        public static Color LocalTextColour { get; set; } = Color.White;
-        public static Color GMWhisperInTextColour { get; set; } = Color.Red;
-        public static Color WhisperInTextColour { get; set; } = Color.Cyan;
-        public static Color WhisperOutTextColour { get; set; } = Color.Aquamarine;
-        public static Color GroupTextColour { get; set; } = Color.Plum;
-        public static Color GuildTextColour { get; set; } = Color.LightPink;
-        public static Color ShoutTextColour { get; set; } = Color.Yellow;
-        public static Color GlobalTextColour { get; set; } = Color.Lime;
-        public static Color ObserverTextColour { get; set; } = Color.Silver;
-        public static Color HintTextColour { get; set; } = Color.AntiqueWhite;
-        public static Color SystemTextColour { get; set; } = Color.Red;
-        public static Color GainsTextColour { get; set; } = Color.GreenYellow;
-        public static Color AnnouncementTextColour { get; set; } = Color.DarkBlue;
     }
 }

@@ -141,7 +141,7 @@ namespace Client.Scenes.Views
             {
                 Parent = tabControl,
                 Panel =  panel,
-                Opacity = 0.5F,
+                Opacity = 0.7F,
                 AllowResize = true,
                 TabButton =
                 {

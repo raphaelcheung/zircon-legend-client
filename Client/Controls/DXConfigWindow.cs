@@ -41,9 +41,9 @@ namespace Client.Controls
         private DXNumberBox PortBox;
 
         //Colours
-        public DXTab ColourTab;
-        public DXColourControl LocalColourBox, GMWhisperInColourBox, WhisperInColourBox, WhisperOutColourBox, GroupColourBox, GuildColourBox, ShoutColourBox, GlobalColourBox, ObserverColourBox, HintColourBox, SystemColourBox, GainsColourBox, AnnouncementColourBox;
-        public DXButton ResetColoursButton;
+        //public DXTab ColourTab;
+        //public DXColourControl LocalColourBox, GMWhisperInColourBox, WhisperInColourBox, WhisperOutColourBox, GroupColourBox, GuildColourBox, ShoutColourBox, GlobalColourBox, ObserverColourBox, HintColourBox, SystemColourBox, GainsColourBox, AnnouncementColourBox;
+        //public DXButton ResetColoursButton;
 
 
         private DXButton SaveButton, CancelButton;
@@ -86,19 +86,19 @@ namespace Client.Controls
             DrawEffectsCheckBox.Checked = Config.DrawEffects;
             PickUpComboBox.ListBox.SelectItem(Config.PickType);  
 
-            LocalColourBox.BackColour = Config.LocalTextColour;
-            GMWhisperInColourBox.BackColour = Config.GMWhisperInTextColour;
-            WhisperInColourBox.BackColour = Config.WhisperInTextColour;
-            WhisperOutColourBox.BackColour = Config.WhisperOutTextColour;
-            GroupColourBox.BackColour = Config.GroupTextColour;
-            GuildColourBox.BackColour = Config.GuildTextColour;
-            ShoutColourBox.BackColour = Config.ShoutTextColour;
-            GlobalColourBox.BackColour = Config.GlobalTextColour;
-            ObserverColourBox.BackColour = Config.ObserverTextColour;
-            HintColourBox.BackColour = Config.HintTextColour;
-            SystemColourBox.BackColour = Config.SystemTextColour;
-            GainsColourBox.BackColour = Config.GainsTextColour;
-            AnnouncementColourBox.BackColour = Config.AnnouncementTextColour;
+            //LocalColourBox.BackColour = CEnvir.LocalTextColour;
+            //GMWhisperInColourBox.BackColour = CEnvir.GMWhisperInTextColour;
+            //WhisperInColourBox.BackColour = CEnvir.WhisperInTextColour;
+            //WhisperOutColourBox.BackColour = CEnvir.WhisperOutTextColour;
+            //GroupColourBox.BackColour = CEnvir.GroupTextColour;
+            //GuildColourBox.BackColour = CEnvir.GuildTextColour;
+            //ShoutColourBox.BackColour = CEnvir.ShoutTextColour;
+            //GlobalColourBox.BackColour = CEnvir.GlobalTextColour;
+            //ObserverColourBox.BackColour = CEnvir.ObserverTextColour;
+            //HintColourBox.BackColour = CEnvir.HintTextColour;
+            //SystemColourBox.BackColour = CEnvir.SystemTextColour;
+            //GainsColourBox.BackColour = CEnvir.GainsTextColour;
+            //AnnouncementColourBox.BackColour = CEnvir.AnnouncementTextColour;
         }
         public override void OnParentChanged(DXControl oValue, DXControl nValue)
         {
@@ -154,12 +154,12 @@ namespace Client.Controls
                 TabButton = { Label = { Text = "网络" } },
             };
 
-            ColourTab = new DXTab
-            {
-                Parent = TabControl,
-                Border = true,
-                TabButton = { Label = { Text = "颜色" }, Visible = false },
-            };
+            //ColourTab = new DXTab
+            //{
+            //    Parent = TabControl,
+            //    Border = true,
+            //    TabButton = { Label = { Text = "颜色" }, Visible = false },
+            //};
 
 
             KeyBindWindow = new DXKeyBindWindow
@@ -526,226 +526,226 @@ namespace Client.Controls
 
             #region Colours
 
-            label = new DXLabel
-            {
-                Text = "本地聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 10);
+            //label = new DXLabel
+            //{
+            //    Text = "本地聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 10);
 
-            LocalColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 10),
-                Size = new Size(40, label.Size.Height),
-            };
+            //LocalColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 10),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "GM 私聊:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 10);
+            //label = new DXLabel
+            //{
+            //    Text = "GM 私聊:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 10);
 
-            GMWhisperInColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 10),
-                Size = new Size(40, label.Size.Height),
-            };
+            //GMWhisperInColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 10),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "私聊:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 35);
+            //label = new DXLabel
+            //{
+            //    Text = "私聊:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 35);
 
-            WhisperInColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 35),
-                Size = new Size(40, label.Size.Height),
-            };
+            //WhisperInColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 35),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "私聊:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 35);
+            //label = new DXLabel
+            //{
+            //    Text = "私聊:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 35);
 
-            WhisperOutColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 35),
-                Size = new Size(40, label.Size.Height),
-            };
+            //WhisperOutColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 35),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "队伍聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 60);
+            //label = new DXLabel
+            //{
+            //    Text = "队伍聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 60);
 
-            GroupColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 60),
-                Size = new Size(40, label.Size.Height),
-            };
+            //GroupColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 60),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "帮会聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 60);
+            //label = new DXLabel
+            //{
+            //    Text = "帮会聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 60);
 
-            GuildColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 60),
-                Size = new Size(40, label.Size.Height),
-            };
+            //GuildColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 60),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "喊话聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 85);
+            //label = new DXLabel
+            //{
+            //    Text = "喊话聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 85);
 
-            ShoutColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 85),
-                Size = new Size(40, label.Size.Height),
-            };
+            //ShoutColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 85),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "公共聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 85);
+            //label = new DXLabel
+            //{
+            //    Text = "公共聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 85);
 
-            GlobalColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 85),
-                Size = new Size(40, label.Size.Height),
-            };
-            
+            //GlobalColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 85),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            label = new DXLabel
-            {
-                Text = "观众聊天:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 110);
 
-            ObserverColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 110),
-                Size = new Size(40, label.Size.Height),
-            };
+            //label = new DXLabel
+            //{
+            //    Text = "观众聊天:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 110);
 
-            label = new DXLabel
-            {
-                Text = "提示文本:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 110);
+            //ObserverColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 110),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            HintColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 110),
-                Size = new Size(40, label.Size.Height),
-            };
+            //label = new DXLabel
+            //{
+            //    Text = "提示文本:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 110);
 
-            label = new DXLabel
-            {
-                Text = "系统文本:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 135);
+            //HintColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 110),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            SystemColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 135),
-                Size = new Size(40, label.Size.Height),
-            };
+            //label = new DXLabel
+            //{
+            //    Text = "系统文本:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 135);
 
-            label = new DXLabel
-            {
-                Text = "获取文本:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(220 - label.Size.Width, 135);
+            //SystemColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 135),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            GainsColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(220, 135),
-                Size = new Size(40, label.Size.Height),
-            };
+            //label = new DXLabel
+            //{
+            //    Text = "获取文本:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(220 - label.Size.Width, 135);
 
-            label = new DXLabel
-            {
-                Text = "通告:",
-                Outline = true,
-                Parent = ColourTab,
-            };
-            label.Location = new Point(90 - label.Size.Width, 160);
+            //GainsColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(220, 135),
+            //    Size = new Size(40, label.Size.Height),
+            //};
 
-            AnnouncementColourBox = new DXColourControl
-            {
-                Parent = ColourTab,
-                Location = new Point(90, 160),
-                Size = new Size(40, label.Size.Height),
-            };
+            //label = new DXLabel
+            //{
+            //    Text = "通告:",
+            //    Outline = true,
+            //    Parent = ColourTab,
+            //};
+            //label.Location = new Point(90 - label.Size.Width, 160);
 
-            ResetColoursButton = new DXButton
-            {
-                Parent = ColourTab,
-                Location = new Point(180, 160),
-                Size = new Size(80, SmallButtonHeight),
-                ButtonType = ButtonType.SmallButton,
-                Label = { Text = "全部重置" }
-            };
-            ResetColoursButton.MouseClick += (o, e) =>
-            {
-                LocalColourBox.BackColour = Color.White;
-                GMWhisperInColourBox.BackColour = Color.Red;
-                WhisperInColourBox.BackColour = Color.Cyan;
-                WhisperOutColourBox.BackColour = Color.Aquamarine;
-                GroupColourBox.BackColour = Color.Plum;
-                GuildColourBox.BackColour = Color.LightPink;
-                ShoutColourBox.BackColour = Color.Yellow;
-                GlobalColourBox.BackColour = Color.Lime;
-                ObserverColourBox.BackColour = Color.Silver;
-                HintColourBox.BackColour = Color.AntiqueWhite;
-                SystemColourBox.BackColour = Color.Red;
-                GainsColourBox.BackColour = Color.GreenYellow;
-                AnnouncementColourBox.BackColour = Color.DarkBlue;
-            };
+            //AnnouncementColourBox = new DXColourControl
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(90, 160),
+            //    Size = new Size(40, label.Size.Height),
+            //};
+
+            //ResetColoursButton = new DXButton
+            //{
+            //    Parent = ColourTab,
+            //    Location = new Point(180, 160),
+            //    Size = new Size(80, SmallButtonHeight),
+            //    ButtonType = ButtonType.SmallButton,
+            //    Label = { Text = "全部重置" }
+            //};
+            //ResetColoursButton.MouseClick += (o, e) =>
+            //{
+            //    LocalColourBox.BackColour = Color.White;
+            //    GMWhisperInColourBox.BackColour = Color.Red;
+            //    WhisperInColourBox.BackColour = Color.Cyan;
+            //    WhisperOutColourBox.BackColour = Color.Aquamarine;
+            //    GroupColourBox.BackColour = Color.Plum;
+            //    GuildColourBox.BackColour = Color.LightPink;
+            //    ShoutColourBox.BackColour = Color.Yellow;
+            //    GlobalColourBox.BackColour = Color.Lime;
+            //    ObserverColourBox.BackColour = Color.Silver;
+            //    HintColourBox.BackColour = Color.AntiqueWhite;
+            //    SystemColourBox.BackColour = Color.Red;
+            //    GainsColourBox.BackColour = Color.GreenYellow;
+            //    AnnouncementColourBox.BackColour = Color.DarkBlue;
+            //};
 
             #endregion
 
@@ -896,88 +896,88 @@ namespace Client.Controls
 
             bool coloursChanged = false;
 
-            if (Config.LocalTextColour != LocalColourBox.BackColour)
-            {
-                Config.LocalTextColour = LocalColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.LocalTextColour != LocalColourBox.BackColour)
+            //{
+            //    Config.LocalTextColour = LocalColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.GMWhisperInTextColour != GMWhisperInColourBox.BackColour)
-            {
-                Config.GMWhisperInTextColour = GMWhisperInColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.GMWhisperInTextColour != GMWhisperInColourBox.BackColour)
+            //{
+            //    Config.GMWhisperInTextColour = GMWhisperInColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
             
-            if (Config.WhisperInTextColour != WhisperInColourBox.BackColour)
-            {
-                Config.WhisperInTextColour = WhisperInColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.WhisperInTextColour != WhisperInColourBox.BackColour)
+            //{
+            //    Config.WhisperInTextColour = WhisperInColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
             
-            if (Config.WhisperOutTextColour != WhisperOutColourBox.BackColour)
-            {
-                Config.WhisperOutTextColour = WhisperOutColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.WhisperOutTextColour != WhisperOutColourBox.BackColour)
+            //{
+            //    Config.WhisperOutTextColour = WhisperOutColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
             
-            if (Config.GroupTextColour != GroupColourBox.BackColour)
-            {
-                Config.GroupTextColour = GroupColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.GroupTextColour != GroupColourBox.BackColour)
+            //{
+            //    Config.GroupTextColour = GroupColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
             
-            if (Config.GuildTextColour != GuildColourBox.BackColour)
-            {
-                Config.GuildTextColour = GuildColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.GuildTextColour != GuildColourBox.BackColour)
+            //{
+            //    Config.GuildTextColour = GuildColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.ShoutTextColour != ShoutColourBox.BackColour)
-            {
-                Config.ShoutTextColour = ShoutColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.ShoutTextColour != ShoutColourBox.BackColour)
+            //{
+            //    Config.ShoutTextColour = ShoutColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.GlobalTextColour != GlobalColourBox.BackColour)
-            {
-                Config.GlobalTextColour = GlobalColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.GlobalTextColour != GlobalColourBox.BackColour)
+            //{
+            //    Config.GlobalTextColour = GlobalColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.ObserverTextColour != ObserverColourBox.BackColour)
-            {
-                Config.ObserverTextColour = ObserverColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.ObserverTextColour != ObserverColourBox.BackColour)
+            //{
+            //    Config.ObserverTextColour = ObserverColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.HintTextColour != HintColourBox.BackColour)
-            {
-                Config.HintTextColour = HintColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.HintTextColour != HintColourBox.BackColour)
+            //{
+            //    Config.HintTextColour = HintColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.SystemTextColour != SystemColourBox.BackColour)
-            {
-                Config.SystemTextColour = SystemColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.SystemTextColour != SystemColourBox.BackColour)
+            //{
+            //    Config.SystemTextColour = SystemColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (Config.GainsTextColour != GainsColourBox.BackColour)
-            {
-                Config.GainsTextColour = GainsColourBox.BackColour;
-                coloursChanged = true;
-            }
-            if (Config.AnnouncementTextColour != AnnouncementColourBox.BackColour)
-            {
-                Config.AnnouncementTextColour = AnnouncementColourBox.BackColour;
-                coloursChanged = true;
-            }
+            //if (Config.GainsTextColour != GainsColourBox.BackColour)
+            //{
+            //    Config.GainsTextColour = GainsColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
+            //if (Config.AnnouncementTextColour != AnnouncementColourBox.BackColour)
+            //{
+            //    Config.AnnouncementTextColour = AnnouncementColourBox.BackColour;
+            //    coloursChanged = true;
+            //}
 
-            if (coloursChanged && GameScene.Game != null)
-            {
-                foreach (ChatTab tab in ChatTab.Tabs)
-                    tab.UpdateColours();
-            }
+            //if (coloursChanged && GameScene.Game != null)
+            //{
+            //    foreach (ChatTab tab in ChatTab.Tabs)
+            //        tab.UpdateColours();
+            //}
 
 
         }
@@ -1287,109 +1287,109 @@ namespace Client.Controls
                 #endregion
 
                 #region Colours
-                if (ColourTab != null)
-                {
-                    if (!ColourTab.IsDisposed)
-                        ColourTab.Dispose();
+                //if (ColourTab != null)
+                //{
+                //    if (!ColourTab.IsDisposed)
+                //        ColourTab.Dispose();
 
-                    ColourTab = null;
-                }
+                //    ColourTab = null;
+                //}
 
-                if (LocalColourBox != null)
-                {
-                    if (!LocalColourBox.IsDisposed)
-                        LocalColourBox.Dispose();
+                //if (LocalColourBox != null)
+                //{
+                //    if (!LocalColourBox.IsDisposed)
+                //        LocalColourBox.Dispose();
 
-                    LocalColourBox = null;
-                }
+                //    LocalColourBox = null;
+                //}
 
-                if (GMWhisperInColourBox != null)
-                {
-                    if (!GMWhisperInColourBox.IsDisposed)
-                        GMWhisperInColourBox.Dispose();
+                //if (GMWhisperInColourBox != null)
+                //{
+                //    if (!GMWhisperInColourBox.IsDisposed)
+                //        GMWhisperInColourBox.Dispose();
 
-                    GMWhisperInColourBox = null;
-                }
+                //    GMWhisperInColourBox = null;
+                //}
 
-                if (WhisperInColourBox != null)
-                {
-                    if (!WhisperInColourBox.IsDisposed)
-                        WhisperInColourBox.Dispose();
+                //if (WhisperInColourBox != null)
+                //{
+                //    if (!WhisperInColourBox.IsDisposed)
+                //        WhisperInColourBox.Dispose();
 
-                    WhisperInColourBox = null;
-                }
+                //    WhisperInColourBox = null;
+                //}
 
-                if (WhisperOutColourBox != null)
-                {
-                    if (!WhisperOutColourBox.IsDisposed)
-                        WhisperOutColourBox.Dispose();
+                //if (WhisperOutColourBox != null)
+                //{
+                //    if (!WhisperOutColourBox.IsDisposed)
+                //        WhisperOutColourBox.Dispose();
 
-                    WhisperOutColourBox = null;
-                }
+                //    WhisperOutColourBox = null;
+                //}
 
-                if (GroupColourBox != null)
-                {
-                    if (!GroupColourBox.IsDisposed)
-                        GroupColourBox.Dispose();
+                //if (GroupColourBox != null)
+                //{
+                //    if (!GroupColourBox.IsDisposed)
+                //        GroupColourBox.Dispose();
 
-                    GroupColourBox = null;
-                }
+                //    GroupColourBox = null;
+                //}
 
-                if (GuildColourBox != null)
-                {
-                    if (!GuildColourBox.IsDisposed)
-                        GuildColourBox.Dispose();
+                //if (GuildColourBox != null)
+                //{
+                //    if (!GuildColourBox.IsDisposed)
+                //        GuildColourBox.Dispose();
 
-                    GuildColourBox = null;
-                }
+                //    GuildColourBox = null;
+                //}
 
-                if (ShoutColourBox != null)
-                {
-                    if (!ShoutColourBox.IsDisposed)
-                        ShoutColourBox.Dispose();
+                //if (ShoutColourBox != null)
+                //{
+                //    if (!ShoutColourBox.IsDisposed)
+                //        ShoutColourBox.Dispose();
 
-                    ShoutColourBox = null;
-                }
+                //    ShoutColourBox = null;
+                //}
 
-                if (GlobalColourBox != null)
-                {
-                    if (!GlobalColourBox.IsDisposed)
-                        GlobalColourBox.Dispose();
+                //if (GlobalColourBox != null)
+                //{
+                //    if (!GlobalColourBox.IsDisposed)
+                //        GlobalColourBox.Dispose();
 
-                    GlobalColourBox = null;
-                }
+                //    GlobalColourBox = null;
+                //}
 
-                if (ObserverColourBox != null)
-                {
-                    if (!ObserverColourBox.IsDisposed)
-                        ObserverColourBox.Dispose();
+                //if (ObserverColourBox != null)
+                //{
+                //    if (!ObserverColourBox.IsDisposed)
+                //        ObserverColourBox.Dispose();
 
-                    ObserverColourBox = null;
-                }
+                //    ObserverColourBox = null;
+                //}
 
-                if (HintColourBox != null)
-                {
-                    if (!HintColourBox.IsDisposed)
-                        HintColourBox.Dispose();
+                //if (HintColourBox != null)
+                //{
+                //    if (!HintColourBox.IsDisposed)
+                //        HintColourBox.Dispose();
 
-                    HintColourBox = null;
-                }
+                //    HintColourBox = null;
+                //}
 
-                if (SystemColourBox != null)
-                {
-                    if (!SystemColourBox.IsDisposed)
-                        SystemColourBox.Dispose();
+                //if (SystemColourBox != null)
+                //{
+                //    if (!SystemColourBox.IsDisposed)
+                //        SystemColourBox.Dispose();
 
-                    SystemColourBox = null;
-                }
+                //    SystemColourBox = null;
+                //}
 
-                if (GainsColourBox != null)
-                {
-                    if (!GainsColourBox.IsDisposed)
-                        GainsColourBox.Dispose();
+                //if (GainsColourBox != null)
+                //{
+                //    if (!GainsColourBox.IsDisposed)
+                //        GainsColourBox.Dispose();
 
-                    GainsColourBox = null;
-                }
+                //    GainsColourBox = null;
+                //}
                 #endregion
 
                 if (SaveButton != null)
