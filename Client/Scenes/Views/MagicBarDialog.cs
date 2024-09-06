@@ -397,7 +397,7 @@ namespace Client.Scenes.Views
                 {
                     Parent = pair.Value,
                     Text = count.ToString(),
-                    Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Italic),
+                    Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Italic),
                     IsControl = false,
                 };
                 label.Location = new Point(37 - label.Size.Width, 37 - label.Size.Height);

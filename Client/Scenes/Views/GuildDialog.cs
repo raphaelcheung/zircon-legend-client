@@ -486,7 +486,7 @@ namespace Client.Scenes.Views
             {
                 Text = "步骤 1 - 身份",
                 Parent = CreateTab,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -520,7 +520,7 @@ namespace Client.Scenes.Views
             {
                 Text = "步骤 2 - 付款",
                 Parent = CreateTab,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -565,7 +565,7 @@ namespace Client.Scenes.Views
             {
                 Text = "步骤 3 - 选项",
                 Parent = CreateTab,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -647,7 +647,7 @@ namespace Client.Scenes.Views
             {
                 Text = "步骤 4 - 摘要",
                 Parent = CreateTab,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -766,7 +766,7 @@ namespace Client.Scenes.Views
             {
                 Text = "通知",
                 Parent = HomeTab,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -883,7 +883,7 @@ namespace Client.Scenes.Views
             {
                 Text = "统计信息",
                 Parent = panel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -1268,7 +1268,7 @@ namespace Client.Scenes.Views
             {
                 Text = "会员",
                 Parent = AddMemberPanel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -1342,7 +1342,7 @@ namespace Client.Scenes.Views
             {
                 Text = "财务处",
                 Parent = TreasuryPanel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -1419,7 +1419,7 @@ namespace Client.Scenes.Views
             {
                 Text = "升级",
                 Parent = UpgradePanel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -1513,7 +1513,7 @@ namespace Client.Scenes.Views
             {
                 Text = "帮会战争",
                 Parent = GuildWarPanel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -1578,7 +1578,7 @@ namespace Client.Scenes.Views
             {
                 Text = "Desert Conquest",
                 Parent = panel,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -2716,7 +2716,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize =  false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,

@@ -1001,7 +1001,7 @@ namespace Client.Scenes
                 DXLabel label = new DXLabel
                 {
                     Parent = panel,
-                    Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                    Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                     Text = "选择职业",
                 };
                 label.Location = new Point((panel.Size.Width - label.Size.Width)/2, 0);
@@ -1080,7 +1080,7 @@ namespace Client.Scenes
                 label = new DXLabel
                 {
                     Parent = panel,
-                    Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                    Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                     Text = "选择性别",
                 };
                 label.Location = new Point((panel.Size.Width - label.Size.Width)/2, 0);
@@ -1138,7 +1138,7 @@ namespace Client.Scenes
                 label = new DXLabel
                 {
                     Parent = panel,
-                    Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                    Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                     Text = "自定义",
                 };
                 label.Location = new Point((panel.Size.Width - label.Size.Width)/2, 0);
@@ -1207,7 +1207,7 @@ namespace Client.Scenes
                 label = new DXLabel
                 {
                     Parent = previewPanel,
-                    Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                    Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                     Text = "预览",
                 };
                 label.Location = new Point((panel.Size.Width - label.Size.Width)/2, 0);

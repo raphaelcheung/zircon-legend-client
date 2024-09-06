@@ -287,7 +287,7 @@ namespace Client.Controls
             BorderColour = Color.FromArgb(198, 166, 99);
 
 
-            Font = new Font(Config.FontName, CEnvir.FontSize(10F));
+            Font = new Font("宋体", CEnvir.FontSize(10F));
             Editable = true;
         }
 

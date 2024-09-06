@@ -207,7 +207,7 @@ namespace Client
                 if (GameScene.Game != null)
                     text += $"Player: {MapObject.User.Name}{Environment.NewLine}";
 
-                using (Font font = new Font(Config.FontName, CEnvir.FontSize(8F)))
+                using (Font font = new Font("宋体", CEnvir.FontSize(9F)))
                 {
                     graphics.DrawString(text, font, Brushes.Black, 3, 33);
                     graphics.DrawString(text, font, Brushes.Black, 4, 32);

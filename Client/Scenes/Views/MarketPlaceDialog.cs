@@ -519,7 +519,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             MessageLabel = new DXLabel
             {
@@ -548,7 +548,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel
@@ -668,7 +668,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel
@@ -718,7 +718,7 @@ namespace Client.Scenes.Views
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15),
                 Location = new Point(0, 60)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
 
@@ -787,7 +787,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             ConsignPriceLabel = new DXLabel
@@ -829,7 +829,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             
             ConsignMessageBox = new DXTextBox
@@ -858,7 +858,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel
@@ -1118,7 +1118,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel
@@ -1158,7 +1158,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel
@@ -1221,7 +1221,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 DrawFormat = TextFormatFlags.HorizontalCenter,
                 Size = new Size(175, 15)
-                //   Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                //   Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             label = new DXLabel

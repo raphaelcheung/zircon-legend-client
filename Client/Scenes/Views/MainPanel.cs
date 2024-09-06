@@ -256,7 +256,7 @@ namespace Client.Scenes.Views
             DXLabel label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "Cl",
                 Hint = "职业",
             };
@@ -265,7 +265,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "Lv",
                 Hint = "等级",
             };
@@ -274,7 +274,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "AC",
                 Hint = "物理防御",
             };
@@ -283,7 +283,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "MR",
                 Hint = "魔法防御",
 
@@ -293,7 +293,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "DC",
                 Hint = "破坏力",
 
@@ -303,7 +303,7 @@ namespace Client.Scenes.Views
             DXLabel MCLabelLabel = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "MC",
                 Hint = "自然魔法攻击力",
 
@@ -313,7 +313,7 @@ namespace Client.Scenes.Views
             DXLabel SCLabelLabel = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "SC",
                 Hint = "精神魔法攻击力",
 
@@ -323,7 +323,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "Acc",
                 Hint = "准确度",
             };
@@ -332,7 +332,7 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(9F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 Text = "Agl",
                 Hint = "敏捷度",
             };
@@ -342,7 +342,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(300, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -352,7 +352,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(300, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -362,7 +362,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(385, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -372,7 +372,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(470, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -382,7 +382,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(385, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -392,7 +392,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -403,7 +403,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -414,7 +414,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(567, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -424,7 +424,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(10F)),
                 Location = new Point(567, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter

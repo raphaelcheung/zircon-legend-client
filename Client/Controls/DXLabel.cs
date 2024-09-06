@@ -197,7 +197,7 @@ namespace Client.Controls
             BackColour = Color.Empty;
             DrawTexture = true;
             AutoSize = true;
-            Font = new Font(Config.FontName, CEnvir.FontSize(8F));
+            Font = new Font("宋体", CEnvir.FontSize(9F));
             DrawFormat = TextFormatFlags.WordBreak;
             
             Outline = true;

@@ -108,7 +108,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -123,7 +123,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -146,7 +146,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -169,7 +169,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -193,7 +193,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -217,7 +217,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -240,7 +240,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -263,7 +263,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -296,7 +296,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -318,7 +318,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -340,7 +340,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -362,7 +362,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,
@@ -384,7 +384,7 @@ namespace Client.Scenes.Views
             {
                 Parent = this,
                 Outline = true,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 OutlineColour = Color.Black,
                 IsControl = false,

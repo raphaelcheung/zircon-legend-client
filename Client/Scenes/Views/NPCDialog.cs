@@ -1793,7 +1793,7 @@ namespace Client.Scenes.Views
                 Text = "黑铁矿石",
                 Location = ClientArea.Location,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             BlackIronGrid = new DXItemGrid
@@ -1810,7 +1810,7 @@ namespace Client.Scenes.Views
                 Text = "首饰",
                 Location = new Point(label.Location.X, BlackIronGrid.Location.Y + BlackIronGrid.Size.Height + 10),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             AccessoryGrid =  new DXItemGrid
@@ -1827,7 +1827,7 @@ namespace Client.Scenes.Views
                 Text = "特殊",
                 Location = new Point(AccessoryGrid.Location.X + AccessoryGrid.Size.Width + DXItemCell.CellWidth - 7, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             SpecialGrid =  new DXItemGrid
@@ -2909,7 +2909,7 @@ namespace Client.Scenes.Views
             {
                 Text = "日志",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -2958,7 +2958,7 @@ namespace Client.Scenes.Views
             {
                 Text = "详情",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -2982,7 +2982,7 @@ namespace Client.Scenes.Views
             {
                 Text = "任务",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -3006,7 +3006,7 @@ namespace Client.Scenes.Views
             {
                 Text = "奖励",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -3028,7 +3028,7 @@ namespace Client.Scenes.Views
             {
                 Text = "选择",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -3061,7 +3061,7 @@ namespace Client.Scenes.Views
             {
                 Text = "结束:",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -3650,7 +3650,7 @@ namespace Client.Scenes.Views
             NameLabel = new DXLabel
             {
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 //ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -4281,7 +4281,7 @@ namespace Client.Scenes.Views
             {
                 Text = "戒指",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -4419,7 +4419,7 @@ namespace Client.Scenes.Views
                 Text = "铁矿石",
                 Location = new Point(ClientArea.X + 21, ClientArea.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             IronOreGrid = new DXItemGrid
@@ -4436,7 +4436,7 @@ namespace Client.Scenes.Views
                 Text = "银矿石",
                 Location = new Point(IronOreGrid.Size.Width + 5 + IronOreGrid.Location.X, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             SilverOreGrid = new DXItemGrid
@@ -4453,7 +4453,7 @@ namespace Client.Scenes.Views
                 Text = "钻石",
                 Location = new Point(SilverOreGrid.Size.Width + 5 + SilverOreGrid.Location.X, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             DiamondGrid = new DXItemGrid
@@ -4470,7 +4470,7 @@ namespace Client.Scenes.Views
                 Text = "金矿石",
                 Location = new Point(ClientArea.X + 21, IronOreGrid.Location.Y + IronOreGrid.Size.Height + 10),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             GoldOreGrid = new DXItemGrid
@@ -4488,7 +4488,7 @@ namespace Client.Scenes.Views
                 Text = "水晶矿石",
                 Location = new Point(IronOreGrid.Size.Width + 5 + IronOreGrid.Location.X, IronOreGrid.Location.Y + IronOreGrid.Size.Height + 10),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             CrystalGrid = new DXItemGrid
@@ -4506,7 +4506,7 @@ namespace Client.Scenes.Views
                 Text = "金币",
                 Location = new Point(SilverOreGrid.Size.Width + 5 + SilverOreGrid.Location.X, SilverOreGrid.Location.Y + SilverOreGrid.Size.Height + 10),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             GoldBox = new DXNumberTextBox
             {
@@ -5078,7 +5078,7 @@ namespace Client.Scenes.Views
                 Text = "碎片 I",
                 Location = ClientArea.Location,
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             Fragment1Grid = new DXItemGrid
@@ -5095,7 +5095,7 @@ namespace Client.Scenes.Views
                 Text = "碎片 II",
                 Location = new Point(label.Size.Width + 5 + label.Location.X, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             Fragment2Grid = new DXItemGrid
@@ -5112,7 +5112,7 @@ namespace Client.Scenes.Views
                 Text = "碎片 III",
                 Location = new Point(label.Size.Width + 5 + label.Location.X, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             Fragment3Grid = new DXItemGrid
@@ -5130,7 +5130,7 @@ namespace Client.Scenes.Views
                 Text = "精炼石",
                 Location = new Point(ClientArea.Location.X, Fragment3Grid.Location.Y + Fragment3Grid.Size.Height + 10),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             RefinementStoneGrid = new DXItemGrid
@@ -5147,7 +5147,7 @@ namespace Client.Scenes.Views
                 Text = "特殊",
                 Location = new Point(Fragment3Grid.Location.X - 5, label.Location.Y),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             SpecialGrid = new DXItemGrid
@@ -5331,7 +5331,7 @@ namespace Client.Scenes.Views
             {
                 Text = $"花费: {Globals.MasterRefineEvaluateCost:#,##0}",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.Right - label.Size.Width, EvaluateButton.Location.Y + EvaluateButton.Size.Height + 5);
 
@@ -5767,7 +5767,7 @@ namespace Client.Scenes.Views
                 Text = "物品",
                 Location = new Point(ClientArea.X + 65, ClientArea.Y + 15),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
             TargetCell = new DXItemGrid
@@ -5953,7 +5953,7 @@ namespace Client.Scenes.Views
                 Text = "攻击 元素",
                 Location = new Point(ClientArea.Right - HealthCheckBox.Size.Width - 150, ClientArea.Y + 73),
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
 
 
@@ -6203,7 +6203,7 @@ namespace Client.Scenes.Views
             {
                 Text = "首饰",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2, ClientArea.Y);
 
@@ -6382,7 +6382,7 @@ namespace Client.Scenes.Views
             {
                 Text = "首饰",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(10F), FontStyle.Bold),
+                Font = new Font("宋体", CEnvir.FontSize(10F), FontStyle.Bold),
                 ForeColour = Color.FromArgb(198, 166, 99),
                 Outline = true,
                 OutlineColour = Color.Black,
@@ -6613,7 +6613,7 @@ namespace Client.Scenes.Views
             {
                 Text = "模板 / 武器",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2 + 50, ClientArea.Y);
 
@@ -6666,7 +6666,7 @@ namespace Client.Scenes.Views
             {
                 Text = "黄",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2, ClientArea.Y + 60);
             YellowCell = new DXItemGrid
@@ -6682,7 +6682,7 @@ namespace Client.Scenes.Views
             {
                 Text = "蓝",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2 + 50, ClientArea.Y + 60);
             BlueCell = new DXItemGrid
@@ -6698,7 +6698,7 @@ namespace Client.Scenes.Views
             {
                 Text = "红",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2 + 100, ClientArea.Y + 60);
             RedCell = new DXItemGrid
@@ -6714,7 +6714,7 @@ namespace Client.Scenes.Views
             {
                 Text = "紫",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2, ClientArea.Y + 120);
 
@@ -6731,7 +6731,7 @@ namespace Client.Scenes.Views
             {
                 Text = "绿",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2 + 50, ClientArea.Y + 120);
 
@@ -6748,7 +6748,7 @@ namespace Client.Scenes.Views
             {
                 Text = "灰",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             label.Location = new Point(ClientArea.X + (ClientArea.Width - label.Size.Width) / 2 + 100, ClientArea.Y + 120);
 
@@ -6766,7 +6766,7 @@ namespace Client.Scenes.Views
             {
                 Text = "职业:",
                 Parent = this,
-                Font = new Font(Config.FontName, CEnvir.FontSize(8F), FontStyle.Underline)
+                Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Underline)
             };
             ClassLabel.Location = new Point(ClientArea.X + (ClientArea.Width - ClassLabel.Size.Width) / 2, ClientArea.Y + 185);
             #region Class
