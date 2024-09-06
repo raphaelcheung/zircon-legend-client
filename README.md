@@ -1,8 +1,12 @@
-# 皓石传奇三  Zircon Mir3
+# 皓石传奇三 -客户端 Zircon Mir3 Client
 
 本开源项目仅供学习游戏技术，禁止商用以及非法用途。
 
-## 简介
+技术交流以及体验公益服请加QQ群：915941142。
+
+觉得本项目对你有帮助的别忘了 **点个星** ，祝你年年发大财！
+
+## 游戏简介
 
 ### 完整的传奇三游戏
 
@@ -38,10 +42,6 @@
 <img src="Images/chuansong.jpg" title="Docker 运行截图">
 <br/>
 
-## 服务器 部署指南
-
-参见项目 【[ZirconLegend-Server](https://gitee.com/raphaelcheung/zircon-legend-server)】
-
 ## 客户端 运行指南
 
 ### 注意
@@ -74,7 +74,11 @@
 
 参见项目 【[ZirconLegend-Client](https://gitee.com/raphaelcheung/zircon-legend-launcher)】
 
-## 代码编译
+## 服务器 部署指南
+
+参见项目 【[ZirconLegend-Server](https://gitee.com/raphaelcheung/zircon-legend-server)】
+
+## 客户端 代码编译
 
 开发环境依赖：
 
@@ -88,7 +92,7 @@
 
 安装这些后拉取全库代码，拉取的时候要选中` Recursive `。这样才能把子模块一并拉取下来。
 
-主干一直处于开发状态，尽量拉取发布版本更加稳定。<br/>
+主干处于持续开发状态，推荐拉取发布版本。<br/>
 <img src="Images/代码拉取.jpg" title="拉取代码"><br/>
 
-项目的编译依赖都已预设好，直接编译即可
+项目的编译依赖都已预设好，直接编译即可。
