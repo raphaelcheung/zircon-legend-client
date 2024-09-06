@@ -382,6 +382,7 @@ namespace Client.Scenes
                     ConnectionBox.Dispose();
 
                 ConnectionBox = null;
+                CEnvir.IsQuickGame = false;
                 return;
             }
 
@@ -502,7 +503,7 @@ namespace Client.Scenes
             _ConnectionAttempt = 0;
             ConnectionTime = DateTime.MinValue;
             ConnectingClient = null;
-
+            CEnvir.IsQuickGame = false;
 
             if (LoginBox != null) LoginBox.LoginAttempted = false;
             if (AccountBox != null) AccountBox.CreateAttempted = false;

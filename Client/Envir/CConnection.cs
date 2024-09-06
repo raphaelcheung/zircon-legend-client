@@ -65,6 +65,7 @@ namespace Client.Envir
             }
 
             CEnvir.Storage = null;
+            CEnvir.IsQuickGame = false;
         }
         public override void TrySendDisconnect(Packet p)
         {
@@ -87,6 +88,7 @@ namespace Client.Envir
                 }
 
                 scene.Disconnected();
+                CEnvir.IsQuickGame = false;
                 return;
             }
 
@@ -120,6 +122,8 @@ namespace Client.Envir
 
             if (this == CEnvir.Connection)
                 CEnvir.Connection = null;
+
+            CEnvir.IsQuickGame = false;
         }
         public void Process(G.Connected p)
         {
@@ -581,6 +585,8 @@ namespace Client.Envir
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            CEnvir.IsQuickGame = false;
         }
         public void Process(S.SelectLogout p)
         {
@@ -700,79 +706,79 @@ namespace Client.Envir
             try
             {
                 
-            SelectScene select = DXControl.ActiveScene as SelectScene;
-            if (select == null) return;
+                SelectScene select = DXControl.ActiveScene as SelectScene;
+                if (select == null) return;
 
-            select.SelectBox.StartGameAttempted = false;
+                select.SelectBox.StartGameAttempted = false;
 
 
-            DXMessageBox box;
-            DateTime expiry;
-            switch (p.Result)
-            {
-                case StartGameResult.Disabled:
-                    DXMessageBox.Show("开始游戏功能被禁用.", "开始游戏");
-                    break;
-                case StartGameResult.Deleted:
-                    DXMessageBox.Show("你不能用已删除的角色进入游戏.", "开始游戏");
-                    break;
-                case StartGameResult.Delayed:
-                    expiry = CEnvir.Now.Add(p.Duration);
+                DXMessageBox box;
+                DateTime expiry;
+                switch (p.Result)
+                {
+                    case StartGameResult.Disabled:
+                        DXMessageBox.Show("开始游戏功能被禁用.", "开始游戏");
+                        break;
+                    case StartGameResult.Deleted:
+                        DXMessageBox.Show("你不能用已删除的角色进入游戏.", "开始游戏");
+                        break;
+                    case StartGameResult.Delayed:
+                        expiry = CEnvir.Now.Add(p.Duration);
 
-                    box = DXMessageBox.Show($"该角色刚刚下线，稍候才能上线.\n" +
-                                            $"等待: {Math.Floor(p.Duration.TotalHours):#,##0} 小时, {p.Duration.Minutes} 分, {p.Duration.Seconds} 秒", "开始游戏");
+                        box = DXMessageBox.Show($"该角色刚刚下线，稍候才能上线.\n" +
+                                                $"等待: {Math.Floor(p.Duration.TotalHours):#,##0} 小时, {p.Duration.Minutes} 分, {p.Duration.Seconds} 秒", "开始游戏");
 
-                    box.ProcessAction = () =>
-                    {
-                        if (CEnvir.Now > expiry)
+                        box.ProcessAction = () =>
                         {
-                            if (select.SelectBox.CanStartGame)
-                                select.SelectBox.StartGame();
-                            box.ProcessAction = null;
-                            return;
-                        }
+                            if (CEnvir.Now > expiry)
+                            {
+                                if (select.SelectBox.CanStartGame)
+                                    select.SelectBox.StartGame();
+                                box.ProcessAction = null;
+                                return;
+                            }
 
-                        TimeSpan remaining = expiry - CEnvir.Now;
+                            TimeSpan remaining = expiry - CEnvir.Now;
 
-                        box.Label.Text = $"该角色刚刚下线，稍候才能上线.\n" +
-                                         $"等待: {Math.Floor(remaining.TotalHours):#,##0} 小时, {remaining.Minutes:#,##0} 分, {remaining.Seconds} 秒";
-                    };
-                    break;
-                case StartGameResult.UnableToSpawn:
-                    DXMessageBox.Show("无法进入游戏，生成角色失败.", "开始游戏");
-                    break;
-                case StartGameResult.NotFound:
-                    DXMessageBox.Show("无法进入游戏，该角色没找到.", "开始游戏");
-                    break;
-                case StartGameResult.Success:
-                    select.Dispose();
-                    DXSoundManager.StopAllSounds();
+                            box.Label.Text = $"该角色刚刚下线，稍候才能上线.\n" +
+                                             $"等待: {Math.Floor(remaining.TotalHours):#,##0} 小时, {remaining.Minutes:#,##0} 分, {remaining.Seconds} 秒";
+                        };
+                        break;
+                    case StartGameResult.UnableToSpawn:
+                        DXMessageBox.Show("无法进入游戏，生成角色失败.", "开始游戏");
+                        break;
+                    case StartGameResult.NotFound:
+                        DXMessageBox.Show("无法进入游戏，该角色没找到.", "开始游戏");
+                        break;
+                    case StartGameResult.Success:
+                        select.Dispose();
+                        DXSoundManager.StopAllSounds();
 
-                    GameScene scene = new GameScene(Config.GameSize);
-                    DXControl.ActiveScene = scene;
+                        GameScene scene = new GameScene(Config.GameSize);
+                        DXControl.ActiveScene = scene;
 
-                    scene.MapControl.MapInfo = Globals.MapInfoList.Binding.FirstOrDefault(x => x.Index == p.StartInformation.MapIndex);
-                    GameScene.Game.QuestLog = p.StartInformation.Quests;
+                        scene.MapControl.MapInfo = Globals.MapInfoList.Binding.FirstOrDefault(x => x.Index == p.StartInformation.MapIndex);
+                        GameScene.Game.QuestLog = p.StartInformation.Quests;
 
-                    GameScene.Game.NPCAdoptCompanionBox.AvailableCompanions = p.StartInformation.AvailableCompanions;
-                    GameScene.Game.NPCAdoptCompanionBox.RefreshUnlockButton();
+                        GameScene.Game.NPCAdoptCompanionBox.AvailableCompanions = p.StartInformation.AvailableCompanions;
+                        GameScene.Game.NPCAdoptCompanionBox.RefreshUnlockButton();
 
-                    GameScene.Game.NPCCompanionStorageBox.Companions = p.StartInformation.Companions;
-                    GameScene.Game.NPCCompanionStorageBox.UpdateScrollBar();
+                        GameScene.Game.NPCCompanionStorageBox.Companions = p.StartInformation.Companions;
+                        GameScene.Game.NPCCompanionStorageBox.UpdateScrollBar();
                     
-                    GameScene.Game.Companion = GameScene.Game.NPCCompanionStorageBox.Companions.FirstOrDefault(x => x.Index == p.StartInformation.Companion);
+                        GameScene.Game.Companion = GameScene.Game.NPCCompanionStorageBox.Companions.FirstOrDefault(x => x.Index == p.StartInformation.Companion);
 
-                    scene.User = new UserObject(p.StartInformation);
+                        scene.User = new UserObject(p.StartInformation);
 
-                    GameScene.Game.BuffBox.BuffsChanged();
-                    GameScene.Game.RankingBox.Observable = p.StartInformation.Observable;
+                        GameScene.Game.BuffBox.BuffsChanged();
+                        GameScene.Game.RankingBox.Observable = p.StartInformation.Observable;
 
-                    GameScene.Game.StorageSize = p.StartInformation.StorageSize;
+                        GameScene.Game.StorageSize = p.StartInformation.StorageSize;
 
-                    if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "开始游戏");
+                        if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "开始游戏");
 
 
-                    break;
+                        return;
                 }
             }
             catch (Exception e)
@@ -780,6 +786,8 @@ namespace Client.Envir
                 Console.WriteLine(e);
                 throw;
             }
+
+            CEnvir.IsQuickGame = false;
         }
         public void Process(S.MapChanged p)
         {
