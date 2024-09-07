@@ -99,7 +99,7 @@ namespace Client.Scenes.Views
                 Label = { Text = Mode.ToString() },
                 Parent = this,
             };
-            ChatModeButton.MouseClick += (o, e) => Mode = (ChatMode) (((int) (Mode) + 1)%7);
+            ChatModeButton.MouseClick += (o, e) => Mode = (ChatMode) (((int) (Mode) + 1)%5);
 
             OptionsButton = new DXButton
             {
@@ -120,13 +120,14 @@ namespace Client.Scenes.Views
                 Size = new Size(350, 20),
                 Parent = this,
                 MaxLength = Globals.MaxChatLength,
-                Opacity = 1f,
+                Opacity = 0.3f,
+                BackColour = Color.White,
+                ForeColour = Color.Black,
             };
             TextBox.TextBox.KeyPress += TextBox_KeyPress;
             TextBox.FocusEvent += (sender, focus) =>
             {
-                TextBox.BackColour = focus ? Color.White : Color.DarkGray;
-                TextBox.ForeColour = Color.Black;
+                TextBox.Opacity = focus ? 1f : 0.3f;
             };
           //  TextBox.TextBox.KeyDown += TextBox_KeyDown;
           //   TextBox.TextBox.KeyUp += TextBox_KeyUp;
@@ -162,12 +163,47 @@ namespace Client.Scenes.Views
 
                     DXTextBox.ActiveTextBox = null;
                     TextBox.TextBox.Text = string.Empty;
-                    break;
+                    return;
                 case (char)Keys.Escape:
                     e.Handled = true;
                     DXTextBox.ActiveTextBox = null;
                     TextBox.TextBox.Text = string.Empty;
+                    return;
+                case '！':
+                    e.Handled = true;
+                    //e.KeyChar = '!';
+                    TextBox.TextBox.Text += '!';
                     break;
+                case '＠':
+                    e.Handled = true;
+                    //e.KeyChar = '@';
+                    TextBox.TextBox.Text += '@';
+
+                    break;
+                case '～':
+                    e.Handled = true;
+                    //e.KeyChar = '~';
+                    TextBox.TextBox.Text += '~';
+
+                    break;
+                case '／':
+                    e.Handled = true;
+                    //e.KeyChar = '/';
+                    TextBox.TextBox.Text += '/';
+
+                    break;
+                case '＃':
+                    e.Handled = true;
+                    //e.KeyChar = '#';
+                    TextBox.TextBox.Text += '#';
+
+                    break;
+            }
+
+            if (e.Handled)
+            {
+                TextBox.TextBox.SelectionLength = 0;
+                TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
             }
         }
 
@@ -179,7 +215,7 @@ namespace Client.Scenes.Views
             {
                 case '@':
                     TextBox.SetFocus();
-                    TextBox.TextBox.Text = @"@ ";
+                    TextBox.TextBox.Text = @"@";
                     TextBox.Visible = true;
                     TextBox.TextBox.SelectionLength = 0;
                     TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
@@ -188,7 +224,7 @@ namespace Client.Scenes.Views
                 case '!':
                     if (!Config.ShiftOpenChat) return;
                     TextBox.SetFocus();
-                    TextBox.TextBox.Text = @"! ";
+                    TextBox.TextBox.Text = @"!";
                     TextBox.Visible = true;
                     TextBox.TextBox.SelectionLength = 0;
                     TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
@@ -213,31 +249,96 @@ namespace Client.Scenes.Views
             }
         }
 
+        private string[] SplitCommand(string command)
+        {
+            string tmp;
+            if (command.StartsWith("!!"))
+            {
+                tmp = command.Remove(0, 2).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "!!", tmp };
+            }
+            else if (command.StartsWith("!@"))
+            {
+                tmp = command.Remove(0, 2).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "!@", tmp };
+            }
+            else if (command.StartsWith("@!"))
+            {
+                tmp = command.Remove(0, 2).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "@!", tmp };
+            }
+            else if (command.StartsWith("!~"))
+            {
+                tmp = command.Remove(0, 2).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "!~", tmp };
+            }
+            else if (command.StartsWith("!"))
+            {
+                tmp = command.Remove(0, 1).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "!", tmp };
+            }
+            else if (command.StartsWith("/"))
+            {
+                var split = command.Remove(0, 1).Split(' ');
+                if (split == null || split.Length < 2 || string.IsNullOrEmpty(split[1].Trim())) return null;
+
+                return new string[] { $"/{split[0]}", split[1] };
+            }
+            else if (command.StartsWith("#"))
+            {
+                tmp = command.Remove(0, 1).Trim();
+                if (string.IsNullOrEmpty(tmp)) return null;
+
+                return new string[] { "#", tmp };
+            }
+            else
+                return null;
+        }
+
         public void OpenChat()
         {
+            var cmd = SplitCommand(TextBox.TextBox.Text);
+
+            string header = "";
+            switch (Mode)
+            {
+                case ChatMode.喊话:
+                    header = @"! ";
+                    break;
+                //case ChatMode.低语:
+                //    if (!string.IsNullOrWhiteSpace(LastPM))
+                //        TextBox.TextBox.Text = LastPM + " ";
+                //    break;
+                case ChatMode.队伍:
+                    header = @"!! ";
+                    break;
+                case ChatMode.行会:
+                    header= @"!~ ";
+                    break;
+                case ChatMode.全服:
+                    header= @"!@ ";
+                    break;
+                //case ChatMode.观察:
+                //    TextBox.TextBox.Text = @"# ";
+                //    break;
+            }
+
             if (string.IsNullOrEmpty(TextBox.TextBox.Text))
-                switch (Mode)
-                {
-                    case ChatMode.喊话:
-                        TextBox.TextBox.Text = @"! ";
-                        break;
-                    //case ChatMode.低语:
-                    //    if (!string.IsNullOrWhiteSpace(LastPM))
-                    //        TextBox.TextBox.Text = LastPM + " ";
-                    //    break;
-                    case ChatMode.队伍:
-                        TextBox.TextBox.Text = @"!! ";
-                        break;
-                    case ChatMode.行会:
-                        TextBox.TextBox.Text = @"!~ ";
-                        break;
-                    case ChatMode.全服:
-                        TextBox.TextBox.Text = @"!@ ";
-                        break;
-                    //case ChatMode.观察:
-                    //    TextBox.TextBox.Text = @"# ";
-                    //    break;
-                }
+                TextBox.TextBox.Text = $"{header}";
+            else if (cmd == null)
+                TextBox.TextBox.Text = $"{header}{TextBox.TextBox.Text}";
+            else
+                TextBox.TextBox.Text = $"{header}{cmd[1]}";
 
             TextBox.SetFocus();
             TextBox.TextBox.SelectionLength = 0;
