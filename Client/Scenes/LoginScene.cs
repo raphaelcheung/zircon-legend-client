@@ -332,7 +332,7 @@ namespace Client.Scenes
 
         private void ProcDnsConnect()
         {
-            if (!DnsRefreshed)
+            if (!DnsRefreshed && CEnvir.NeedFlushDns)
             {
                 DnsFlushResolverCache();
                 DnsRefreshed = true;
@@ -342,20 +342,33 @@ namespace Client.Scenes
             {
                 ConnectingClient?.Close();
 
-                var result = Dns.GetHostEntry(Config.IPAddress);
-
-
-                foreach (var ip in result.AddressList)
+                try
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork
-                        || ip.AddressFamily == AddressFamily.InterNetworkV6)
-                    {
+                    if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
                         IpServer = ip;
-                        break;
-                    }
-                }
+                    else
+                    {
+                        var result = Dns.GetHostEntry(Config.IPAddress);
 
-                AttemptConnect(IpServer);
+
+                        foreach (var ipaddr in result.AddressList)
+                        {
+                            if (ipaddr.AddressFamily == AddressFamily.InterNetwork
+                                || ipaddr.AddressFamily == AddressFamily.InterNetworkV6)
+                            {
+                                IpServer = ipaddr;
+                                break;
+                            }
+                        }
+                    }
+
+                    AttemptConnect(IpServer);
+                }
+                catch(Exception ex) 
+                { 
+                    CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
+                    CEnvir.SaveError(ex.StackTrace);
+                }
 
                 ConnectionTime = CEnvir.Now.AddSeconds(5);
                 ConnectionAttempt++;

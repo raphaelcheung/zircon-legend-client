@@ -1458,61 +1458,45 @@ namespace Client.Scenes
                 ForeColour = Color.Yellow,
                 Location = new Point(4, 4),
                 Parent = ItemLabel,
-                Text = displayInfo.ItemName 
+                Text = $"▼ {displayInfo.ItemName}" 
             };
 
             if (MouseItem.Info.Effect == ItemEffect.ItemPart)
                 label.Text += " - [碎片]";
             ItemLabel.Size = new Size(label.DisplayArea.Right + 4, label.DisplayArea.Bottom);
 
-
-
             Type type = displayInfo.ItemType.GetType();
-
             MemberInfo[] infos = type.GetMember(displayInfo.ItemType.ToString());
-
             DescriptionAttribute description = infos[0].GetCustomAttribute<DescriptionAttribute>();
 
             string itemtype = description?.Description ?? "";
+            itemtype = $"{(displayInfo.ItemType != ItemType.Nothing ? $"{itemtype} " : "")}";
             bool needSpacer = false;
-            if (displayInfo.ItemType != ItemType.Nothing)
-            {
-                label = new DXLabel
-                {
-                    ForeColour = Color.Yellow,
-                    Location = new Point(4, ItemLabel.DisplayArea.Bottom),
-                    Parent = ItemLabel,
-                    Text = $"{itemtype}",
-                };
 
 
-                ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
-                    label.DisplayArea.Bottom > ItemLabel.Size.Height ? label.DisplayArea.Bottom : ItemLabel.Size.Height);
-                needSpacer = true;
-
-            }
-
-            if (displayInfo.Rarity > Rarity.Common)
+            if (displayInfo.Rarity > Rarity.Common || displayInfo.ItemType != ItemType.Nothing)
             {
                 Type type2 = displayInfo.Rarity.GetType();
-
                 MemberInfo[] infos2 = type2.GetMember(displayInfo.Rarity.ToString());
-
                 DescriptionAttribute description2 = infos2[0].GetCustomAttribute<DescriptionAttribute>();
-
                 string rarity = description2?.Description ?? "普通物品";
 
                 label = new DXLabel
                 {
-                    ForeColour = Color.FromArgb(0, 204, 0),
-                    Location = new Point(4, ItemLabel.DisplayArea.Bottom),
+                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(70, 200, 70) : Color.FromArgb(0, 255, 0)),
+                    Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
-                    Text = rarity,
+                    Text = displayInfo.Rarity > Rarity.Common ? $"{itemtype}{rarity}" : itemtype,
                 };
 
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
                     label.DisplayArea.Bottom > ItemLabel.Size.Height ? label.DisplayArea.Bottom : ItemLabel.Size.Height);
             }
+
+            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 15);
+
+            if (needSpacer)
+                ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
 
             if (MouseItem.Info.Weight > 0)
             {
@@ -1529,7 +1513,7 @@ namespace Client.Scenes
                     case ItemType.Weapon:
                     case ItemType.Shield:
                     case ItemType.Torch:
-                        if (User.HandWeight - (Equipment[(int) EquipmentSlot.Weapon]?.Info.Weight ?? 0) + MouseItem.Info.Weight > User.Stats[Stat.HandWeight])
+                        if (User.HandWeight - (Equipment[(int)EquipmentSlot.Weapon]?.Info.Weight ?? 0) + MouseItem.Info.Weight > User.Stats[Stat.HandWeight])
                             label.ForeColour = Color.Red;
                         break;
                     case ItemType.Armour:
@@ -1544,14 +1528,11 @@ namespace Client.Scenes
                             label.ForeColour = Color.Red;
                         break;
                 }
-                
+
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
                     label.DisplayArea.Bottom > ItemLabel.Size.Height ? label.DisplayArea.Bottom : ItemLabel.Size.Height);
                 needSpacer = true;
             }
-
-            if (needSpacer)
-                ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
 
             if (MouseItem.Info.Effect == ItemEffect.Gold || MouseItem.Info.Effect == ItemEffect.Experience)
             {
@@ -1675,7 +1656,7 @@ namespace Client.Scenes
                     ForeColour = colour,
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom),
                     Parent = ItemLabel,
-                    Text = $"需要 性别: {description4?.Description ?? ""}",
+                    Text = $"性别: {description4?.Description ?? ""}",
                 };
 
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
@@ -1718,7 +1699,7 @@ namespace Client.Scenes
                     ForeColour = colour,
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom),
                     Parent = ItemLabel,
-                    Text = $"需要 职业: {description3?.Description ?? displayInfo.RequiredClass.ToString()}",
+                    Text = $"职业: {description3?.Description ?? displayInfo.RequiredClass.ToString()}",
                 };
 
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
@@ -1734,47 +1715,47 @@ namespace Client.Scenes
                 switch (displayInfo.RequiredType)
                 {
                     case RequiredType.Level:
-                        text = $"需要 等级: {MouseItem.Info.RequiredAmount}";
+                        text = $"等级: {MouseItem.Info.RequiredAmount}";
                         if (User.Level < MouseItem.Info.RequiredAmount && User.Stats[Stat.Rebirth] == 0)
                             colour = Color.Red;
                         break;
                     case RequiredType.MaxLevel:
-                        text = $"最大 等级: {MouseItem.Info.RequiredAmount}";
+                        text = $"最大等级: {MouseItem.Info.RequiredAmount}";
                         if (User.Level > MouseItem.Info.RequiredAmount || User.Stats[Stat.Rebirth] > 0)
                             colour = Color.Red;
                         break;
                     case RequiredType.AC:
-                        text = $"需要 物防: {MouseItem.Info.RequiredAmount}";
+                        text = $"物防: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.MaxAC] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.MR:
-                        text = $"需要 魔防: {MouseItem.Info.RequiredAmount}";
+                        text = $"魔防: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.MaxMR] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.DC:
-                        text = $"需要 破坏力: {MouseItem.Info.RequiredAmount}";
+                        text = $"破坏力: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.MaxDC] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.MC:
-                        text = $"需要 自然魔法力: {MouseItem.Info.RequiredAmount}";
+                        text = $"自然魔法力: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.MaxMC] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.SC:
-                        text = $"需要 精神力: {MouseItem.Info.RequiredAmount}";
+                        text = $"精神力: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.MaxSC] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.Health:
-                        text = $"需要 生命值: {MouseItem.Info.RequiredAmount}";
+                        text = $"生命值: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.Health] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
                     case RequiredType.Mana:
-                        text = $"需要 魔法值: {MouseItem.Info.RequiredAmount}";
+                        text = $"魔法值: {MouseItem.Info.RequiredAmount}";
                         if (User.Stats[Stat.Mana] < MouseItem.Info.RequiredAmount)
                             colour = Color.Red;
                         break;
@@ -1829,7 +1810,7 @@ namespace Client.Scenes
                 label = new DXLabel
                 {
                     ForeColour = Color.LightGoldenrodYellow,
-                    Location = new Point(4, ItemLabel.DisplayArea.Bottom),
+                    Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
                     Text = $"售价: {sale}",
                 };
@@ -1998,7 +1979,7 @@ namespace Client.Scenes
                 label = new DXLabel
                 {
                     ForeColour = Color.Wheat,
-                    Location = new Point(4, ItemLabel.DisplayArea.Bottom),
+                    Location = new Point(4, ItemLabel.DisplayArea.Bottom + 10),
                     Parent = ItemLabel,
                     Text = displayInfo.Description,
                 };
@@ -2016,7 +1997,7 @@ namespace Client.Scenes
                 ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
 
 
-            if (MouseItem.Info.Durability > 0 && MouseItem.Info.CanRepair && MouseItem.Info.StackSize == 1 && MouseItem.Info.ItemType != ItemType.Book)
+            if (CEnvir.Now < MouseItem.NextSpecialRepair && MouseItem.Info.Durability > 0 && MouseItem.Info.CanRepair && MouseItem.Info.StackSize == 1 && MouseItem.Info.ItemType != ItemType.Book)
             {
                 label = new DXLabel
                 {
@@ -2024,17 +2005,8 @@ namespace Client.Scenes
                     Parent = ItemLabel,
                 };
 
-                if (CEnvir.Now >= MouseItem.NextSpecialRepair)
-                {
-                    label.Text = "可特殊修理";
-                    label.ForeColour = Color.LimeGreen;
-                }
-                else
-                {
-                    label.Text = $"特殊修理还需等待 {Functions.ToString(MouseItem.NextSpecialRepair - CEnvir.Now, true)}";
-                    label.ForeColour = Color.Red;
-                }
-
+                label.Text = $"特殊修理还需等待 {Functions.ToString(MouseItem.NextSpecialRepair - CEnvir.Now, true)}";
+                label.ForeColour = Color.Red;
 
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,
                     label.DisplayArea.Bottom > ItemLabel.Size.Height ? label.DisplayArea.Bottom : ItemLabel.Size.Height);

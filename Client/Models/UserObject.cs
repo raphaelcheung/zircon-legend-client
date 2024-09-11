@@ -607,8 +607,8 @@ namespace Client.Models
                             }
                         }
 
-                        if (level >= 0)
-                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (9 - level) / 9);
+                        if (level > 0)
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (15 - level) / 15);
                         else
                             AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
                     }
@@ -624,8 +624,8 @@ namespace Client.Models
                             }
                         }
 
-                        if (level >= 0)
-                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (18 - level) / 18);
+                        if (level > 0)
+                            AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay * (23 - level) / 23);
                         else
                             AttackTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay);
                     }

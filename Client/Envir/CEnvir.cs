@@ -60,6 +60,7 @@ namespace Client.Envir
         public static bool IsQuickGame { get; set; } = false;
         private static bool LauncherUpgrading { get; set; } = false;
 
+        public static bool NeedFlushDns { get; set; } = false;
         public static int QuickSelectCharacter { get; set; } = -1;
 
         public static bool Shift, Alt, Ctrl;

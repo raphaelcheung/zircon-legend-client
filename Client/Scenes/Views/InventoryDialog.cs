@@ -13,7 +13,7 @@ namespace Client.Scenes.Views
     {
         #region Properties
 
-        public DXItemGrid Grid;
+        public DXItemGrid Grid { get; set; }
 
         public DXLabel GoldLabel { get; private set; }
         public DXLabel WeightLabel { get; private set; }
@@ -43,7 +43,7 @@ namespace Client.Scenes.Views
                 GridType = GridType.Inventory
             };
 
-            SetClientSize(new Size(Grid.Size.Width, Grid.Size.Height+ 45));
+            SetClientSize(new Size(Grid.Size.Width, Grid.Size.Height + 45));
             Grid.Location = ClientArea.Location;
 
 
