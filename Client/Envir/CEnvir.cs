@@ -148,9 +148,9 @@ namespace Client.Envir
 
         public static void CheckLauncherUpgrade()
         {
-            if (IsQuickGame && string.IsNullOrEmpty(LauncherHash))
+            if (string.IsNullOrEmpty(LauncherHash))
             { 
-                SaveError($"快速启动时命令行没有发送启动器的 Hash 码，即将强行更新..."); 
+                SaveError($"命令行没有发送启动器的 Hash 码，进行强制更新..."); 
                 if (!LauncherUpgrading)
                 {
                     LauncherUpgrading = true;
@@ -163,15 +163,20 @@ namespace Client.Envir
                 }
             }
 
-            if (LauncherUpgrading || string.IsNullOrEmpty(LauncherHash)) return;
+            if (LauncherUpgrading) return;
             LauncherUpgrading = true;
 
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             path = Path.Combine(path, "Launcher.exe");
             var datas = File.ReadAllBytes(path);
             if (Functions.CalcMD5(datas) == LauncherHash)
+            {
                 LauncherUpgrading = false;
+                SaveError($"启动器已经是最新，无需更新");
+                return;
+            }
 
+            SaveError($"启动器发现更新版本，更新中...");
             LauncherDatas = null;
             Connection.Enqueue(new C.UpgradeClient()
             {

@@ -33,6 +33,8 @@ namespace Client
 
             ConfigReader.Load();
 
+            CEnvir.SaveError($"命令行：{string.Join(" ", args)}");
+
             //解析命令行参数
             if (args.Length > 1)
             {
@@ -51,7 +53,16 @@ namespace Client
                             break;
                         case "-IPAddress":
                             if (parts.Length > 1)
-                                Config.IPAddress = parts[1];
+                            {
+                                if (parts.Length > 2)
+                                {
+                                    string[] tmp = parts.Skip(1).ToArray();
+                                    Config.IPAddress = string.Join(":", tmp);
+                                }
+                                else
+                                    Config.IPAddress = parts[1];
+
+                            }
                             break;
                         case "-Port":
                             if (parts.Length > 1 && int.TryParse(parts[1], out int port))
