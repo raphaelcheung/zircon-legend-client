@@ -1483,7 +1483,7 @@ namespace Client.Scenes
 
                 label = new DXLabel
                 {
-                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(70, 200, 70) : Color.FromArgb(0, 255, 0)),
+                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
                     Text = displayInfo.Rarity > Rarity.Common ? $"{itemtype}{rarity}" : itemtype,
@@ -3631,6 +3631,45 @@ namespace Client.Scenes
             MainPanel.AttackModeLabel.Text = description?.Description ?? User.AttackMode.ToString();
         }
 
+
+        public void ShowKeyHints()
+        {
+            string tip_pot = GetKeyActionDesc(KeyBindAction.AutoPotionWindow);
+            string tip_sto = GetKeyActionDesc(KeyBindAction.StorageWindow);
+            string tip_att = GetKeyActionDesc(KeyBindAction.ChangeAttackMode);
+            string tip_pet = GetKeyActionDesc(KeyBindAction.ChangePetMode);
+
+            if (!string.IsNullOrEmpty(tip_pot))
+                ReceiveChat($"{tip_pot} 设置自动喝药；", MessageType.Hint);
+
+            if (!string.IsNullOrEmpty(tip_sto))
+                ReceiveChat($"{tip_sto} 打开仓库 (非安全区只能查看不能存取)；", MessageType.Hint);
+
+            if (!string.IsNullOrEmpty(tip_att))
+                ReceiveChat($"{tip_att} 切换攻击模式；", MessageType.Hint);
+
+            if (!string.IsNullOrEmpty(tip_pet))
+                ReceiveChat($"{tip_pet} 切换宠物攻击模式；", MessageType.Hint);
+        }
+        private string GetKeyActionDesc(KeyBindAction action)
+        {
+            KeyBindInfo key = CEnvir.GetKeyBind(action);
+            return GetKeyDesc(key);
+        }
+        private string GetKeyDesc(KeyBindInfo key)
+        {
+            if (key == null || (key.Key1 == Keys.None && key.Key2 == Keys.None) ) return null;
+
+            string desc = key.Control1 || key.Control2 ? "Ctrl + " : "";
+            desc += (key.Alt1 || key.Alt2 ? " Alt + " : "");
+            desc += (key.Shift1 || key.Shift2 ? " Shift + " : "");
+            if (key.Key1 != Keys.None)
+                desc += key.Key1.ToString();
+            else
+                desc += key.Key2.ToString();
+
+            return desc;
+        }
         public void UpdatePetModeTips()
         {
             KeyBindInfo key = CEnvir.GetKeyBind(KeyBindAction.ChangePetMode);

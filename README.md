@@ -58,6 +58,8 @@
 
 【[百度网盘 2024-8-14](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
 
+如果嫌百度网盘太慢，这份数据我也放到了 QQ 群文件中，【[QQ群：915941142](https://qm.qq.com/q/JeoJOJ4z4e)】
+
 ### 安装依赖组件
 
 - .Net Framework 4.8
@@ -69,8 +71,6 @@
 从本项目 [发布页面](https://gitee.com/raphaelcheung/zircon-legend-client/releases) 下载最新的运行文件，与前面已下载的依赖数据文件解压到同一目录。
 
 根据自己的情况修改` Legend.ini `中的服务器地址、端口。
-
-客户端窗口化运行还存在一些 UI 问题，建议使用全屏模式，分辨率采用显示器推荐分辨率。
 
 ## 客户端启动器 运行指南
 

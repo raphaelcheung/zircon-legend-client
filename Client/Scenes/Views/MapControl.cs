@@ -235,6 +235,16 @@ namespace Client.Scenes.Views
                 ob.DrawHealth();
             }
 
+            if (Config.DrawEffects)
+            {
+                foreach (MirEffect ob in Effects)
+                {
+                    if (ob.DrawType != DrawType.Object || !ob.MapTarget.IsEmpty || ob.Target != User) continue;
+
+                    ob.Draw();
+                }
+            }
+
             if (Config.ShowDamageNumbers)
                 foreach (MapObject ob in Objects)
                     ob.DrawDamage();
@@ -346,7 +356,13 @@ namespace Client.Scenes.Views
 
                 foreach (MapObject ob in Objects)
                 {
-                    if (ob.RenderY == y)
+                    if (ob.RenderY == y && ob.Dead)
+                        ob.Draw();
+                }
+
+                foreach (MapObject ob in Objects)
+                {
+                    if (ob.RenderY == y && !ob.Dead)
                         ob.Draw();
                 }
 
@@ -376,15 +392,7 @@ namespace Client.Scenes.Views
 
             MapObject.User.Opacity = oldOpacity;
 
-            if (Config.DrawEffects)
-            {
-                foreach (MirEffect ob in Effects)
-                {
-                    if (ob.DrawType != DrawType.Object || !ob.MapTarget.IsEmpty || ob.Target != User) continue;
 
-                    ob.Draw();
-                }
-            }
 
         }
 

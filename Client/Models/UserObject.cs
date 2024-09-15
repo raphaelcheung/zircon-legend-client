@@ -580,7 +580,7 @@ namespace Client.Models
                     if ((GameScene.Game.MapControl.MapButtons & MouseButtons.Right) != MouseButtons.Right)
                         GameScene.Game.CanRun = false;
                     break;
-                case MirAction.Harvest:
+                case MirAction.Harvest: 
                     NextActionTime = CEnvir.Now + Globals.HarvestTime;
                     CEnvir.Enqueue(new C.Harvest { Direction = action.Direction });
                     GameScene.Game.CanRun = false;

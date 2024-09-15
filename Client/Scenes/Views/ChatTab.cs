@@ -140,7 +140,7 @@ namespace Client.Scenes.Views
             foreach (DXLabel control in History)
             {
                 control.Location = new Point(0, y);
-                y += control.Size.Height + 1;
+                y += control.Size.Height + 2;
             }
 
         }
@@ -152,7 +152,7 @@ namespace Client.Scenes.Views
             int height = 0;
 
             foreach (DXLabel control in History)
-                height += control.Size.Height + 1;
+                height += control.Size.Height + 2;
 
             ScrollBar.MaxValue = height;
         }
@@ -204,6 +204,7 @@ namespace Client.Scenes.Views
                 Outline = false,
                 DrawFormat = TextFormatFlags.WordBreak | TextFormatFlags.WordEllipsis,
                 Parent = TextPanel,
+                VerticalCenter = true,
             };
             label.MouseWheel += ScrollBar.DoMouseWheel;
             label.Tag = type;
@@ -224,6 +225,7 @@ namespace Client.Scenes.Views
                         if (parts.Length == 0 || string.IsNullOrEmpty(parts[0])) return;
 
 
+
                         GameScene.Game.ChatTextBox.StartPM(parts[0]);
                     };
                     break;
@@ -232,7 +234,7 @@ namespace Client.Scenes.Views
             UpdateColours(label);
 
             Size size = DXLabel.GetHeight(label, TextPanel.Size.Width);
-            label.Size = new Size(size.Width, size.Height + 1);
+            label.Size = new Size(size.Width, size.Height + 4);
 
             History.Add(label);
 
@@ -264,6 +266,7 @@ namespace Client.Scenes.Views
                     label = new DXLabel
                     {
                         AutoSize = false,
+                        VerticalCenter = true,
                         Text = "你已经死亡，点击这里复活回城.",
                         Outline = false,
                         DrawFormat = TextFormatFlags.WordBreak | TextFormatFlags.WordEllipsis,
@@ -293,7 +296,7 @@ namespace Client.Scenes.Views
             UpdateColours(label);
 
             Size size = DXLabel.GetHeight(label, TextPanel.Size.Width);
-            label.Size = new Size(size.Width, size.Height);
+            label.Size = new Size(size.Width, size.Height + 4);
 
             History.Add(label);
 

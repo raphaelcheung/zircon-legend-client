@@ -346,7 +346,7 @@ namespace Client.Scenes.Views
         }
         public void StartPM(string name)
         {
-            TextBox.TextBox.Text = $"/{name} ";
+            TextBox.TextBox.Text = name[0] == '/' ? name : $"/{name} ";
             TextBox.SetFocus();
             TextBox.TextBox.SelectionLength = 0;
             TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;

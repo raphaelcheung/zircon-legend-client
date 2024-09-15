@@ -6,12 +6,28 @@ using Client.Envir;
 using Client.Models;
 using Client.UserModels;
 using Library;
+using System.Collections.Generic;
+using System.Linq;
+
 
 //Cleaned
 namespace Client.Scenes.Views
 {
     public sealed class MonsterDialog : DXWindow
     {
+        private sealed class DropCompareByName : IEqualityComparer<Library.SystemModels.DropInfo>
+        {
+            public bool Equals(Library.SystemModels.DropInfo x, Library.SystemModels.DropInfo y)
+            {
+                return x.Item.ItemName == y.Item.ItemName;
+            }
+
+            public int GetHashCode(Library.SystemModels.DropInfo obj)
+            {
+                return obj.Item.GetHashCode();
+            }
+        }
+
         #region Properties
 
         #region Monster
@@ -68,7 +84,7 @@ namespace Client.Scenes.Views
         {
             ExpandButton.Index = Expanded ? 44 : 46;
 
-            Size = Expanded ? new Size(Size.Width, 150) : new Size(Size.Width, 54);
+            Size = Expanded ? new Size(Size.Width, ExpandPanel.Location.Y + ExpandPanel.Size.Height + 4) : new Size(Size.Width, 54);
             Config.MonsterBoxExpanded = Expanded;
 
             ExpandedChanged?.Invoke(this, EventArgs.Empty);
@@ -82,6 +98,11 @@ namespace Client.Scenes.Views
         public DXLabel FireResistLabel, IceResistLabel, LightningResistLabel, WindResistLabel, HolyResistLabel, DarkResistLabel, PhantomResistLabel, PhysicalResistLabel;
         public DXButton ExpandButton;
 
+        private DXControl ExpandPanel { get; set; }
+
+        private DXControl DropsPanel { get; set; }
+
+        private readonly List<DXLabel> DropsList = new List<DXLabel>();
 
         public override WindowType Type => WindowType.MonsterBox;
         public override bool CustomSize => false;
@@ -202,7 +223,7 @@ namespace Client.Scenes.Views
             };
 
 
-            DXControl panel2 = new DXControl
+            ExpandPanel = new DXControl
             {
                 Size = new Size(31, 20),
                 Location = new Point(5, 30),
@@ -217,7 +238,7 @@ namespace Client.Scenes.Views
 
             AttackIcon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Opacity = 0.7F,
                 Location =  new Point(5,0),
@@ -234,7 +255,7 @@ namespace Client.Scenes.Views
             };
             ExpandButton.MouseClick += (o, e) => Expanded = !Expanded;
 
-            panel2 = new DXControl
+            ExpandPanel = new DXControl
             {
                 Size = new Size(Size.Width - 10, 85),
                 Location = new Point(5, 60),
@@ -249,7 +270,7 @@ namespace Client.Scenes.Views
 
             DXLabel label = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 IsControl = false,
                 Text = "物防:"
             };
@@ -257,14 +278,14 @@ namespace Client.Scenes.Views
 
             ACLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(36, 5),
                 ForeColour = Color.White,
             };
 
             label = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 IsControl = false,
                 Text = "魔防:"
             };
@@ -272,13 +293,13 @@ namespace Client.Scenes.Views
 
             MRLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(125, 5),
                 ForeColour = Color.White,
             };
             label = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 IsControl = false,
                 Text = "破坏:"
             };
@@ -286,14 +307,14 @@ namespace Client.Scenes.Views
 
             DCLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(36, 22),
                 ForeColour = Color.White,
             };
 
             DXImageControl icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1510,
                 Location = new Point(5, 39),
@@ -302,14 +323,14 @@ namespace Client.Scenes.Views
 
             FireResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 41),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1511,
                 Location = new Point(icon.Location.X + 43, 39),
@@ -318,14 +339,14 @@ namespace Client.Scenes.Views
 
             IceResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 41),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1512,
                 Location = new Point(icon.Location.X + 43, 39),
@@ -334,14 +355,14 @@ namespace Client.Scenes.Views
 
             LightningResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 41),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1513,
                 Location = new Point(icon.Location.X + 43, 39),
@@ -350,7 +371,7 @@ namespace Client.Scenes.Views
 
             WindResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 41),
                 Tag = icon,
             };
@@ -358,7 +379,7 @@ namespace Client.Scenes.Views
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1514,
                 Location = new Point(5, 63),
@@ -367,14 +388,14 @@ namespace Client.Scenes.Views
 
             HolyResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 65),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1515,
                 Location = new Point(icon.Location.X + 43, 63),
@@ -383,14 +404,14 @@ namespace Client.Scenes.Views
 
             DarkResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 65),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1516,
                 Location = new Point(icon.Location.X + 43, 63),
@@ -399,14 +420,14 @@ namespace Client.Scenes.Views
 
             PhantomResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 65),
                 Tag = icon,
             };
 
             icon = new DXImageControl
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 LibraryFile = LibraryFile.GameInter,
                 Index = 1517,
                 Location = new Point(icon.Location.X + 43, 63),
@@ -415,12 +436,125 @@ namespace Client.Scenes.Views
 
             PhysicalResistLabel = new DXLabel
             {
-                Parent = panel2,
+                Parent = ExpandPanel,
                 Location = new Point(icon.Location.X + icon.Size.Width, 65),
                 Tag = icon,
             };
 
             Expanded = Config.MonsterBoxExpanded;
+
+            UpdateDrops();
+        }
+
+        private void UpdateDrops()
+        {
+            if (DropsList.Count > 0)
+                foreach (var drop in DropsList)
+                    drop.Dispose();
+
+            DropsList.Clear();
+
+            int panel_height = 85;
+
+            if (ExpandPanel == null) return;
+
+            if ((Monster?.MonsterInfo?.Drops ?? null) == null)
+            {
+                ExpandPanel.Size = new Size(ExpandPanel.Size.Width, panel_height);
+                Size = new Size(Size.Width, 54);
+                return;
+            }
+
+
+            var label = new DXLabel
+            {
+                Parent = ExpandPanel,
+                Outline = false,
+                AutoSize = false,
+                Size = new Size(ExpandPanel.DisplayArea.Width, 30),
+                VerticalCenter = true,
+                Location = new Point(2, panel_height),
+                Text = "主要掉落物品"
+            };
+
+            panel_height += 15;
+            List<Library.SystemModels.DropInfo> drops = Monster.MonsterInfo.Drops.ToList();
+
+            drops = drops.OrderByDescending(n => n.Chance).Distinct(new DropCompareByName()).Where(n => n.Item != null && n.Chance > 0 && n.Amount > 0).ToList();
+            List<Library.SystemModels.DropInfo> drops_result = drops;
+            if (drops.Count > 12)
+            {
+                drops_result = drops.Where(n => {
+                    switch (n.Item.ItemType)
+                    {
+                        case ItemType.Consumable:
+                        case ItemType.Amulet:
+                        case ItemType.Poison:
+                        case ItemType.Meat:
+                        case ItemType.Torch:
+                        case ItemType.Nothing:
+                            return false;
+                    }
+                    return true;
+                }).ToList();
+            }
+
+            if (drops_result.Count <= 0)
+                drops_result = drops;
+
+            if (drops_result.Count > 12)
+            {
+                drops_result = drops_result.Where(n => { 
+                    switch(n.Item.ItemType)
+                    {
+                        case ItemType.Armour:
+                        case ItemType.Ring:
+                        case ItemType.Book:
+                        case ItemType.Bracelet:
+                        case ItemType.Weapon:
+                        case ItemType.Helmet:
+                            if (n.Item.Rarity == Rarity.Common && n.Item.RequiredType == RequiredType.Level && n.Item.RequiredAmount < 30)
+                                return false;
+
+                            break;
+                    }
+
+                    return true;
+                }).ToList();
+            }
+
+            if (drops_result.Count <= 0)
+                drops_result = drops;
+
+            int x = 90;
+
+            foreach(var drop in drops_result)
+            {
+                if (x == 10) x = 90;
+                else
+                {
+                    x = 10;
+                    panel_height += DXLabel.GetSize(label.Text, label.Font, false).Height + 5;
+                }
+
+                label = new DXLabel
+                {
+                    Parent = ExpandPanel,
+                    AutoSize = false,
+                    Outline = true,
+                    ForeColour = drop.Item.Rarity == Rarity.Common ? Color.Beige : (drop.Item.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
+                    Location = new Point(x, panel_height),
+                    DrawFormat = TextFormatFlags.WordEllipsis,
+                    Size = new Size(85, DXLabel.GetSize(label.Text, label.Font, true).Height),
+                    Text = drop.Item.ItemName
+                };
+
+                DropsList.Add(label);
+            }
+
+            panel_height += DXLabel.GetSize(label.Text, label.Font, false).Height + 10;
+            ExpandPanel.Size = new Size(ExpandPanel.Size.Width, panel_height);
+            Size = new Size(Size.Width, ExpandPanel.Location.Y + ExpandPanel.Size.Height + 4);
         }
 
         #region Methods
@@ -556,6 +690,8 @@ namespace Client.Scenes.Views
                         break;
                 }
             }
+
+            UpdateDrops();
         }
         #endregion
 
@@ -572,6 +708,11 @@ namespace Client.Scenes.Views
 
                 _Expanded = false;
                 ExpandedChanged = null;
+
+                foreach(var label in DropsList)
+                    label.Dispose();
+
+                DropsList.Clear();
                 
                 if (AttackIcon != null)
                 {

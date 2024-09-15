@@ -1985,12 +1985,15 @@ namespace Client.Scenes.Views
 
 
             foreach (KeyValuePair<RefineQuality, TimeSpan> pair in Globals.RefineTimes)
+            {
                 new DXListBoxItem
                 {
                     Parent = RefineQualityBox.ListBox,
-                    Label = { Text = $"{pair.Key}" },
+                    Label = { Text = Functions.GetEnumDesc(pair.Key) },
                     Item = pair.Key
                 };
+            }
+
 
             label = new DXLabel
             {

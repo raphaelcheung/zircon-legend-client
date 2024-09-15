@@ -107,7 +107,7 @@ namespace Client.Scenes
         private bool Logining = false;
 
         private TcpClient ConnectingClient;
-        private DateTime ConnectionTime;
+        private DateTime ConnectionTime { get; set; }
 
         private Point back_offset = Point.Empty;
 
@@ -342,6 +342,13 @@ namespace Client.Scenes
             {
                 ConnectingClient?.Close();
 
+                if (ConnectionAttempt >= 1)
+                {
+                    CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
+                    Config.IPAddress = "mir.ibaboo.xyz";
+                    Config.Port = 53536;
+                }
+
                 try
                 {
                     if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
@@ -363,15 +370,16 @@ namespace Client.Scenes
                     }
 
                     AttemptConnect(IpServer);
+
+                    ConnectionTime = CEnvir.Now.AddSeconds(5);
+                    ConnectionAttempt++;
                 }
                 catch(Exception ex) 
                 { 
                     CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
                     CEnvir.SaveError(ex.StackTrace);
+                    ConnectionAttempt++;
                 }
-
-                ConnectionTime = CEnvir.Now.AddSeconds(5);
-                ConnectionAttempt++;
             }
         }
 

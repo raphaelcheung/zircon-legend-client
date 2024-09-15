@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Security;
 using System.Windows.Forms;
 using Client.Envir;
 using SlimDX;
@@ -68,6 +69,8 @@ namespace Client.Controls
 
             AutoSizeChanged?.Invoke(this, EventArgs.Empty);
         }
+
+
 
         #endregion
         
@@ -168,6 +171,7 @@ namespace Client.Controls
         }
         private Color _OutlineColour;
         public event EventHandler<EventArgs> OutlineColourChanged;
+        public event EventHandler<EventArgs> VerticalCenterChanged;
         public virtual void OnOutlineColourChanged(Color oValue, Color nValue)
         {
             TextureValid = false;
@@ -177,12 +181,30 @@ namespace Client.Controls
 
         #endregion
 
+        public bool VerticalCenter
+        {
+            get => _VerticalCenter;
+            set
+            {
+                if (_VerticalCenter == value) return;
+
+                _VerticalCenter = value;
+                OnVerticalCenterChanged();
+                VerticalCenterChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        private bool _VerticalCenter = false;
+
         public override void OnTextChanged(string oValue, string nValue)
         {
             base.OnTextChanged(oValue, nValue);
 
             TextureValid = false;
             CreateSize();
+        }
+        protected virtual void OnVerticalCenterChanged()
+        {
+            TextureValid = false;
         }
         public override void OnForeColourChanged(Color oValue, Color nValue)
         {
@@ -227,6 +249,14 @@ namespace Client.Controls
             }
             
             DataRectangle rect = ControlTexture.LockRectangle(0, LockFlags.Discard);
+            Point start = new Point(0, 0);
+
+            if (!AutoSize && VerticalCenter)
+            {
+                var text_size = GetSize(Text, Font, Outline);
+
+                start = new Point((width - text_size.Width) / 2, (height - text_size.Height) / 2);
+            }
 
             using (Bitmap image = new Bitmap(width, height, width*4, PixelFormat.Format32bppArgb, rect.Data.DataPointer))
             using (Graphics graphics = Graphics.FromImage(image))
@@ -236,15 +266,16 @@ namespace Client.Controls
 
                 if (Outline)
                 {
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 1, width, height), ForeColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.X, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X, start.Y + 1, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 2, start.Y + 1, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 2, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 1, width, height), ForeColour, DrawFormat);
                 }
                 else
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), ForeColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 0, width, height), ForeColour, DrawFormat);
             }
+
             ControlTexture.UnlockRectangle(0);
             rect.Data.Dispose();
             

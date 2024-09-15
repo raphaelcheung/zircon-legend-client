@@ -36,7 +36,7 @@ namespace Client.Envir
 
             UpdateTimeOut();
 
-            AdditionalLogging = true;
+            //AdditionalLogging = true;
 
             BeginReceive();
         }
@@ -778,6 +778,8 @@ namespace Client.Envir
                         if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "开始游戏");
 
 
+                        scene.ShowKeyHints();
+
                         return;
                 }
             }
@@ -1500,18 +1502,24 @@ namespace Client.Envir
 
         public void Process(S.NewMagic p)
         {
+            if (!MapObject.User.Magics.TryGetValue(p.Magic.Info, out var magic)) return;
+
             MapObject.User.Magics[p.Magic.Info] = p.Magic;
 
             GameScene.Game.MagicBox.Magics[p.Magic.Info].Refresh();
         }
         public void Process(S.MagicLeveled p)
         {
+            if (!MapObject.User.Magics.TryGetValue(p.Info, out var magic)) return;
+
             MapObject.User.Magics[p.Info].Level = p.Level;
             MapObject.User.Magics[p.Info].Experience = p.Experience;
             GameScene.Game.MagicBox.Magics[p.Info].Refresh();
         }
         public void Process(S.MagicCooldown p)
         {
+            if (!MapObject.User.Magics.TryGetValue(p.Info, out var magic)) return;
+
             MapObject.User.Magics[p.Info].NextCast = CEnvir.Now.AddMilliseconds(p.Delay);
         }
         public void Process(S.MagicToggle p)

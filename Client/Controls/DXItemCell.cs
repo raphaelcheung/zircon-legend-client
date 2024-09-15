@@ -1204,7 +1204,7 @@ namespace Client.Controls
                 case GridType.SendMail:
                     if ((Item.Flags & UserItemFlags.Marriage) == UserItemFlags.Marriage) return false;
                     if (GridType != GridType.Inventory && GridType != GridType.Storage) return false;
-                    if (GridType == GridType.Inventory && !MapObject.User.InSafeZone) return false;
+                    //if (GridType == GridType.Inventory && !MapObject.User.InSafeZone) return false;
                     break;
                 case GridType.TradeUser:
                     if ((Item.Flags & UserItemFlags.Marriage) == UserItemFlags.Marriage) return false;
