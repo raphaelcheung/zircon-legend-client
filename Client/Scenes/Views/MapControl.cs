@@ -239,7 +239,14 @@ namespace Client.Scenes.Views
             {
                 foreach (MirEffect ob in Effects)
                 {
-                    if (ob.DrawType != DrawType.Object || !ob.MapTarget.IsEmpty || ob.Target != User) continue;
+                    if (ob.DrawType != DrawType.Object || (ob.MapTarget.IsEmpty && ob.Target == User)) continue;
+
+                    ob.Draw();
+                }
+
+                foreach (MirEffect ob in Effects)
+                {
+                    if (ob.DrawType != DrawType.Object || (ob.MapTarget.IsEmpty && ob.Target != User)) continue;
 
                     ob.Draw();
                 }
@@ -372,12 +379,7 @@ namespace Client.Scenes.Views
                     {
                         if (ob.DrawType != DrawType.Object) continue;
 
-                        if (ob.MapTarget.IsEmpty && ob.Target != null)
-                        {
-                            if (ob.Target.RenderY == y && ob.Target != User)
-                                ob.Draw();
-                        }
-                        else if (ob.MapTarget.Y == y)
+                        if (ob.Target != null && ob.Target.RenderY == y && ob.Target != User)
                             ob.Draw();
                     }
                 }
