@@ -458,7 +458,7 @@ namespace Client.Scenes.Views
 
             if (ExpandPanel == null) return;
 
-            if ((Monster?.MonsterInfo?.Drops ?? null) == null)
+            if ((Monster?.MonsterInfo?.Drops ?? null) == null || !Expanded)
             {
                 ExpandPanel.Size = new Size(ExpandPanel.Size.Width, panel_height);
                 Size = new Size(Size.Width, 54);

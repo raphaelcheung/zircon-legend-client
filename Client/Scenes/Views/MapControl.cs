@@ -213,16 +213,6 @@ namespace Client.Scenes.Views
                 ob.DrawName();
             }
 
-            if (Config.DrawEffects)
-            {
-                foreach (MirEffect ob in Effects)
-                {
-                    if (ob.DrawType != DrawType.Final) continue;
-
-                     ob.Draw();
-                }
-            }
-
             if (MapObject.MouseObject != null && MapObject.MouseObject.Race != ObjectType.Item)
                 MapObject.MouseObject.DrawName();
 
@@ -247,6 +237,13 @@ namespace Client.Scenes.Views
                 foreach (MirEffect ob in Effects)
                 {
                     if (ob.DrawType != DrawType.Object || (ob.MapTarget.IsEmpty && ob.Target != User)) continue;
+
+                    ob.Draw();
+                }
+
+                foreach (MirEffect ob in Effects)
+                {
+                    if (ob.DrawType != DrawType.Final) continue;
 
                     ob.Draw();
                 }
@@ -277,7 +274,6 @@ namespace Client.Scenes.Views
 
             DXManager.Sprite.End();
             DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
-            
         }
         public override void Draw()
         {
@@ -299,6 +295,16 @@ namespace Client.Scenes.Views
         {
             int minX = Math.Max(0, User.CurrentLocation.X - OffSetX - 4), maxX = Math.Min(Width - 1, User.CurrentLocation.X + OffSetX + 4);
             int minY = Math.Max(0, User.CurrentLocation.Y - OffSetY - 4), maxY = Math.Min(Height - 1, User.CurrentLocation.Y + OffSetY + 25);
+
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                foreach (MapObject ob in Objects)
+                {
+                    if (ob.RenderY == y && ob.Dead)
+                        ob.Draw();
+                }
+            }
 
             for (int y = minY; y <= maxY; y++)
             {
@@ -363,12 +369,6 @@ namespace Client.Scenes.Views
 
                 foreach (MapObject ob in Objects)
                 {
-                    if (ob.RenderY == y && ob.Dead)
-                        ob.Draw();
-                }
-
-                foreach (MapObject ob in Objects)
-                {
                     if (ob.RenderY == y && !ob.Dead)
                         ob.Draw();
                 }
@@ -383,7 +383,6 @@ namespace Client.Scenes.Views
                             ob.Draw();
                     }
                 }
-
             }
 
             if (User.Opacity != 1f) return;
@@ -393,9 +392,6 @@ namespace Client.Scenes.Views
             MapObject.User.DrawBody(false);
 
             MapObject.User.Opacity = oldOpacity;
-
-
-
         }
 
 
