@@ -1111,7 +1111,7 @@ namespace Client.Controls
             {
                 case GridType.Sell:
                     if ((Item.Flags & UserItemFlags.Marriage) == UserItemFlags.Marriage) return false;
-                    if ((GridType != GridType.Inventory && GridType != GridType.CompanionInventory) || (Item.Flags & UserItemFlags.Locked) == UserItemFlags.Locked || (Item.Flags & UserItemFlags.Worthless) == UserItemFlags.Worthless || !Item.Info.CanSell)
+                    if ((GridType != GridType.Inventory && GridType != GridType.CompanionInventory) || (Item.Flags & UserItemFlags.Locked) == UserItemFlags.Locked || !Item.Info.CanSell)
                         return false;
                     break;
 

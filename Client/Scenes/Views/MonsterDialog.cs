@@ -37,7 +37,7 @@ namespace Client.Scenes.Views
             get => _Monster;
             set
             {
-                if (_Monster == value) return;
+                if (_Monster == value || (value != null && value.Dead)) return;
 
                 MonsterObject oldValue = _Monster;
                 _Monster = value;
@@ -46,7 +46,6 @@ namespace Client.Scenes.Views
             }
         }
         private MonsterObject _Monster;
-        public event EventHandler<EventArgs> MonsterChanged;
         public void OnMonsterChanged(MonsterObject oValue, MonsterObject nValue)
         {
             Visible = Monster != null && Config.MonsterBoxVisible;
@@ -57,8 +56,6 @@ namespace Client.Scenes.Views
             LevelLabel.Text = Monster.MonsterInfo.Level.ToString();
 
             RefreshStats();
-
-            MonsterChanged?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
@@ -86,6 +83,8 @@ namespace Client.Scenes.Views
 
             Size = Expanded ? new Size(Size.Width, ExpandPanel.Location.Y + ExpandPanel.Size.Height + 4) : new Size(Size.Width, 54);
             Config.MonsterBoxExpanded = Expanded;
+
+            UpdateDrops();
 
             ExpandedChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -480,7 +479,7 @@ namespace Client.Scenes.Views
             panel_height += 15;
             List<Library.SystemModels.DropInfo> drops = Monster.MonsterInfo.Drops.ToList();
 
-            drops = drops.OrderByDescending(n => n.Chance).Distinct(new DropCompareByName()).Where(n => n.Item != null && n.Chance > 0 && n.Amount > 0).ToList();
+            drops = drops.OrderByDescending(n => n.Chance).Distinct(new DropCompareByName()).Where(n => n.Item != null && n.Chance > 0 && n.Amount > 0 && !n.EasterEvent).ToList();
             List<Library.SystemModels.DropInfo> drops_result = drops;
             if (drops.Count > 12)
             {
@@ -704,7 +703,6 @@ namespace Client.Scenes.Views
             if (disposing)
             {
                 _Monster = null;
-                MonsterChanged = null;
 
                 _Expanded = false;
                 ExpandedChanged = null;

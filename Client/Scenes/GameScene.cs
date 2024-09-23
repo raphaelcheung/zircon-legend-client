@@ -87,7 +87,8 @@ namespace Client.Scenes
 
         public bool GoldPickedUp { get; set; }
 
-        public MapObject MagicObject, MouseObject, TargetObject, FocusObject;
+        public MapObject MagicObject, TargetObject, FocusObject;
+        public MapObject MouseObject { get; set; }
         public DXControl ItemLabel, MagicLabel;
         
         #region MouseItem
@@ -178,7 +179,7 @@ namespace Client.Scenes
         public StorageDialog StorageBox;
         public AutoPotionDialog AutoPotionBox;
         public InspectDialog InspectBox;
-        public RankingDialog RankingBox;
+        public RankingDialog RankingBox { get; set; }
         public MarketPlaceDialog MarketPlaceBox;
         public MailDialog MailBox;
         public ReadMailDialog ReadMailBox;
@@ -646,6 +647,7 @@ namespace Client.Scenes
             CEnvir.CheckLauncherUpgrade();
 
             CEnvir.IsQuickGame = false;
+            CEnvir.Target.Location = new Point(0, 0);
         }
 
         #region Methods
@@ -1844,7 +1846,7 @@ namespace Client.Scenes
                     ForeColour = Color.Yellow,
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom),
                     Parent = ItemLabel,
-                    Text = "不可出售.",
+                    Text = "只能0金币出售给商店.",
                 };
 
                 ItemLabel.Size = new Size(label.DisplayArea.Right + 4 > ItemLabel.Size.Width ? label.DisplayArea.Right + 4 : ItemLabel.Size.Width,

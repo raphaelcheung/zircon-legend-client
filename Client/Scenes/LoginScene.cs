@@ -345,7 +345,7 @@ namespace Client.Scenes
                 if (ConnectionAttempt >= 1)
                 {
                     CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
-                    Config.IPAddress = "mir.ibaboo.xyz";
+                    Config.IPAddress = "43.132.119.207";
                     Config.Port = 53536;
                 }
 
@@ -376,8 +376,12 @@ namespace Client.Scenes
                 }
                 catch(Exception ex) 
                 { 
-                    CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
-                    CEnvir.SaveError(ex.StackTrace);
+                    if (ConnectionAttempt > 1)
+                    {
+                        CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
+                        CEnvir.SaveError(ex.StackTrace);
+                    }
+
                     ConnectionAttempt++;
                 }
             }
@@ -463,7 +467,7 @@ namespace Client.Scenes
             }
             else
             {
-                LoginBox.Visible = true;
+                LoginBox.Visible = !AccountBox.Visible && !ChangeBox.Visible && !ResetBox.Visible;
             }
         }
 
@@ -749,7 +753,7 @@ namespace Client.Scenes
 
                 if (scene == null) return;
 
-                scene.RankingBox.Visible = IsVisible;
+                //scene.RankingBox.Visible = IsVisible;
             }
 
             public override WindowType Type => WindowType.None;

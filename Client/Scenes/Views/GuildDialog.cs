@@ -2077,10 +2077,10 @@ namespace Client.Scenes.Views
             RankLabel.Text = "排序";
             RankLabel.ForeColour = Color.FromArgb(198, 166, 99);
 
-            TotalLabel.Text = "Total Con.";
+            TotalLabel.Text = "累计";
             TotalLabel.ForeColour = Color.FromArgb(198, 166, 99);
 
-            DailyLabel.Text = "Daily Con.";
+            DailyLabel.Text = "当天";
             DailyLabel.ForeColour = Color.FromArgb(198, 166, 99);
 
             OnlineLabel.Text = "在线";

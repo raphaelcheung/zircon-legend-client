@@ -26,7 +26,7 @@ namespace Client.Envir
         [ConfigSection("Graphics")]
         public static bool FullScreen { get; set; } = false;
         public static bool VSync { get; set; }
-        public static bool LimitFPS { get; set; } = false;
+        public static bool LimitFPS { get; set; } = true;
         public static Size GameSize { get; set; } = IntroSceneSize;
         public static TimeSpan CacheDuration { get; set; } = TimeSpan.FromMinutes(30);
         public static string MapPath { get; set; } = @".\Map\";

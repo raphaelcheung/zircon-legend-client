@@ -66,6 +66,7 @@ namespace Client.Envir
 
             CEnvir.Storage = null;
             CEnvir.IsQuickGame = false;
+            CEnvir.SafeDisconnected = true;
         }
         public override void TrySendDisconnect(Packet p)
         {
@@ -3746,7 +3747,7 @@ namespace Client.Envir
                     displayInfo = Globals.ItemInfoList.Binding.First(x => x.Index == item.AddedStats[Stat.ItemIndex]);
                 
                 item.New = true;
-                string text = item.Count > 1 ? $"你的伙伴获得 {displayInfo.ItemName} x{item.Count}." : $"你的伙伴获得 {displayInfo.ItemName}.";
+                string text = item.Count > 1 ? $"你的{(GameScene.Game?.Companion?.CompanionInfo?.MonsterInfo?.MonsterName ?? "小伙伴")}获得 {displayInfo.ItemName} x{item.Count}." : $"你的{(GameScene.Game?.Companion?.CompanionInfo?.MonsterInfo?.MonsterName ?? "小伙伴")}获得 {displayInfo.ItemName}.";
 
                 if ((item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem)
                     text += " (任务)";

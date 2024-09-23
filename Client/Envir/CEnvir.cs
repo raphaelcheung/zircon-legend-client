@@ -25,6 +25,7 @@ using System.Security.Cryptography.X509Certificates;
 using Client.Envir.Translations;
 using System.Reflection;
 using C = Library.Network.ClientPackets;
+using Library.Network.GeneralPackets;
 
 namespace Client.Envir
 {
@@ -66,6 +67,7 @@ namespace Client.Envir
         public static bool Shift, Alt, Ctrl;
         public static DateTime Now;
         public static Point MouseLocation;
+        public static bool SafeDisconnected { get; set; } = false;
 
         public static string LauncherHash { get; set; }
         public static byte[] LauncherDatas { get; set; }
@@ -256,11 +258,17 @@ namespace Client.Envir
 
         public static void GameLoop()
         {
+            DateTime counter = DateTime.MinValue;
+
+            if (Config.LimitFPS)
+                counter = DateTime.Now.AddMilliseconds(1000 / 60);
+
             UpdateGame();
             RenderGame();
 
-            //if (Config.LimitFPS)
-                Thread.Sleep(1);;
+            if (Config.LimitFPS)
+                if(DateTime.Now < counter)
+                    Thread.Sleep(3);
         }
         private static void UpdateGame()
         {
@@ -915,10 +923,20 @@ namespace Client.Envir
         public static void Unload()
         {
             CConnection con = Connection;
-
             Connection = null;
 
-            con?.Disconnect();
+            if (con != null)
+            {
+                SafeDisconnected = false;
+                con.TrySendDisconnect(new Disconnect() { Reason = DisconnectReason.Unknown });
+                DateTime timeout = DateTime.Now.AddSeconds(2);
+
+                while (DateTime.Now < timeout && !SafeDisconnected) { Thread.Sleep(300); }
+
+                try { con.Disconnect(); }
+                catch { }
+            }
+
         }
         public static KeyBindInfo GetKeyBind(KeyBindAction action)
         {

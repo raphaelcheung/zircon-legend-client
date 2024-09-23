@@ -115,6 +115,7 @@ namespace Client
 
             CEnvir.Target = new TargetForm();
             CEnvir.Target.ClientSize = Config.GameSize;
+            CEnvir.Target.Location = new Point(0, 0);
             DXManager.Create();
             DXSoundManager.Create();
             
@@ -126,6 +127,8 @@ namespace Client
                 CEnvir.SaveError(ex.Message);
                 CEnvir.SaveError(ex.StackTrace);
             }
+
+            
 
             if (!Config.RememberDetails) Config.RememberedPassword = "";
             ConfigReader.Save();

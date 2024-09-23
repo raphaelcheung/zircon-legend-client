@@ -1040,7 +1040,7 @@ namespace Client.Scenes.Views
 
         public bool CanAttack(MapObject ob)
         {
-            if (ob == null || ob == User) return false;
+            if (ob == null || ob == User || (ob is MonsterObject mon && mon.Dead)) return false;
 
             switch (ob.Race)
             {
