@@ -24,8 +24,8 @@ namespace Client.Controls
             set => GameScene.Game.SelectedCell = value;
         }
 
-        public const int CellWidth = 36;
-        public const int CellHeight = 36;
+        public static int CellWidth { get; private set; } = 36;
+        public static int CellHeight { get; private set; } = 36;
 
         #endregion
 
@@ -534,15 +534,20 @@ namespace Client.Controls
         }
         #endregion
 
-        public DXItemCell()
+        public DXItemCell() : this(36, 36)
+        {
+        }
+
+        public DXItemCell(int nWidth = 36, int nHeight = 36)
         {
             BackColour = Color.Empty;
             DrawTexture = true;
             ShowCountLabel = true;
             AllowLink = true;
 
-
             BorderColour = Color.FromArgb(99, 83, 50);
+            CellWidth = nWidth;
+            CellHeight = nHeight;
             Size = new Size(CellWidth, CellHeight);
 
             CountLabel = new DXLabel
@@ -691,8 +696,12 @@ namespace Client.Controls
                 foreach (DXItemCell cell in GameScene.Game.BeltBox.Grid.Grid)
                     cell.RefreshItem();
 
-            if ((GridType == GridType.Inventory || GridType == GridType.CompanionInventory) && GameScene.Game.AutoPotionBox?.Rows != null)
-                foreach (AutoPotionRow row in GameScene.Game.AutoPotionBox.Rows)
+            //if ((GridType == GridType.Inventory || GridType == GridType.CompanionInventory) && GameScene.Game.AutoPotionBox?.Rows != null)
+            //    foreach (AutoPotionRow row in GameScene.Game.AutoPotionBox.Rows)
+            //        row.ItemCell.RefreshItem();
+
+            if ((GridType == GridType.Inventory || GridType == GridType.CompanionInventory || GridType == GridType.PatchGrid || GridType == GridType.BaoshiItems) && GameScene.Game?.BigPatchBox != null)
+                foreach (var row in GameScene.Game.BigPatchBox.Protect.Rows)
                     row.ItemCell.RefreshItem();
 
             if ((GridType == GridType.Belt || GridType == GridType.AutoPotion) && QuickInfo != null)
@@ -901,8 +910,9 @@ namespace Client.Controls
                 if (Selected) SelectedCell = null;
 
                 toCell.QuickInfo = Item.Info;
-                
-                GameScene.Game.AutoPotionBox.Rows[toCell.Slot].SendUpdate();
+
+                //GameScene.Game.AutoPotionBox.Rows[toCell.Slot].SendUpdate();
+                GameScene.Game.BigPatchBox.Protect.Rows[toCell.Slot].SendUpdate();
                 return;
             }
 
@@ -924,7 +934,8 @@ namespace Client.Controls
             {
                 QuickInfo = null;
 
-                GameScene.Game.AutoPotionBox.Rows[toCell.Slot].SendUpdate();
+                //GameScene.Game.AutoPotionBox.Rows[toCell.Slot].SendUpdate();
+                GameScene.Game.BigPatchBox.Protect.Rows[toCell.Slot].SendUpdate();
                 if (Selected) SelectedCell = null;
                 return;
             }

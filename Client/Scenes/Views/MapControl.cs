@@ -54,7 +54,7 @@ namespace Client.Scenes.Views
             if (nValue != null)
                 DXSoundManager.Play(nValue.Music);
 
-            //LLayer.UpdateLights();
+            LLayer.UpdateLights();
             MapInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -135,7 +135,7 @@ namespace Client.Scenes.Views
         public MirDirection MiningDirection;
         
         public Floor FLayer;
-        public Light LLayer;
+        private Light LLayer;
 
         public Cell[,] Cells;
         public int Width, Height;
@@ -161,7 +161,7 @@ namespace Client.Scenes.Views
             BackColour = Color.Empty;
             
             FLayer = new Floor { Parent = this, Size = Size };
-            //LLayer = new Light { Parent = this, Location = new Point(-GameScene.Game.Location.X, -GameScene.Game.Location.Y), Size = Size };
+            LLayer = new Light { Parent = this, Location = new Point(-GameScene.Game.Location.X, -GameScene.Game.Location.Y), Size = Size };
         }
 
         #region Methods
@@ -270,7 +270,7 @@ namespace Client.Scenes.Views
             DXManager.Device.SetRenderState(RenderState.SourceBlend, Blend.DestinationColor);
             DXManager.Device.SetRenderState(RenderState.DestinationBlend, Blend.BothInverseSourceAlpha);
 
-            //DXManager.Sprite.Draw(LLayer.ControlTexture, Color.White);
+            DXManager.Sprite.Draw(LLayer.ControlTexture, Color.White);
 
             DXManager.Sprite.End();
             DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
@@ -280,7 +280,7 @@ namespace Client.Scenes.Views
             if (!IsVisible || Size.Width == 0 || Size.Height == 0) return;
 
             FLayer.CheckTexture();
-            //LLayer.CheckTexture();
+            LLayer.CheckTexture();
             
             //CreateTexture();
             OnBeforeDraw();
@@ -393,7 +393,8 @@ namespace Client.Scenes.Views
 
             MapObject.User.Opacity = oldOpacity;
         }
-
+        public void UpdateLights()
+        { LLayer?.UpdateLights(); }
 
         private void LoadMap()
         {
@@ -498,15 +499,15 @@ namespace Client.Scenes.Views
                     return;
                 }
 
-                if (cell.GridType == GridType.AutoPotion)
-                {
-                    cell.QuickInfo = null;
-                    cell.QuickItem = null;
-                    DXItemCell.SelectedCell = null;
+                //if (cell.GridType == GridType.AutoPotion)
+                //{
+                //    cell.QuickInfo = null;
+                //    cell.QuickItem = null;
+                //    DXItemCell.SelectedCell = null;
 
-                    GameScene.Game.AutoPotionBox.Rows[cell.Slot].SendUpdate();
-                    return;
-                }
+                //    GameScene.Game.AutoPotionBox.Rows[cell.Slot].SendUpdate();
+                //    return;
+                //}
 
 
                 if ((cell.Item.Flags & UserItemFlags.Locked) == UserItemFlags.Locked || (cell.GridType != GridType.Inventory && cell.GridType != GridType.CompanionInventory))
@@ -1433,6 +1434,13 @@ namespace Client.Scenes.Views
 
             public void UpdateLights()
             {
+                if (Config.免蜡烛)
+                {
+                    BackColour = Color.White;
+                    Visible = true;
+                    return;
+                }
+
                 switch (GameScene.Game.MapControl.MapInfo.Light)
                 {
                     case LightSetting.Default:

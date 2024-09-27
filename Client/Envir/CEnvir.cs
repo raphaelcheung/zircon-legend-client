@@ -1018,5 +1018,9 @@ namespace Client.Envir
                     return key.ToString();
             }
         }
+        public static string GetDirName(Point User, Point Item)
+        {
+            return Item.X >= User.X ? (Item.X != User.X ? (Item.Y >= User.Y ? (Item.Y != User.Y ? "右下↘" : "正右→") : "右上↗") : (Item.Y >= User.Y ? (Item.Y != User.Y ? "正下↓" : "脚下\x3289") : "正上↑")) : (Item.Y >= User.Y ? (Item.Y != User.Y ? "左下↙" : "正左←") : "左上↖");
+        }
     }
 }

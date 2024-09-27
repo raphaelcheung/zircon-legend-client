@@ -223,6 +223,21 @@ namespace Client.Models
         }
         private bool _InSafeZone;
 
+
+        public long AutoTime
+        {
+            get
+            {
+                return _AutoTime;
+            }
+            set
+            {
+                _AutoTime = value;
+                GameScene.Game.AutoTimeChanged();
+            }
+        }
+        private long _AutoTime;
+
         public int HermitPoints;
         
 
@@ -376,11 +391,11 @@ namespace Client.Models
 
             foreach (ClientAutoPotionLink link in info.AutoPotionLinks)
             {
-                if (link.Slot < 0 || link.Slot >= GameScene.Game.AutoPotionBox.Links.Length) continue;
-
-                GameScene.Game.AutoPotionBox.Links[link.Slot] = link;
+                if (link.Slot >= 0 && link.Slot < GameScene.Game.BigPatchBox.Protect.Links.Length)
+                    GameScene.Game.BigPatchBox.Protect.Links[link.Slot] = link;
             }
-            GameScene.Game.AutoPotionBox.UpdateLinks();
+            GameScene.Game.BigPatchBox.Protect.UpdateLinks();
+            GameScene.Game?.BigPatchBox?.UpdateLinks(info);
 
             GameScene.Game.MapControl.AddObject(this);
 

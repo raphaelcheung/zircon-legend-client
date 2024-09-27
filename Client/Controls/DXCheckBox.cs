@@ -9,6 +9,7 @@ namespace Client.Controls
     public sealed class DXCheckBox : DXControl
     {
         #region Properites
+        //public bool bAlignRight { get; set; } = true;
 
         #region Checked
 

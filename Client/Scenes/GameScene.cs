@@ -17,6 +17,9 @@ using MirDB;
 using C = Library.Network.ClientPackets;
 using UserObject = Client.Models.UserObject;
 using System.ComponentModel;
+using System.Runtime.Remoting.Messaging;
+using Library.Network.ClientPackets;
+using Library.Network;
 
 //Cleaned
 namespace Client.Scenes
@@ -60,7 +63,26 @@ namespace Client.Scenes
 
 
         #endregion
-
+        //public int PatchGridSize
+        //{
+        //    get
+        //    {
+        //        return _PatchGridSize;
+        //    }
+        //    set
+        //    {
+        //        if (_PatchGridSize == value)
+        //            return;
+        //        int patchGridSize = _PatchGridSize;
+        //        _PatchGridSize = value;
+        //        OnPatchGridSizeChanged(patchGridSize, value);
+        //    }
+        //}
+        //private int _PatchGridSize = 0;
+        //public void OnPatchGridSizeChanged(int oValue, int nValue)
+        //{
+        //    InventoryBox.RefreshPatchGrid();
+        //}
         #region Observer
 
         public bool Observer
@@ -90,7 +112,8 @@ namespace Client.Scenes
         public MapObject MagicObject, TargetObject, FocusObject;
         public MapObject MouseObject { get; set; }
         public DXControl ItemLabel, MagicLabel;
-        
+        private DateTime skillTime1 { get; set; }
+        private DateTime skillTime2 { get; set; }
         #region MouseItem
 
         public ClientUserItem MouseItem
@@ -144,7 +167,8 @@ namespace Client.Scenes
         }
 
         #endregion
-        
+        public BigPatchDialog BigPatchBox { get; set; }
+
         public MapControl MapControl;
         public MainPanel MainPanel;
 
@@ -177,7 +201,7 @@ namespace Client.Scenes
         public GroupDialog GroupBox;
         public BuffDialog BuffBox;
         public StorageDialog StorageBox;
-        public AutoPotionDialog AutoPotionBox;
+
         public InspectDialog InspectBox;
         public RankingDialog RankingBox { get; set; }
         public MarketPlaceDialog MarketPlaceBox;
@@ -336,7 +360,7 @@ namespace Client.Scenes
                 if (_DayTime == value) return;
 
                 _DayTime = value;
-                //MapControl.LLayer.UpdateLights();
+                MapControl.UpdateLights();
             }
         }
         private float _DayTime;
@@ -493,7 +517,7 @@ namespace Client.Scenes
                 Parent = this,
                 Visible = false
             };
-            AutoPotionBox = new AutoPotionDialog
+            BigPatchBox = new BigPatchDialog
             {
                 Parent = this,
                 Visible = false
@@ -706,7 +730,7 @@ namespace Client.Scenes
 
             StorageBox.Location = new Point(Size.Width - StorageBox.Size.Width - InventoryBox.Size.Width, 0);
 
-            AutoPotionBox.Location = new Point((Size.Width - AutoPotionBox.Size.Width)/2, (Size.Height - AutoPotionBox.Size.Height)/2);
+            BigPatchBox.Location = new Point((Size.Width - BigPatchBox.Size.Width) / 2, (Size.Height - BigPatchBox.Size.Height) / 2);
 
             InspectBox.Location = new Point(CharacterBox.Size.Width, 0);
 
@@ -970,7 +994,13 @@ namespace Client.Scenes
                     MonsterBox.Monster = mob;
             }
 
-            AutoPickUp();
+            InventoryBox.InventoryDialogProcess();
+
+
+            if (!Observer)
+                BigPatchBox?.UpdateAutoAssist();
+
+            ProcessSkills();
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -1028,7 +1058,7 @@ namespace Client.Scenes
                         GroupBox.Visible = !GroupBox.Visible;
                         break;
                     case KeyBindAction.AutoPotionWindow:
-                        AutoPotionBox.Visible = !AutoPotionBox.Visible;
+                        BigPatchBox.Visible = !BigPatchBox.Visible;
                         break;
                     case KeyBindAction.StorageWindow:
                         StorageBox.Visible = !StorageBox.Visible;
@@ -1418,6 +1448,15 @@ namespace Client.Scenes
                         if (Observer) continue;
 
                         UseMagic(SpellKey.Spell24);
+                        break;
+                    case KeyBindAction.Guaji:
+                        GameScene.Game.ReceiveChat("挂机功能暂未开放，敬请期待...", MessageType.System);
+                        //if (!MapControl.MapInfo.AllowGuaji)
+                        //    GameScene.Game.ReceiveChat("目前您在不允许使用自动打怪功能的地图，因此不能挂机", MessageType.System);
+                        //else if (Game.User.Zdgjgongneng)
+                        //    GameScene.Game.ReceiveChat("每天18 : 00 点至 22 : 00 点不允许自动挂机的时间，因此不能挂机", MessageType.System);
+                        //else
+                        //    Game.BigPatchBox.Helper.AndroidPlayer.Checked = !Game.BigPatchBox.Helper.AndroidPlayer.Checked;
                         break;
                     default:
                         continue;
@@ -2724,39 +2763,61 @@ namespace Client.Scenes
             ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
         }
 
-
-        public void UseMagic(SpellKey key)
+        public void UseMagic(MagicType type)
         {
-            if (Game.Observer || User == null || User.Horse != HorseType.None || MagicBarBox == null) return;
-
-            ClientUserMagic magic = null;
-
-            foreach (KeyValuePair<MagicInfo, ClientUserMagic> pair in User.Magics)
+            if (GameScene.Game.Observer || User == null || User.Horse != HorseType.None || MagicBarBox == null)
+                return;
+            ClientUserMagic clientUserMagic = (ClientUserMagic)null;
+            foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in User.Magics)
             {
-
-                switch (MagicBarBox.SpellSet)
+                if (magic.Value.Info.Magic == type)
                 {
-                    case 1:
-                        if (pair.Value.Set1Key == key)
-                            magic = pair.Value;
-                        break;
-                    case 2:
-                        if (pair.Value.Set2Key == key)
-                            magic = pair.Value;
-                        break;
-                    case 3:
-                        if (pair.Value.Set3Key == key)
-                            magic = pair.Value;
-                        break;
-                    case 4:
-                        if (pair.Value.Set4Key == key)
-                            magic = pair.Value;
-                        break;
+                    clientUserMagic = magic.Value;
+                    break;
                 }
-
-                if (magic != null) break;
             }
-
+            UseMagic(clientUserMagic);
+        }
+        public MagicHelper TakeAmulet(ClientUserMagic magic)
+        {
+            MagicHelper magicHelper = null;
+            for (int index = 0; index < Config.magics.Count; ++index)
+            {
+                if (Config.magics[index].TypeID == magic.Info.Magic)
+                {
+                    magicHelper = Config.magics[index];
+                    break;
+                }
+            }
+            if (!Config.自动换符)
+                return magicHelper;
+            if (magicHelper == null)
+                return magicHelper;
+            int amulet = magicHelper.Amulet;
+            if (amulet == -1)
+                return magicHelper;
+            ClientUserItem clientUserItem1 = CharacterBox.Grid[11].Item;
+            int num = clientUserItem1 != null ? 1 : -1;
+            if (amulet == num)
+                return magicHelper;
+            for (int index = 0; index < Inventory.Length; ++index)
+            {
+                ClientUserItem clientUserItem2 = Inventory[index];
+                if ((clientUserItem2?.Info?.ItemType ?? ItemType.Nothing)==  ItemType.Amulet)
+                {
+                    if (clientUserItem2.Count > 0)
+                    {
+                        CharacterBox.Grid[11].ToEquipment(this.InventoryBox.Grid.Grid[index]);
+                        return magicHelper;
+                    }
+                }
+            }
+           
+            ReceiveChat("你的符用完了，释放失败", MessageType.Hint);
+            return magicHelper;
+        }
+        public void UseMagicOld(ClientUserMagic magic)
+        {
             if (magic == null || User.Level < magic.Info.NeedLevel1) return;
 
             switch (magic.Info.Magic)
@@ -2831,8 +2892,8 @@ namespace Client.Scenes
                     //Endurance
             }
 
-            if (CEnvir.Now < User.NextMagicTime || User.Dead || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type ==  BuffType.FrostBite) ||     
-                (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || 
+            if (CEnvir.Now < User.NextMagicTime || User.Dead || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type == BuffType.FrostBite) ||
+                (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis ||
                 (User.Poison & PoisonType.Silenced) == PoisonType.Silenced) return;
 
             if (CEnvir.Now < magic.NextCast)
@@ -2965,7 +3026,6 @@ namespace Client.Scenes
                 case MagicType.IceBlades:
                 case MagicType.Cyclone:
                 case MagicType.ExpelUndead:
-
                 case MagicType.PoisonDust:
                 case MagicType.ExplosiveTalisman:
                 case MagicType.EvilSlayer:
@@ -3034,7 +3094,7 @@ namespace Client.Scenes
                     direction = MirDirection.Down;
                     break;
                 case MagicType.Fetter:
-                    direction = MirDirection.Down;                    
+                    direction = MirDirection.Down;
                     break;
                 case MagicType.Renounce:
                     break;
@@ -3151,15 +3211,1099 @@ namespace Client.Scenes
 
             }
 
-
             //switch spell type.
 
             if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
-                FocusObject = (MonsterObject) MouseObject;
+                FocusObject = (MonsterObject)MouseObject;
 
             User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, magic.Info.Magic, new List<uint> { targetID }, new List<Point> { targetLocation }, false);
 
 
+        }
+
+        public void UseMagic(ClientUserMagic magic)
+        {
+            if (magic == null || this.User.Level < magic.Info.NeedLevel1)
+                return;
+            MapObject mapObject = (MapObject)null;
+            MagicHelper amulet = TakeAmulet(magic);
+            switch (magic.Info.Magic)
+            {
+                case MagicType.Swordsmanship:
+                    break;
+                case MagicType.Thrusting:
+                    if (CEnvir.Now < this.ToggleTime)
+                        break;
+                    this.ToggleTime = CEnvir.Now.AddSeconds(1.0);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic,
+                        CanUse = !this.User.CanThrusting
+                    });
+                    break;
+                case MagicType.HalfMoon:
+                    if (CEnvir.Now < this.ToggleTime)
+                        break;
+                    this.ToggleTime = CEnvir.Now.AddSeconds(1.0);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic,
+                        CanUse = !this.User.CanHalfMoon
+                    });
+                    break;
+                case MagicType.FlamingSword:
+                    if (CEnvir.Now < magic.NextCast || magic.Cost > this.User.CurrentMP)
+                        break;
+                    magic.NextCast = CEnvir.Now.AddSeconds(0.5);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic
+                    });
+                    break;
+                case MagicType.DragonRise:
+                    if (CEnvir.Now < magic.NextCast || magic.Cost > this.User.CurrentMP)
+                        break;
+                    magic.NextCast = CEnvir.Now.AddSeconds(0.5);
+                    if (this.CanAttackTarget(this.MagicObject))
+                    {
+                        MapObject magicObject = this.MagicObject;
+                    }
+                    if (this.CanAttackTarget(this.MouseObject))
+                    {
+                        MapObject mouseObject = this.MouseObject;
+                        MapObject.MagicObject = this.MouseObject.Race != ObjectType.Monster || ((MonsterObject)this.MouseObject).MonsterInfo.AI < 0 ? (this.MouseObject.Race != ObjectType.Player ? (MapObject)null : mouseObject) : mouseObject;
+                    }
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic
+                    });
+                    break;
+                case MagicType.BladeStorm:
+                case MagicType.DemonicRecovery:
+                    if (CEnvir.Now < magic.NextCast || magic.Cost > this.User.CurrentMP)
+                        break;
+                    magic.NextCast = CEnvir.Now.AddSeconds(0.5);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic
+                    });
+                    break;
+                case MagicType.DestructiveSurge:
+                    if (CEnvir.Now < this.ToggleTime)
+                        break;
+                    this.ToggleTime = CEnvir.Now.AddSeconds(1.0);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic,
+                        CanUse = !this.User.CanDestructiveBlow
+                    });
+                    break;
+                case MagicType.Endurance:
+                    if (CEnvir.Now < magic.NextCast || magic.Cost > this.User.CurrentMP)
+                        break;
+                    magic.NextCast = CEnvir.Now.AddSeconds(0.5);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic
+                    });
+                    break;
+                case MagicType.SpiritSword:
+                    break;
+                case MagicType.WillowDance:
+                    break;
+                case MagicType.VineTreeDance:
+                    break;
+                case MagicType.FullBloom:
+                case MagicType.WhiteLotus:
+                case MagicType.RedLotus:
+                case MagicType.SweetBrier:
+                    if (CEnvir.Now < ToggleTime || CEnvir.Now < magic.NextCast || User.AttackMagic == magic.Info.Magic)
+                        break;
+                    ReceiveChat(magic.Info.Name + " 准备就绪", MessageType.Hint);
+                    int num1 = Math.Max(800, Globals.AttackDelay - MapObject.User.Stats[Stat.AttackSpeed] * Globals.ASpeedRate);
+                    ToggleTime = CEnvir.Now + TimeSpan.FromMilliseconds((double)(num1 + 200));
+                    User.AttackMagic = magic.Info.Magic;
+                    break;
+                case MagicType.Karma:
+                    if (CEnvir.Now < this.ToggleTime || CEnvir.Now < magic.NextCast || this.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.Cloak)) || this.User.AttackMagic == magic.Info.Magic)
+                        break;
+                    this.ReceiveChat(magic.Info.Name + " 准备就绪", MessageType.Hint);
+                    this.ToggleTime = CEnvir.Now + TimeSpan.FromMilliseconds(500.0);
+                    this.User.AttackMagic = magic.Info.Magic;
+                    break;
+                case MagicType.FlameSplash:
+                    if (CEnvir.Now < this.ToggleTime)
+                        break;
+                    this.ToggleTime = CEnvir.Now.AddSeconds(1.0);
+                    CEnvir.Enqueue((Packet)new MagicToggle()
+                    {
+                        Magic = magic.Info.Magic,
+                        CanUse = !this.User.CanFlameSplash
+                    });
+                    break;
+                default:
+                    if (CEnvir.Now < this.User.NextMagicTime || this.User.Dead || (this.User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x =>
+                    {
+                        if (x.Type != BuffType.DragonRepulse)
+                            return x.Type == BuffType.FrostBite;
+                        return true;
+                    })) || (this.User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis) || (this.User.Poison & PoisonType.Silenced) == PoisonType.Silenced)
+                        break;
+                    if (CEnvir.Now < magic.NextCast)
+                    {
+                        if (!(CEnvir.Now >= this.OutputTime))
+                            break;
+                        this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                        this.ReceiveChat("不能使用 " + magic.Info.Name + ", 该技能仍在冷却", MessageType.Hint);
+                        break;
+                    }
+                    switch (magic.Info.Magic)
+                    {
+
+
+                        case MagicType.Heal:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 2 || User.Mingwen02 == 2 || User.Mingwen03 == 2)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+
+
+                        case MagicType.ExplosiveTalisman:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 15 || User.Mingwen02 == 15 || User.Mingwen03 == 15)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.EvilSlayer:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 16 || User.Mingwen02 == 16 || User.Mingwen03 == 16)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.LifeSteal:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 76 || User.Mingwen02 == 76 || User.Mingwen03 == 76)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.DemonicRecovery:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 79 || User.Mingwen02 == 79 || User.Mingwen03 == 79)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+
+
+                        case MagicType.Repulsion:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 99 || User.Mingwen02 == 99 || User.Mingwen03 == 99)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+
+
+                        case MagicType.Teleportation:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 104 || User.Mingwen02 == 104 || User.Mingwen03 == 104)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.GeoManipulation:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 125 || User.Mingwen02 == 125 || User.Mingwen03 == 125)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.JudgementOfHeaven:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 189 || User.Mingwen02 == 189 || User.Mingwen03 == 189)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+
+
+                        case MagicType.Interchange:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 171 || User.Mingwen02 == 171 || User.Mingwen03 == 171)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+
+
+                        case MagicType.Beckon:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 172 || User.Mingwen02 == 172 || User.Mingwen03 == 172)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.Might:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 174 || User.Mingwen02 == 174 || User.Mingwen03 == 174)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.MassBeckon:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 197 || User.Mingwen02 == 197 || User.Mingwen03 == 197)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.Fetter:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 200 || User.Mingwen02 == 200 || User.Mingwen03 == 200)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+                            }
+                            break;
+                        case MagicType.HellFire:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 219 || User.Mingwen02 == 219 || User.Mingwen03 == 219)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.SummonPuppet:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 227 || User.Mingwen02 == 227 || User.Mingwen03 == 227)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.Abyss:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 248 || User.Mingwen02 == 248 || User.Mingwen03 == 248)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.Evasion:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 254 || User.Mingwen02 == 254 || User.Mingwen03 == 254)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.RagingWind:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                //if (User.Mingwen01 == 256 || User.Mingwen02 == 256 || User.Mingwen03 == 256)
+                                //{
+                                //    if (!(CEnvir.Now >= OutputTime))
+                                //        return;
+                                //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                //}
+                                //else
+                                {
+                                    if (!(CEnvir.Now >= OutputTime))
+                                        return;
+                                    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                    return;
+                                }
+
+                            }
+                            break;
+                        case MagicType.Cloak:
+                            if (!User.VisibleBuffs.Contains(BuffType.Cloak))
+                            {
+                                if (CEnvir.Now < this.User.CombatTime.AddSeconds(10.0))
+                                {
+                                    if (!(CEnvir.Now >= this.OutputTime))
+                                        return;
+                                    this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    this.ReceiveChat("战斗中无法使用 " + magic.Info.Name + " ", MessageType.Hint);
+                                    return;
+                                }
+                                if (this.User.Stats[Stat.Health] * magic.Cost / 1000 >= this.User.CurrentHP || this.User.CurrentHP < this.User.Stats[Stat.Health] / 10)
+                                {
+                                    if (!(CEnvir.Now >= this.OutputTime))
+                                        return;
+                                    this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                    this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的生命值", MessageType.Hint);
+                                    return;
+                                }
+                                break;
+                            }
+                            break;
+                        case MagicType.DarkConversion:
+                            if (!this.User.VisibleBuffs.Contains(BuffType.DarkConversion) && magic.Cost > this.User.CurrentMP)
+                            {
+                                if (!(CEnvir.Now >= this.OutputTime))
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                return;
+                            }
+                            break;
+                        case MagicType.DragonRepulse:
+                            if (this.User.Stats[Stat.Health] * magic.Cost / 1000 >= this.User.CurrentHP || this.User.CurrentHP < this.User.Stats[Stat.Health] / 10)
+                            {
+                                if (!(CEnvir.Now >= this.OutputTime))
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的生命值", MessageType.Hint);
+                                return;
+                            }
+                            if (this.User.Stats[Stat.Mana] * magic.Cost / 1000 >= this.User.CurrentMP || this.User.CurrentMP < this.User.Stats[Stat.Mana] / 10)
+                            {
+                                if (!(CEnvir.Now >= this.OutputTime))
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你没有足够的魔法值", MessageType.Hint);
+                                return;
+                            }
+                            break;
+                        //case MagicType.ElementalHurricane:
+                        //    int cost = magic.Cost;
+                        //    if (MapObject.User.VisibleBuffs.Contains(BuffType.ElementalHurricane))
+                        //        cost = 0;
+
+                        //    if (cost > User.CurrentMP)
+                        //    {
+                        //        if (CEnvir.Now >= OutputTime)
+                        //        {
+                        //            OutputTime = CEnvir.Now.AddSeconds(1);
+                        //            ReceiveChat($"不能使用 {magic.Info.Name}, 你没有足够的魔法值.", MessageType.Hint);
+                        //        }
+                        //        return;
+                        //    }
+                        //    break;
+                        //case MagicType.Concentration:
+                        //    if (User.VisibleBuffs.Contains(BuffType.Concentration)) return;
+
+                        //    if (magic.Cost > User.CurrentMP)
+                        //    {
+                        //        if (CEnvir.Now >= OutputTime)
+                        //        {
+                        //            OutputTime = CEnvir.Now.AddSeconds(1);
+                        //            ReceiveChat($"不能使用 {magic.Info.Name}, 你没有足够的魔法值.", MessageType.Hint);
+                        //        }
+                        //        return;
+                        //    }
+                        //    break;
+                        default:
+                            if (magic.Cost > User.CurrentMP)
+                            {
+                                if (CEnvir.Now >= OutputTime)
+                                {
+                                    OutputTime = CEnvir.Now.AddSeconds(1);
+                                    ReceiveChat($"不能使用 {magic.Info.Name}, 你没有足够的魔法值.", MessageType.Hint);
+                                }
+                                return;
+                            }
+                            break;
+                    }
+                    MirDirection direction = this.MapControl.MouseDirection();
+                    switch (magic.Info.Magic)
+                    {
+                        case MagicType.ShoulderDash:
+                            if (CEnvir.Now < this.User.ServerTime || (this.User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
+                                return;
+                            this.User.ServerTime = CEnvir.Now.AddSeconds(5.0);
+                            this.User.NextMagicTime = CEnvir.Now + Globals.MagicDelay;
+                            CEnvir.Enqueue((Packet)new Magic()
+                            {
+                                Direction = direction,
+                                Action = MirAction.Spell,
+                                Type = magic.Info.Magic
+                            });
+                            return;
+                        case MagicType.FlamingSword:
+                            return;
+                        case MagicType.DragonRise:
+                            return;
+                        case MagicType.BladeStorm:
+                            return;
+                        case MagicType.DestructiveSurge:
+                            return;
+                        case MagicType.Interchange:
+                        case MagicType.Beckon:
+                            if (this.CanAttackTarget(this.MouseObject))
+                            {
+                                mapObject = this.MouseObject;
+                                goto case MagicType.MassBeckon;
+                            }
+                            else
+                                goto case MagicType.MassBeckon;
+                        case MagicType.Defiance:
+                        //case MagicType.Invincibility:
+                        //case MagicType.Concentration:
+                        //    direction = MirDirection.Down;
+                        //    goto case MagicType.MassBeckon;
+                        case MagicType.Might:
+                            direction = MirDirection.Down;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.SwiftBlade:
+                        case MagicType.FireWall:
+                        case MagicType.GeoManipulation:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Assault:
+                            return;
+                        case MagicType.Endurance:
+                            return;
+                        case MagicType.ReflectDamage:
+                            if (this.User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.ReflectDamage)))
+                                return;
+                            direction = MirDirection.Down;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Fetter:
+                            direction = MirDirection.Down;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.MassBeckon:
+                        case MagicType.SeismicSlam:
+                        case MagicType.Repulsion:
+                        case MagicType.Teleportation:
+                        case MagicType.ScortchedEarth:
+                        case MagicType.LightningBeam:
+                        case MagicType.FrozenEarth:
+                        case MagicType.BlowEarth:
+                        case MagicType.GreaterFrozenEarth:
+                        case MagicType.Renounce:
+                        case MagicType.JudgementOfHeaven:
+                        case MagicType.ThunderStrike:
+                        case MagicType.MirrorImage:
+                        case MagicType.Invisibility:
+                        case MagicType.StrengthOfFaith:
+                        case MagicType.TheNewBeginning:
+                        case MagicType.DarkConversion:
+                        case MagicType.DragonRepulse:
+                        case MagicType.FlashOfLight:
+                        case MagicType.Evasion:
+                        case MagicType.RagingWind:
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            if (mapObject != null && mapObject != this.User)
+                                direction = Functions.DirectionFromPoint(this.User.CurrentLocation, mapObject.CurrentLocation);
+                            uint num2 = mapObject != null ? mapObject.ObjectID : 0U;
+                            Point point;
+                            switch (magic.Info.Magic)
+                            {
+                                case MagicType.PoisonDust:
+                                case MagicType.ExplosiveTalisman:
+                                case MagicType.EvilSlayer:
+                                case MagicType.GreaterEvilSlayer:
+                                case MagicType.Purification:
+                                case MagicType.ImprovedExplosiveTalisman:
+                                    point = this.MapControl.MapLocation;
+                                    break;
+                                default:
+                                    point = mapObject != null ? mapObject.CurrentLocation : this.MapControl.MapLocation;
+                                    break;
+                            }
+                            if (this.MouseObject != null && this.MouseObject.Race == ObjectType.Monster)
+                                this.FocusObject = this.MouseObject;
+                            this.User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
+                            {
+                                (object) magic.Info.Magic,
+                                (object) new List<uint>() { num2 },
+                                (object) new List<Point>() { point },
+                                (object) false
+                            });
+                            return;
+                        case MagicType.FireBall:
+                        case MagicType.LightningBall:
+                        case MagicType.IceBolt:
+                        case MagicType.GustBlast:
+                        case MagicType.ElectricShock:
+                        case MagicType.AdamantineFireBall:
+                        case MagicType.ThunderBolt:
+                        case MagicType.IceBlades:
+                        case MagicType.Cyclone:
+                        case MagicType.ExpelUndead:
+                        case MagicType.FireStorm:
+                        case MagicType.LightningWave:
+                        case MagicType.IceStorm:
+                        case MagicType.DragonTornado:
+                        case MagicType.ChainLightning:
+                        case MagicType.PoisonDust:
+                        case MagicType.ExplosiveTalisman:
+                        case MagicType.EvilSlayer:
+                        case MagicType.GreaterEvilSlayer:
+                        case MagicType.Purification:
+                        case MagicType.ImprovedExplosiveTalisman:
+                        case MagicType.Infection:
+                        //case MagicType.Neutralize:
+                            if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
+                            {
+                                ClientUserItem clientUserItem1 = this.CharacterBox.Grid[10].Item;
+                                int num3 = clientUserItem1 != null ? clientUserItem1.Info.Shape : -1;
+                                for (int index = 0; index < this.Inventory.Length; ++index)
+                                {
+                                    ClientUserItem clientUserItem2 = this.Inventory[index];
+                                    int num4;
+                                    if ((clientUserItem2 != null ? (int)clientUserItem2.Info.ItemType : 0) == 10)
+                                    {
+                                        ClientUserItem clientUserItem3 = this.Inventory[index];
+                                        num4 = (clientUserItem3 != null ? clientUserItem3.Info.Shape : -1) != num3 ? 1 : 0;
+                                    }
+                                    else
+                                        num4 = 0;
+                                    if (num4 != 0)
+                                    {
+                                        this.CharacterBox.Grid[10].ToEquipment(InventoryBox.Grid.Grid[index]);
+                                        break;
+                                    }
+                                }
+                                ClientUserItem clientUserItem4 = CharacterBox.Grid[10].Item;
+                                if ((clientUserItem4 != null ? clientUserItem4.Info.Shape : -1) == -1)
+                                    this.ReceiveChat("你的毒用完了，释放失败", MessageType.Hint);
+                            }
+                            if (magic.Info.Magic == MagicType.Purification)
+                                mapObject = this.MouseObject ?? (MapObject)this.User;
+                            if (this.CanAttackTarget(this.MagicObject))
+                            {
+                                mapObject = this.MagicObject;
+                                MapObject.MagicObject = mapObject;
+                            }
+                            if (this.CanAttackTarget(this.MouseObject))
+                            {
+                                mapObject = this.MouseObject;
+                                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (this.MouseObject.Race != ObjectType.Monster || ((MonsterObject)this.MouseObject).MonsterInfo.AI < 0) ? (amulet == null || !amulet.LockPlayer || this.MouseObject.Race != ObjectType.Player ? (MapObject)null : (this.MouseObject == this.User ? this.MagicObject : mapObject)) : mapObject;
+                                goto case MagicType.MassBeckon;
+                            }
+                            else
+                                goto case MagicType.MassBeckon;
+                        case MagicType.MagicShield:
+                            if (User.Buffs.Any(x => x.Type == BuffType.MagicShield))
+                                return;
+                            goto case MagicType.MassBeckon;
+                        //case MagicType.SuperiorMagicShield:
+                        //    if (this.User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.SuperiorMagicShield)))
+                        //        return;
+                        //    goto case MagicType.MassBeckon;
+                        case MagicType.MeteorShower:
+                        case MagicType.Tempest:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Asteroid:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.RayOfLight:
+                            return;
+                        case MagicType.BurstOfEnergy:
+                            return;
+                        case MagicType.ShieldOfPreservation:
+                            return;
+                        case MagicType.RetrogressionOfEnergy:
+                            return;
+                        case MagicType.FuryBlast:
+                            return;
+                        case MagicType.TempestOfUnstableEnergy:
+                            return;
+                        case MagicType.AdvancedRenounce:
+                            return;
+                        case MagicType.FrostBite:
+                            if (this.User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.FrostBite)))
+                                return;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Heal:
+                            mapObject = this.MouseObject ?? (MapObject)this.User;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.SpiritSword:
+                            return;
+                        case MagicType.MagicResistance:
+                        case MagicType.Resilience:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.MassInvisibility:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.TrapOctagon:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.TaoistCombatKick:
+                        case MagicType.ThunderKick:
+                        //case MagicType.DarkSoulPrison:
+                        //    if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, Globals.MagicRange))
+                        //    {
+                        //        if (CEnvir.Now < this.OutputTime) return;
+
+                        //        this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                        //        this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                        //        return;
+                        //    }
+                        //    goto case MagicType.MassBeckon;
+                        case MagicType.ElementalSuperiority:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.MassHeal:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.BloodLust:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Resurrection:
+                            if (this.MouseObject == null || !this.MouseObject.Dead || this.MouseObject.Race != ObjectType.Player)
+                                return;
+                            mapObject = this.MouseObject;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.Transparency:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.CelestialLight:
+                            if (this.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.CelestialLight)))
+                                return;
+                            goto case MagicType.MassBeckon;
+                        case MagicType.EmpoweredHealing:
+                            return;
+                        case MagicType.LifeSteal:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.GreaterPoisonDust:
+                            return;
+                        case MagicType.Scarecrow:
+                        case MagicType.PoisonousCloud:
+                        case MagicType.Cloak:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.DragonBreath:
+                            return;
+                        case MagicType.MassTransparency:
+                            return;
+                        case MagicType.GreaterHolyStrike:
+                            return;
+                        case MagicType.AugmentExplosiveTalisman:
+                            return;
+                        case MagicType.AugmentEvilSlayer:
+                            return;
+                        case MagicType.AugmentPurification:
+                            return;
+                        case MagicType.OathOfThePerished:
+                            return;
+                        case MagicType.SummonSkeleton:
+                        case MagicType.SummonShinsu:
+                        case MagicType.SummonJinSkeleton:
+                        case MagicType.SummonDemonicCreature:
+                        case MagicType.DemonExplosion:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.WraithGrip:
+                        case MagicType.HellFire:
+                        case MagicType.Abyss:
+                            if (this.CanAttackTarget(this.MouseObject))
+                            {
+                                mapObject = this.MouseObject;
+                                goto case MagicType.MassBeckon;
+                            }
+                            else
+                                goto case MagicType.MassBeckon;
+                        case MagicType.SummonPuppet:
+                            if (!Functions.InRange(this.MapControl.MapLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            goto case MagicType.MassBeckon;
+                        case MagicType.DanceOfSwallow:
+                            if (CEnvir.Now < this.User.ServerTime)
+                                return;
+                            if (this.CanAttackTarget(this.MouseObject))
+                                mapObject = this.MouseObject;
+                            if (mapObject == null)
+                                return;
+                            if (!Functions.InRange(mapObject.CurrentLocation, this.User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < this.OutputTime)
+                                    return;
+                                this.OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                this.ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            User.ServerTime = CEnvir.Now.AddSeconds(5.0);
+                            User.NextMagicTime = CEnvir.Now + Globals.MagicDelay;
+                            MapObject.TargetObject = mapObject;
+                            MapObject.MagicObject = mapObject;
+                            CEnvir.Enqueue((Packet)new Magic()
+                            {
+                                Action = MirAction.Spell,
+                                Type = magic.Info.Magic,
+                                Target = mapObject.ObjectID
+                            });
+                            return;
+                        case MagicType.AdventOfDemon:
+                            return;
+                        case MagicType.AdventOfDevil:
+                            return;
+                        case MagicType.Stealth:
+                            return;
+                        default:
+                            return;
+                    }
+            }
+        }
+        public void UseMagic(SpellKey key)
+        {
+            if (Game.Observer || User == null || User.Horse != HorseType.None || MagicBarBox == null) return;
+
+            ClientUserMagic magic = null;
+
+            foreach (KeyValuePair<MagicInfo, ClientUserMagic> pair in User.Magics)
+            {
+
+                switch (MagicBarBox.SpellSet)
+                {
+                    case 1:
+                        if (pair.Value.Set1Key == key)
+                            magic = pair.Value;
+                        break;
+                    case 2:
+                        if (pair.Value.Set2Key == key)
+                            magic = pair.Value;
+                        break;
+                    case 3:
+                        if (pair.Value.Set3Key == key)
+                            magic = pair.Value;
+                        break;
+                    case 4:
+                        if (pair.Value.Set4Key == key)
+                            magic = pair.Value;
+                        break;
+                }
+
+                if (magic != null) break;
+            }
+
+            UseMagic(magic);
         }
         private bool CanAttackTarget(MapObject ob)
         {
@@ -3530,6 +4674,7 @@ namespace Client.Scenes
             SafeZoneChanged();
             AttackModeChanged();
             PetModeChanged();
+            BigPatchBox.UserChanged();
             MagicBarBox.UpdateIcons();
             MarketPlaceBox.ConsignTab.TabButton.Visible = !Observer;
             TradeBox.CloseButton.Enabled = !Observer;
@@ -3785,6 +4930,9 @@ namespace Client.Scenes
 
             foreach (ChatTab tab in ChatTab.Tabs)
                 tab.ReceiveChat(message, type);
+
+            if (Config.自动回复)
+                BigPatchBox?.ReceiveChat(message, type);
         }
         public void ReceiveChat(MessageAction action, params object[] args)
         {
@@ -4075,76 +5223,6 @@ namespace Client.Scenes
             return false;
         }
 
-        public void AutoPickUp()
-        {
-            if (Observer || Config.PickType == PickType.Sequence) return;
-
-            if (CEnvir.Now <= AutoPickUpTime || CEnvir.Now <= PickUpTime) return;
-            
-            int range = MapControl.User.Stats[Stat.PickUpRadius];
-
-            bool need = false;
-
-            for(int r = 0; r <= range; r++)
-            {
-                for (int y = MapControl.User.CurrentLocation.Y - r; y <= MapControl.User.CurrentLocation.Y + r; y++)
-                {
-                    if (y < 0) continue;
-                    if (y >= MapControl.Height) break;
-
-                    for (int x = MapControl.User.CurrentLocation.X - r; x <= MapControl.User.CurrentLocation.X + r; x += Math.Abs(y - MapControl.User.CurrentLocation.Y) == r ? 1 : r * 2)
-                    {
-                        if (x < 0) continue;
-                        if (x >= MapControl.Width) break;
-
-                        Cell cell = MapControl.Cells[x, y];
-                        if (cell?.Objects == null) continue;
-
-                        foreach(MapObject obj in cell.Objects)
-                        {
-                            if (obj is ItemObject item)
-                            {
-                                switch (Config.PickType)
-                                {
-                                    case PickType.All:
-                                        need = true;
-                                        break;
-                                    case PickType.Gold:
-                                        if (item.Item.Info.ItemType == ItemType.Nothing
-                                            && item.Item.Info.Effect == ItemEffect.Gold)
-                                            need = true;
-                                        break;
-                                    case PickType.Valuable:
-                                        if ((item.Item.Info.ItemType == ItemType.Nothing
-                                            && item.Item.Info.Effect == ItemEffect.Gold)
-                                            || item.Item.AddedStats.Values.Count > 0 
-                                            || item.Item.Info.Rarity != Rarity.Common)
-                                            need = true;
-                                        break;
-                                }
-                            }
-
-                            if (need) break;
-                        }
-
-                        if (need) break;
-                    }
-
-                    if (need) break;
-                }
-
-                if (need) break;
-            }
-
-            if (need)
-            {
-                CEnvir.Enqueue(new C.PickUp() { PickType = (byte)Config.PickType });
-                PickUpTime = CEnvir.Now.AddMilliseconds(250);
-                AutoPickUpTime = CEnvir.Now.AddMilliseconds(600);
-            }
-
-        }
-
         #endregion
 
         #region IDisposable
@@ -4426,20 +5504,20 @@ namespace Client.Scenes
                     BuffBox = null;
                 }
 
+                if (BigPatchBox != null)
+                {
+                    if (!BigPatchBox.IsDisposed)
+                        BigPatchBox.Dispose();
+
+                    BigPatchBox = null;
+                }
+
                 if (StorageBox != null)
                 {
                     if (!StorageBox.IsDisposed)
                         StorageBox.Dispose();
 
                     StorageBox = null;
-                }
-
-                if (AutoPotionBox != null)
-                {
-                    if (!AutoPotionBox.IsDisposed)
-                        AutoPotionBox.Dispose();
-
-                    AutoPotionBox = null;
                 }
 
                 if (InspectBox != null)
@@ -4594,5 +5672,74 @@ namespace Client.Scenes
 
         #endregion
 
+        public void AutoTimeChanged()
+        {
+            if (User == null) return;
+
+            BigPatchBox.OnTimerChanged(User.AutoTime);
+        }
+        public void AutoZidongGuajiChanged()
+        {
+            if (User == null)
+                return;
+
+            if (false)//if (Game.User.Zdgjgongneng)
+            {
+                if (BigPatchBox.Helper.AndroidPlayer.Checked)
+                    BigPatchBox.Helper.AndroidPlayer.Checked = false;
+                if (BigPatchBox.Helper.AndroidPlayer.Visible)
+                    BigPatchBox.Helper.AndroidPlayer.Visible = false;
+            }
+            else
+            {
+                if (false)//if (MapControl.MapInfo.AllowGuaji)
+                    if (!BigPatchBox.Helper.AndroidPlayer.Visible)
+                        BigPatchBox.Helper.AndroidPlayer.Visible = true;
+            }
+        }
+        public void AutoGuajiChanged()
+        {
+            if (User == null)
+                return;
+
+            if (false)//if (!MapControl.MapInfo.AllowGuaji)
+            {
+                if (BigPatchBox.Helper.AndroidPlayer.Checked)
+                    BigPatchBox.Helper.AndroidPlayer.Checked = false;
+                if (BigPatchBox.Helper.AndroidPlayer.Visible)
+                    BigPatchBox.Helper.AndroidPlayer.Visible = false;
+
+            }
+            else
+            {
+                if (!BigPatchBox.Helper.AndroidPlayer.Visible)
+                    BigPatchBox.Helper.AndroidPlayer.Visible = true;
+            }
+        }
+        private void ProcessSkills()
+        {
+            if (Config.是否开启自动技能1 && CEnvir.Now >= skillTime1)
+            {
+                if ((uint)Config.自动技能1 > 0U)
+                    UseMagic(Config.自动技能1);
+                skillTime1 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能1多长时间使用一次 > 0L ? (double)Config.自动技能1多长时间使用一次 : 10.0);
+            }
+            if (!Config.是否开启自动技能2 || !(CEnvir.Now >= skillTime2))
+                return;
+            if ((uint)Config.自动技能2 > 0U)
+                UseMagic(Config.自动技能2);
+            skillTime2 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能2多长时间使用一次 > 0L ? (double)Config.自动技能2多长时间使用一次 : 10.0);
+        }
+        public void SortFillItems(List<ClientUserItem> items)
+        {
+            for (int i = 0; i < Globals.InventorySize; i++)
+            {
+                InventoryBox.Grid.Grid[i].Item = null;
+            }
+            foreach (ClientUserItem item in items)
+            {
+                InventoryBox.Grid.Grid[item.Slot].Item = item;
+            }
+        }
     }
 } 

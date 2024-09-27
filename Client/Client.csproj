@@ -110,7 +110,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>C:\Users\Raphael\Desktop\传奇三\Client\</OutputPath>
+    <OutputPath>..\..\..\Desktop\传奇三\Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
@@ -161,6 +161,7 @@
     <Compile Include="Controls\DXControl.cs" />
     <Compile Include="Controls\DXKeyBindWindow.cs" />
     <Compile Include="Controls\DXListBox.cs" />
+    <Compile Include="Controls\DXListView.cs" />
     <Compile Include="Controls\DXNumberTextBox.cs" />
     <Compile Include="Controls\DXVScrollBar.cs" />
     <Compile Include="Envir\CConnection.cs" />
@@ -204,9 +205,9 @@
     <Compile Include="Scenes\GameScene.cs" />
     <Compile Include="Scenes\LoginScene.cs" />
     <Compile Include="Scenes\SelectScene.cs" />
-    <Compile Include="Scenes\Views\AutoPotionDialog.cs" />
     <Compile Include="Scenes\Views\BeltDialog.cs" />
     <Compile Include="Scenes\Views\BigMapDialog.cs" />
+    <Compile Include="Scenes\Views\BigPatchDialog.cs" />
     <Compile Include="Scenes\Views\BuffDialog.cs" />
     <Compile Include="Scenes\Views\CharacterDialog.cs" />
     <Compile Include="Scenes\Views\ChatOptionsDialog.cs" />
@@ -217,12 +218,13 @@
     <Compile Include="Scenes\Views\EditCharacterDialog.cs" />
     <Compile Include="Scenes\Views\FortuneCheckerDialog.cs" />
     <Compile Include="Scenes\Views\GuildDialog.cs" />
+    <Compile Include="Scenes\Views\InventoryDialog.cs" />
     <Compile Include="Scenes\Views\MagicBarDialog.cs" />
     <Compile Include="Scenes\Views\MailDialog.cs" />
     <Compile Include="Scenes\Views\MarketPlaceDialog.cs" />
     <Compile Include="Scenes\Views\GroupDialog.cs" />
     <Compile Include="Scenes\Views\InspectDialog.cs" />
-    <Compile Include="Scenes\Views\InventoryDialog.cs" />
+    <Compile Include="Scenes\Views\InventoryDialog_.cs" />
     <Compile Include="Scenes\Views\ExitDialog.cs" />
     <Compile Include="Scenes\Views\MagicDialog.cs" />
     <Compile Include="Scenes\Views\MainPanel.cs" />

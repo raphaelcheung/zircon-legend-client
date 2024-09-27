@@ -19,7 +19,7 @@ namespace Client.Models
 {
     public abstract class MapObject
     {
-        public static SortedDictionary<string, List<DXLabel>> NameLabels = new SortedDictionary<string, List<DXLabel>>();
+        public static SortedDictionary<string, List<DXLabel>> NameLabels { get; private set; } = new SortedDictionary<string, List<DXLabel>>();
         public static List<DXLabel> ChatLabels = new List<DXLabel>();
 
         public static UserObject User => GameScene.Game.User;
@@ -178,7 +178,8 @@ namespace Client.Models
         private Color _NameColour;
         
         public DateTime ChatTime;
-        public DXLabel NameLabel, ChatLabel, TitleNameLabel;
+        public DXLabel NameLabel { get;private set; }
+        public DXLabel ChatLabel, TitleNameLabel;
         public List<DamageInfo> DamageList = new List<DamageInfo>();
         public List<MirEffect> Effects = new List<MirEffect>();
 

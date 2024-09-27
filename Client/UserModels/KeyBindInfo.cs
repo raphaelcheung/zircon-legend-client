@@ -190,7 +190,8 @@ namespace Client.UserModels
         AutoPotionWindow,
         [Description("仓库窗口")]
         StorageWindow,
-        [Description("Block List Window")]
+
+        [Description("黑名单")]
         BlockListWindow,
         [Description("行会窗口")]
         GuildWindow,
@@ -200,7 +201,7 @@ namespace Client.UserModels
         QuestTrackerWindow,
         [Description("腰带")]
         BeltWindow,
-        [Description("Market Place Window")]
+        [Description("商城")]
         MarketPlaceWindow,
         [Description("迷你地图")]
         MapMiniWindow,
@@ -237,7 +238,7 @@ namespace Client.UserModels
         [Description("夫妻传送")]
         PartnerTeleport,
 
-        [Description("Toggle Mount")]
+        [Description("切换骑乘")]
         MountToggle,
         [Description("切换自动奔跑")]
         AutoRunToggle,
@@ -327,6 +328,9 @@ namespace Client.UserModels
         ToggleItemLock,
 
         [Description("财富窗口")]
-        FortuneWindow
+        FortuneWindow,
+
+        [Description("自动挂机")]
+        Guaji,
     }
 }

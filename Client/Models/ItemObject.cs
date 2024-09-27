@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Client.Controls;
 using Client.Envir;
 using Client.Scenes;
+using Client.Scenes.Views;
 using Library;
 using Library.SystemModels;
 using  S = Library.Network.ServerPackets;
@@ -18,7 +19,7 @@ namespace Client.Models
         public override ObjectType Race  => ObjectType.Item;
 
         public DXLabel FocusLabel;
-
+        private BigPatchDialog.CItemFilterSet FilterSet = null;
         public override bool Blocking => false;
 
         public ClientUserItem Item;
@@ -85,6 +86,44 @@ namespace Client.Models
                     });
                     break;
             }
+
+            FilterSet = GameScene.Game?.BigPatchBox?.GetFilterItem(itemInfo.Index);
+            if (FilterSet != null)
+            {
+                FilterSet.ShowChanged += OnNameShowChanged;
+
+                if (FilterSet.hint)
+                {
+                    GameScene game = GameScene.Game;
+                    string[] strArray = new string[8];
+                    strArray[0] = ">>>>   极品   [ ";
+                    strArray[1] = itemInfo.ItemName;
+                    strArray[2] = " ";
+                    int index1 = 3;
+                    Point location = info.Location;
+                    string str1 = location.X.ToString();
+                    strArray[index1] = str1;
+                    strArray[4] = ",";
+                    int index2 = 5;
+                    location = info.Location;
+                    string str2 = location.Y.ToString();
+                    strArray[index2] = str2;
+                    strArray[6] = "]   在   ";
+                    strArray[7] = CEnvir.GetDirName(MapObject.User.CurrentLocation, info.Location);
+                    string message = string.Concat(strArray);
+                    int num = 16;
+                    game.ReceiveChat(message, (MessageType)num);
+                }
+
+                if (!FilterSet.show)
+                {
+                    if (NameLabel != null)
+                        NameLabel.Visible = false;
+                    if (TitleNameLabel != null)
+                        TitleNameLabel.Visible = false;
+                }
+            }
+
             CurrentLocation = info.Location;
 
 
@@ -93,6 +132,22 @@ namespace Client.Models
             SetFrame(new ObjectAction(MirAction.Standing, Direction, CurrentLocation));
 
             GameScene.Game.MapControl.AddObject(this);
+        }
+        private void OnNameShowChanged(object sender, EventArgs arg)
+        {
+            if (FilterSet == null) return;
+
+            if (NameLabel != null)
+            {
+                NameLabel.Visible = FilterSet.show;
+                NameLabel.IsVisible = FilterSet.show;
+            }
+                
+            if (TitleNameLabel != null)
+            {
+                TitleNameLabel.Visible = FilterSet.show;
+                TitleNameLabel.IsVisible = FilterSet.show;
+            }
         }
         public void UpdateLibraries()
         {
@@ -193,6 +248,17 @@ namespace Client.Models
         {
             FocusLabel.Location = new Point(DrawX + (48 - FocusLabel.Size.Width) / 2, DrawY - (32 - FocusLabel.Size.Height / 2) + 8 - layer * 16);
             FocusLabel.Draw();
+        }
+
+        public override void Remove()
+        {
+            if (FilterSet != null)
+            {
+                FilterSet.ShowChanged -= OnNameShowChanged;
+                FilterSet = null;
+            }
+            
+            base.Remove();
         }
     }
 

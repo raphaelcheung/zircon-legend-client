@@ -16,6 +16,7 @@ using Library.SystemModels;
 using G = Library.Network.GeneralPackets;
 using S = Library.Network.ServerPackets;
 using C = Library.Network.ClientPackets;
+using Library.Network.ServerPackets;
 
 namespace Client.Envir
 {
@@ -1622,8 +1623,11 @@ namespace Client.Envir
                 else
                     message += $", 武器经验 {p.Amount/10:#,##0.#}";
             }
-            
-            GameScene.Game.ReceiveChat(message + ".", MessageType.Combat);
+
+            if (!Config.关闭经验提示)
+                GameScene.Game.ReceiveChat(message + ".", MessageType.Combat);
+
+            GameScene.Game.BigPatchBox.Helper.GainedExperience(p.Amount);
         }
         public void Process(S.ObjectLeveled p)
         {
@@ -1668,11 +1672,15 @@ namespace Client.Envir
 
         public void Process(S.ItemsGained p)
         {
-            
-
             foreach (ClientUserItem item in p.Items)
             {
                 ItemInfo displayInfo = item.Info;
+
+                if (item.Info.Effect == ItemEffect.Gold)
+                {
+                    if (GameScene.Game.User.Gold + item.Count <= Globals.MaxGold)
+                        GameScene.Game.BigPatchBox.Helper.GainedGold(item.Count);
+                }
 
                 if (item.Info.Effect == ItemEffect.ItemPart)
                     displayInfo = Globals.ItemInfoList.Binding.First(x => x.Index == item.AddedStats[Stat.ItemIndex]);
@@ -1835,7 +1843,13 @@ namespace Client.Envir
         }
         public void Process(S.HuntGoldChanged p)
         {
+            if (GameScene.Game.User.HuntGold > 0)
+            {
+                GameScene.Game.BigPatchBox.Helper.GainedHuntGold(p.HuntGold - GameScene.Game.User.HuntGold);
+            }
+
             GameScene.Game.User.HuntGold = p.HuntGold;
+            DXSoundManager.Play(SoundIndex.GoldGained);
         }
         public void Process(S.ItemChanged p)
         {
@@ -3737,11 +3751,15 @@ namespace Client.Envir
         }
         public void Process(S.CompanionItemsGained p)
         {
-            
-
             foreach (ClientUserItem item in p.Items)
             {
                 ItemInfo displayInfo = item.Info;
+
+                if (item.Info.Effect == ItemEffect.Gold)
+                {
+                    if (GameScene.Game.User.Gold + item.Count <= Globals.MaxGold)
+                        GameScene.Game.BigPatchBox.Helper.GainedGold(item.Count);
+                }
 
                 if (item.Info.Effect == ItemEffect.ItemPart)
                     displayInfo = Globals.ItemInfoList.Binding.First(x => x.Index == item.AddedStats[Stat.ItemIndex]);
@@ -4342,6 +4360,16 @@ namespace Client.Envir
             }
 
             #endregion
+        }
+
+        public void Process(S.AutoTimeChanged p)
+        {
+            GameScene.Game.User.AutoTime = p.AutoTime;
+        }
+
+        public void Process(S.SortBagItem p)
+        {
+            GameScene.Game.SortFillItems(p.Items);
         }
     }
 }

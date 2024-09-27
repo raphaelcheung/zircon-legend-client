@@ -128,7 +128,7 @@ namespace Client
                 CEnvir.SaveError(ex.StackTrace);
             }
 
-            
+            DXControl.ActiveScene?.Dispose();
 
             if (!Config.RememberDetails) Config.RememberedPassword = "";
             ConfigReader.Save();
