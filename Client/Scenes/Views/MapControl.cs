@@ -479,7 +479,67 @@ namespace Client.Scenes.Views
                 if (Config.RightClickDeTarget && MapObject.TargetObject?.Race == ObjectType.Monster)
                     MapObject.TargetObject = null;
             }
-            
+
+            if (e.Button == MouseButtons.Middle)
+            {
+                if (Config.是否开启鼠标中间按钮自动使用坐骑)
+                {
+                    if (!GameScene.Game.Observer)
+                    {
+                        if (CEnvir.Now < User.NextActionTime || User.ActionQueue.Count > 0) return;
+                        if (CEnvir.Now < User.ServerTime) return;
+
+                        User.ServerTime = CEnvir.Now.AddSeconds(5);
+                        CEnvir.Enqueue(new C.Mount());
+                    }
+                }
+                else if (Config.是否开启鼠标中间按钮自动使用技能)
+                {
+                    if (!GameScene.Game.Observer)
+                    {
+                        switch (Config.鼠标中间按钮使用F几的技能)
+                        {
+                            case 1:
+                                GameScene.Game.UseMagic(SpellKey.Spell01);
+                                break;
+                            case 2:
+                                GameScene.Game.UseMagic(SpellKey.Spell02);
+                                break;
+                            case 3:
+                                GameScene.Game.UseMagic(SpellKey.Spell03);
+                                break;
+                            case 4:
+                                GameScene.Game.UseMagic(SpellKey.Spell04);
+                                break;
+                            case 5:
+                                GameScene.Game.UseMagic(SpellKey.Spell05);
+                                break;
+                            case 6:
+                                GameScene.Game.UseMagic(SpellKey.Spell06);
+                                break;
+                            case 7:
+                                GameScene.Game.UseMagic(SpellKey.Spell07);
+                                break;
+                            case 8:
+                                GameScene.Game.UseMagic(SpellKey.Spell08);
+                                break;
+                            case 9:
+                                GameScene.Game.UseMagic(SpellKey.Spell09);
+                                break;
+                            case 10:
+                                GameScene.Game.UseMagic(SpellKey.Spell10);
+                                break;
+                            case 11:
+                                GameScene.Game.UseMagic(SpellKey.Spell11);
+                                break;
+                            case 12:
+                                GameScene.Game.UseMagic(SpellKey.Spell12);
+                                break;
+                        }
+                    }
+                }
+            }
+
             if (e.Button != MouseButtons.Left) return;
 
 
@@ -698,7 +758,7 @@ namespace Client.Scenes.Views
                 Mining = false;
             }
             
-            if (MapObject.TargetObject != null && !MapObject.TargetObject.Dead && ((MapObject.TargetObject.Race == ObjectType.Monster && string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) || CEnvir.Shift))
+            if (MapObject.TargetObject != null && !MapObject.TargetObject.Dead && ((MapObject.TargetObject.Race == ObjectType.Monster && string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) || (CEnvir.Shift || Config.免SHIFT)))
             {
                 if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) ==  1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
                 {
@@ -731,7 +791,7 @@ namespace Client.Scenes.Views
                     case MouseButtons.Left:
                         Mining = false;
 
-                        if (CEnvir.Shift && MapObject.TargetObject == null)
+                        if ((CEnvir.Shift || Config.免SHIFT) && MapObject.TargetObject == null)
                         {
 
                             if (CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
@@ -840,7 +900,7 @@ namespace Client.Scenes.Views
             }
 
             if (MapObject.TargetObject == null || MapObject.TargetObject.Dead) return;
-            if ((MapObject.TargetObject.Race == ObjectType.Player || !string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) && !CEnvir.Shift) return;
+            if ((MapObject.TargetObject.Race == ObjectType.Player || !string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) && (!CEnvir.Shift && !Config.免SHIFT)) return;
             if (Functions.InRange(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation, 1)) return;
 
             direction = Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation);

@@ -678,7 +678,7 @@ namespace Client.Scenes.Views
             public BigPatchDialog.DXGroupBox GroupItem;
             public BigPatchDialog.DXGroupBox GroupWeather;
             public DXComboBox CombWeather;
-            public BigPatchDialog.DXGroupBox GroupAutoAttack;
+            //public BigPatchDialog.DXGroupBox GroupAutoAttack;
             public DXCheckBox ChkAutoFire;
             public DXComboBox CombAutoFire;
             public DXLabel LabAutoFire;
@@ -719,17 +719,18 @@ namespace Client.Scenes.Views
                 dxGroupBox4.Size = new Size(120, 32);
                 dxGroupBox4.Location = new Point(10, 0);
                 dxGroupBox4.Name.Text = "天气";
+                dxGroupBox4.Visible = false;
 
                 GroupWeather = dxGroupBox4;
-                BigPatchDialog.DXGroupBox dxGroupBox5 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox5.Parent = (DXControl)this;
-                dxGroupBox5.Size = new Size(120, 60);
-                dxGroupBox5.Location = new Point(10, 0);
-                dxGroupBox5.Name.Text = "自动练技能";
-                GroupAutoAttack = dxGroupBox5;
+                //BigPatchDialog.DXGroupBox dxGroupBox5 = new BigPatchDialog.DXGroupBox();
+                //dxGroupBox5.Parent = (DXControl)this;
+                //dxGroupBox5.Size = new Size(120, 60);
+                //dxGroupBox5.Location = new Point(10, 0);
+                //dxGroupBox5.Name.Text = "自动练技能";
+                //GroupAutoAttack = dxGroupBox5;
                 BigPatchDialog.DXGroupBox dxGroupBox6 = new BigPatchDialog.DXGroupBox();
                 dxGroupBox6.Parent = (DXControl)this;
-                dxGroupBox6.Size = new Size(120, 32);
+                dxGroupBox6.Size = new Size(120, 132);
                 dxGroupBox6.Location = new Point(10, 0);
                 dxGroupBox6.Name.Text = "鼠标中键";
                 GroupMouseMiddle = dxGroupBox6;
@@ -893,8 +894,10 @@ namespace Client.Scenes.Views
                 Size size1 = GroupNormal.Size;
                 Size size2 = new Size(size1.Width, num1);
                 groupNormal.Size = size2;
-                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[8];
+                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[3];
 
+
+                index1 = 0;
                 chkItemSet1 = new CHK_ITEM_SET();
                 chkItemSet1.name = "免SHIFT";
                 chkItemSet1.state = Config.免SHIFT;
@@ -904,18 +907,20 @@ namespace Client.Scenes.Views
                     Config.免SHIFT = dxCheckBox != null && dxCheckBox.Checked;
                 });
                 CHK_ITEM_SET chkItemSet3 = chkItemSet1;
-                chkItemSetArray3[0] = chkItemSet3;
+                chkItemSetArray3[index1] = chkItemSet3;
+                index1++;
 
-                chkItemSet1 = new BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET();
-                chkItemSet1.name = "攻击锁定★";
-                chkItemSet1.state = Config.攻击锁定目标;
-                chkItemSet1.method = ((o, e) =>
-                {
-                    DXCheckBox dxCheckBox = o as DXCheckBox;
-                    Config.攻击锁定目标 = dxCheckBox != null && dxCheckBox.Checked;
-                });
-                CHK_ITEM_SET chkItemSet4 = chkItemSet1;
-                chkItemSetArray3[1] = chkItemSet4;
+                //chkItemSet1 = new BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET();
+                //chkItemSet1.name = "攻击锁定★";
+                //chkItemSet1.state = Config.攻击锁定目标;
+                //chkItemSet1.method = ((o, e) =>
+                //{
+                //    DXCheckBox dxCheckBox = o as DXCheckBox;
+                //    Config.攻击锁定目标 = dxCheckBox != null && dxCheckBox.Checked;
+                //});
+                //CHK_ITEM_SET chkItemSet4 = chkItemSet1;
+                //chkItemSetArray3[index1] = chkItemSet4;
+                //index1++;
 
                 chkItemSet1 = new CHK_ITEM_SET();
                 chkItemSet1.name = "数字飘血";
@@ -926,7 +931,8 @@ namespace Client.Scenes.Views
                     Config.ShowDamageNumbers = dxCheckBox != null && dxCheckBox.Checked;
                 });
                 CHK_ITEM_SET shuzipiaoxue = chkItemSet1;
-                chkItemSetArray3[2] = shuzipiaoxue;
+                chkItemSetArray3[index1] = shuzipiaoxue;
+                index1++;
 
                 chkItemSet1 = new CHK_ITEM_SET();
                 chkItemSet1.name = "关闭经验提示";
@@ -937,51 +943,56 @@ namespace Client.Scenes.Views
                     Config.关闭经验提示 = dxCheckBox != null && dxCheckBox.Checked;
                 });
                 CHK_ITEM_SET jingyantishi = chkItemSet1;
-                chkItemSetArray3[3] = jingyantishi;
+                chkItemSetArray3[index1] = jingyantishi;
+                index1++;
 
-                chkItemSet1 = new CHK_ITEM_SET();
-                chkItemSet1.name = "锁怪效果★";
-                chkItemSet1.state = Config.锁怪效果;
-                chkItemSet1.method = ((o, e) =>
-                {
-                    DXCheckBox dxCheckBox = o as DXCheckBox;
-                    Config.锁怪效果 = dxCheckBox != null && dxCheckBox.Checked;
-                });
-                CHK_ITEM_SET suoguaixiaoguo = chkItemSet1;
-                chkItemSetArray3[4] = suoguaixiaoguo;
+                //chkItemSet1 = new CHK_ITEM_SET();
+                //chkItemSet1.name = "锁怪效果★";
+                //chkItemSet1.state = Config.锁怪效果;
+                //chkItemSet1.method = ((o, e) =>
+                //{
+                //    DXCheckBox dxCheckBox = o as DXCheckBox;
+                //    Config.锁怪效果 = dxCheckBox != null && dxCheckBox.Checked;
+                //});
+                //CHK_ITEM_SET suoguaixiaoguo = chkItemSet1;
+                //chkItemSetArray3[index1] = suoguaixiaoguo;
+                //index1++;
 
-                chkItemSet1 = new CHK_ITEM_SET();
-                chkItemSet1.name = "稳如泰山★";
-                chkItemSet1.state = Config.稳如泰山;
-                chkItemSet1.method = ((o, e) =>
-                {
-                    DXCheckBox dxCheckBox = o as DXCheckBox;
-                    Config.稳如泰山 = dxCheckBox != null && dxCheckBox.Checked;
-                });
-                CHK_ITEM_SET wenrutaishan = chkItemSet1;
-                chkItemSetArray3[5] = wenrutaishan;
+                //chkItemSet1 = new CHK_ITEM_SET();
+                //chkItemSet1.name = "稳如泰山★";
+                //chkItemSet1.state = Config.稳如泰山;
+                //chkItemSet1.method = ((o, e) =>
+                //{
+                //    DXCheckBox dxCheckBox = o as DXCheckBox;
+                //    Config.稳如泰山 = dxCheckBox != null && dxCheckBox.Checked;
+                //});
+                //CHK_ITEM_SET wenrutaishan = chkItemSet1;
+                //chkItemSetArray3[index1] = wenrutaishan;
+                //index1++;
 
-                chkItemSet1 = new CHK_ITEM_SET();
-                chkItemSet1.name = "转生残影★";
-                chkItemSet1.state = Config.转生残影;
-                chkItemSet1.method = ((o, e) =>
-                {
-                    DXCheckBox dxCheckBox = o as DXCheckBox;
-                    Config.转生残影 = dxCheckBox != null && dxCheckBox.Checked;
-                });
-                CHK_ITEM_SET zhuanshencanying = chkItemSet1;
-                chkItemSetArray3[6] = zhuanshencanying;
+                //chkItemSet1 = new CHK_ITEM_SET();
+                //chkItemSet1.name = "转生残影★";
+                //chkItemSet1.state = Config.转生残影;
+                //chkItemSet1.method = ((o, e) =>
+                //{
+                //    DXCheckBox dxCheckBox = o as DXCheckBox;
+                //    Config.转生残影 = dxCheckBox != null && dxCheckBox.Checked;
+                //});
+                //CHK_ITEM_SET zhuanshencanying = chkItemSet1;
+                //chkItemSetArray3[index1] = zhuanshencanying;
+                //index1++;
 
-                chkItemSet1 = new CHK_ITEM_SET();
-                chkItemSet1.name = "死亡红屏★";
-                chkItemSet1.state = Config.死亡红屏;
-                chkItemSet1.method = ((o, e) =>
-                {
-                    DXCheckBox dxCheckBox = o as DXCheckBox;
-                    Config.死亡红屏 = dxCheckBox != null && dxCheckBox.Checked;
-                });
-                CHK_ITEM_SET siwanghongping = chkItemSet1;
-                chkItemSetArray3[7] = siwanghongping;
+                //chkItemSet1 = new CHK_ITEM_SET();
+                //chkItemSet1.name = "死亡红屏★";
+                //chkItemSet1.state = Config.死亡红屏;
+                //chkItemSet1.method = ((o, e) =>
+                //{
+                //    DXCheckBox dxCheckBox = o as DXCheckBox;
+                //    Config.死亡红屏 = dxCheckBox != null && dxCheckBox.Checked;
+                //});
+                //CHK_ITEM_SET siwanghongping = chkItemSet1;
+                //chkItemSetArray3[index1] = siwanghongping;
+                //index1++;
 
                 CHK_ITEM_SET[] chkItemSetArray4 = chkItemSetArray3;
                 int num3 = 30;
@@ -1063,70 +1074,70 @@ namespace Client.Scenes.Views
                 size1 = GroupWar.Size;
                 Size size5 = new Size(size1.Width, num7 + num2);
                 groupWeather.Size = size5;
-                BigPatchDialog.DXGroupBox groupAutoAttack1 = GroupAutoAttack;
-                int x2 = GroupItem.Location.X;
-                int y40 = GroupItem.Location.Y;
-                size1 = GroupItem.Size;
-                int height1 = size1.Height;
-                int y5 = y40 + height1 + 10;
-                Point point1 = new Point(x2, y5);
-                groupAutoAttack1.Location = point1;
-                int y6 = 30;
-                ChkAutoFire = CreateCheckBox(GroupAutoAttack, "自动练技能", x1, y6, (EventHandler<EventArgs>)((o, e) => Config.是否开启自动练技能 = ChkAutoFire.Checked), Config.是否开启自动练技能);
-                DXComboBox dxComboBox2 = new DXComboBox();
-                dxComboBox2.Parent = (DXControl)GroupAutoAttack;
-                CombAutoFire = dxComboBox2;
-                DXListBoxItem dxListBoxItem8 = new DXListBoxItem();
-                dxListBoxItem8.Parent = (DXControl)CombAutoFire.ListBox;
-                dxListBoxItem8.Label.Text = "空";
-                dxListBoxItem8.Item = (object)0;
+                //BigPatchDialog.DXGroupBox groupAutoAttack1 = GroupAutoAttack;
+                //int x2 = GroupItem.Location.X;
+                //int y40 = GroupItem.Location.Y;
+                //size1 = GroupItem.Size;
+                //int height1 = size1.Height;
+                //int y5 = y40 + height1 + 10;
+                //Point point1 = new Point(x2, y5);
+                //groupAutoAttack1.Location = point1;
+                //int y6 = 30;
+                //ChkAutoFire = CreateCheckBox(GroupAutoAttack, "自动练技能", x1, y6, (EventHandler<EventArgs>)((o, e) => Config.是否开启自动练技能 = ChkAutoFire.Checked), Config.是否开启自动练技能);
+                //DXComboBox dxComboBox2 = new DXComboBox();
+                //dxComboBox2.Parent = (DXControl)GroupAutoAttack;
+                //CombAutoFire = dxComboBox2;
+                //DXListBoxItem dxListBoxItem8 = new DXListBoxItem();
+                //dxListBoxItem8.Parent = (DXControl)CombAutoFire.ListBox;
+                //dxListBoxItem8.Label.Text = "空";
+                //dxListBoxItem8.Item = (object)0;
                 int num8;
                 for (int index2 = 0; index2 <= 11; ++index2)
                 {
-                    DXListBoxItem dxListBoxItem9 = new DXListBoxItem();
-                    dxListBoxItem9.Parent = (DXControl)CombAutoFire.ListBox;
-                    DXLabel label = dxListBoxItem9.Label;
+                    //DXListBoxItem dxListBoxItem9 = new DXListBoxItem();
+                    //dxListBoxItem9.Parent = (DXControl)CombAutoFire.ListBox;
+                    //DXLabel label = dxListBoxItem9.Label;
                     string str1 = "F";
                     num8 = index2 + 1;
                     string str2 = num8.ToString();
                     string str3 = str1 + str2;
-                    label.Text = str3;
-                    dxListBoxItem9.Item = (object)(index2 + 1);
+                    //label.Text = str3;
+                    //dxListBoxItem9.Item = (object)(index2 + 1);
                 }
-                CombAutoFire.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.自动练F几技能 = (int)CombAutoFire.ListBox.SelectedItem.Item);
-                CombAutoFire.ListBox.SelectItem((object)Config.自动练F几技能);
-                CombAutoFire.Size = new Size(50, 18);
-                DXComboBox combAutoFire = CombAutoFire;
-                int x3 = ChkAutoFire.Location.X;
-                size1 = ChkAutoFire.Size;
-                int width1 = size1.Width;
-                Point point2 = new Point(x3 + width1 + 5, ChkAutoFire.Location.Y);
-                combAutoFire.Location = point2;
-                int y7 = y6 + num2;
-                DXLabel dxLabel = new DXLabel();
-                dxLabel.Parent = (DXControl)GroupAutoAttack;
-                dxLabel.Text = "间隔:";
-                dxLabel.Location = new Point(x1, y7);
-                LabAutoFire = dxLabel;
-                DXNumberBox dxNumberBox = new DXNumberBox();
-                dxNumberBox.Parent = (DXControl)GroupAutoAttack;
-                int num9 = x1;
-                size1 = LabAutoFire.Size;
-                int width2 = size1.Width;
-                dxNumberBox.Location = new Point(num9 + width2, y7);
-                dxNumberBox.Size = new Size(80, 20);
-                dxNumberBox.ValueTextBox.Size = new Size(40, 18);
-                dxNumberBox.MaxValue = 100L;
-                dxNumberBox.MinValue = 1L;
-                dxNumberBox.Value = Config.隔多少秒自动练技能;
-                dxNumberBox.UpButton.Location = new Point(63, 1);
-                NumberAutoFireInterval = dxNumberBox;
-                NumberAutoFireInterval.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.隔多少秒自动练技能 = NumberAutoFireInterval.Value);
-                int num10 = y7 + num2;
-                BigPatchDialog.DXGroupBox groupAutoAttack2 = GroupAutoAttack;
-                size1 = GroupItem.Size;
-                Size size6 = new Size(size1.Width, num10 + 10);
-                groupAutoAttack2.Size = size6;
+                //CombAutoFire.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.自动练F几技能 = (int)CombAutoFire.ListBox.SelectedItem.Item);
+                //CombAutoFire.ListBox.SelectItem((object)Config.自动练F几技能);
+                //CombAutoFire.Size = new Size(50, 18);
+                //DXComboBox combAutoFire = CombAutoFire;
+                //int x3 = ChkAutoFire.Location.X;
+                //size1 = ChkAutoFire.Size;
+                //int width1 = size1.Width;
+                //Point point2 = new Point(x3 + width1 + 5, ChkAutoFire.Location.Y);
+                //combAutoFire.Location = point2;
+                //int y7 = y6 + num2;
+                //DXLabel dxLabel = new DXLabel();
+                //dxLabel.Parent = (DXControl)GroupAutoAttack;
+                //dxLabel.Text = "间隔:";
+                //dxLabel.Location = new Point(x1, y7);
+                //LabAutoFire = dxLabel;
+                //DXNumberBox dxNumberBox = new DXNumberBox();
+                //dxNumberBox.Parent = (DXControl)GroupAutoAttack;
+                //int num9 = x1;
+                //size1 = LabAutoFire.Size;
+                //int width2 = size1.Width;
+                //dxNumberBox.Location = new Point(num9 + width2, y7);
+                //dxNumberBox.Size = new Size(80, 20);
+                //dxNumberBox.ValueTextBox.Size = new Size(40, 18);
+                //dxNumberBox.MaxValue = 100L;
+                //dxNumberBox.MinValue = 1L;
+                //dxNumberBox.Value = Config.隔多少秒自动练技能;
+                //dxNumberBox.UpButton.Location = new Point(63, 1);
+                //NumberAutoFireInterval = dxNumberBox;
+                //NumberAutoFireInterval.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.隔多少秒自动练技能 = NumberAutoFireInterval.Value);
+                //int num10 = y7 + num2;
+                //BigPatchDialog.DXGroupBox groupAutoAttack2 = GroupAutoAttack;
+                //size1 = GroupItem.Size;
+                //Size size6 = new Size(size1.Width, num10 + 10);
+                //groupAutoAttack2.Size = size6;
                 int y8 = 30;
                 ChkCallMounts = CreateCheckBox((DXControl)GroupMouseMiddle, "骑马", x1, y8, (EventHandler<EventArgs>)((o, e) =>
                 {
@@ -1142,7 +1153,6 @@ namespace Client.Scenes.Views
                         ChkCallMounts.Checked = !ChkCastingMagic.Checked;
                     Config.是否开启鼠标中间按钮自动使用技能 = ChkCastingMagic.Checked;
                 }), Config.是否开启鼠标中间按钮自动使用技能);
-                int y10 = y9 + num2;
                 DXComboBox dxComboBox3 = new DXComboBox();
                 dxComboBox3.Parent = (DXControl)GroupMouseMiddle;
                 CombMiddleMouse = dxComboBox3;
@@ -1165,20 +1175,20 @@ namespace Client.Scenes.Views
                 CombMiddleMouse.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.鼠标中间按钮使用F几的技能 = (int)CombMiddleMouse.ListBox.SelectedItem.Item);
                 CombMiddleMouse.ListBox.SelectItem((object)Config.鼠标中间按钮使用F几的技能);
                 CombMiddleMouse.Size = new Size(50, 18);
-                CombMiddleMouse.Location = new Point(x1, y10);
-                int num11 = y10 + num2;
+                CombMiddleMouse.Location = new Point(x1 + ChkCastingMagic.DisplayArea.Right, y9);
+                int num11 = y9 + num2;
                 BigPatchDialog.DXGroupBox groupMouseMiddle1 = GroupMouseMiddle;
-                Point location = GroupAutoAttack.Location;
+                Point location = GroupItem.Location;
                 int x4 = location.X;
-                location = GroupAutoAttack.Location;
+                location = groupWar.Location;
                 int y11 = location.Y;
-                size1 = GroupAutoAttack.Size;
+                size1 = GroupItem.Size;
                 int height2 = size1.Height;
                 int y12 = y11 + height2 + 10;
                 Point point3 = new Point(x4, y12);
                 groupMouseMiddle1.Location = point3;
                 BigPatchDialog.DXGroupBox groupMouseMiddle2 = GroupMouseMiddle;
-                size1 = GroupAutoAttack.Size;
+                size1 = GroupItem.Size;
                 Size size7 = new Size(size1.Width, num11 + 10);
                 groupMouseMiddle2.Size = size7;
                 int x5 = GroupMouseMiddle.Location.X;
@@ -1284,34 +1294,34 @@ namespace Client.Scenes.Views
                     Size size2 = new Size(width, height2);
                     groupWeather2.Size = size2;
                 }
-                if (GroupAutoAttack != null)
-                {
-                    BigPatchDialog.DXGroupBox groupAutoAttack1 = GroupAutoAttack;
-                    location = GroupItem.Location;
-                    int x = location.X;
-                    location = GroupItem.Location;
-                    int y1 = location.Y;
-                    size1 = GroupItem.Size;
-                    int height1 = size1.Height;
-                    int y2 = y1 + height1 + 10;
-                    Point point = new Point(x, y2);
-                    groupAutoAttack1.Location = point;
-                    BigPatchDialog.DXGroupBox groupAutoAttack2 = GroupAutoAttack;
-                    size1 = GroupItem.Size;
-                    int width = size1.Width;
-                    size1 = GroupAutoAttack.Size;
-                    int height2 = size1.Height;
-                    Size size2 = new Size(width, height2);
-                    groupAutoAttack2.Size = size2;
-                }
+                //if (GroupAutoAttack != null)
+                //{
+                //    BigPatchDialog.DXGroupBox groupAutoAttack1 = GroupAutoAttack;
+                //    location = GroupItem.Location;
+                //    int x = location.X;
+                //    location = GroupItem.Location;
+                //    int y1 = location.Y;
+                //    size1 = GroupItem.Size;
+                //    int height1 = size1.Height;
+                //    int y2 = y1 + height1 + 10;
+                //    Point point = new Point(x, y2);
+                //    groupAutoAttack1.Location = point;
+                //    BigPatchDialog.DXGroupBox groupAutoAttack2 = GroupAutoAttack;
+                //    size1 = GroupItem.Size;
+                //    int width = size1.Width;
+                //    size1 = GroupAutoAttack.Size;
+                //    int height2 = size1.Height;
+                //    Size size2 = new Size(width, height2);
+                //    groupAutoAttack2.Size = size2;
+                //}
                 if (GroupMouseMiddle != null)
                 {
                     BigPatchDialog.DXGroupBox groupMouseMiddle1 = GroupMouseMiddle;
                     location = GroupItem.Location;
                     int x = location.X;
-                    location = GroupAutoAttack.Location;
+                    location = GroupItem.Location;
                     int y1 = location.Y;
-                    size1 = GroupAutoAttack.Size;
+                    size1 = GroupItem.Size;
                     int height1 = size1.Height;
                     int y2 = y1 + height1 + 10;
                     Point point = new Point(x, y2);
@@ -1466,8 +1476,10 @@ namespace Client.Scenes.Views
                 dxGroupBox6.Size = new Size(120, 32);
                 dxGroupBox6.Location = new Point(130, 0);
                 dxGroupBox6.Name.Text = "挂机";
+                dxGroupBox6.Visible = false;
 
                 Android = dxGroupBox6;
+   
                 int x1 = 15;
                 int num1 = 5;
                 int y1;
@@ -2892,8 +2904,8 @@ namespace Client.Scenes.Views
 
             public CItemFilter()
             {
-                Items = new();
-                dictItems = new();
+                Items = new List<CItemFilterSet>();
+                dictItems = new Dictionary<int, CItemFilterSet>();
                 foreach (ItemInfo itemInfo in Globals.ItemInfoList.Binding)
                 {
                     CItemFilterSet tmp = new CItemFilterSet()

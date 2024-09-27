@@ -467,6 +467,18 @@ namespace Client.Models
                 case MirAction.Pushed:
                     if (!GameScene.Game.MoveFrame) return;
                     break;
+                case MirAction.Dead:
+                    if (Visible && Config.清理尸体)
+                    {
+                        this.Visible = false;
+                        break;
+                    }
+                    else if (!Visible && !Config.清理尸体)
+                    {
+                        Visible = true;
+                        break;
+                    }
+                    break;
             }
             
             int frame = CurrentFrame.GetFrame(FrameStart, CEnvir.Now, (this != User || GameScene.Game.Observer) && ActionQueue.Count > 1);

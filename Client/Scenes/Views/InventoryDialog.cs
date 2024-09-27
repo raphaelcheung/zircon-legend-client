@@ -67,7 +67,7 @@ namespace Client.Scenes.Views
                 Parent = dxTab1,
             };
 
-            DXVScrollBar GridScrollBar = new()
+            DXVScrollBar GridScrollBar = new DXVScrollBar()
             {
                 Parent = GridTab,
                 Size = new Size(16, 248),
