@@ -20,8 +20,42 @@ namespace Client.Scenes.Views
     public sealed class MapControl : DXControl
     {
         #region Properties
+        private DateTime PathFinderTime;
 
         public static UserObject User => GameScene.Game.User;
+        public PathFinder PathFinder { get; set; } = null;
+        public List<Node> CurrentPath { get; set; } = null;
+        public bool AutoPath
+        {
+            get
+            {
+                return _autoPath;
+            }
+            set
+            {
+                if (_autoPath == value)
+                    return;
+                _autoPath = value;
+                if (!_autoPath)
+                    CurrentPath = null;
+                if (GameScene.Game == null || Config.开始挂机)
+                    return;
+                GameScene.Game.ReceiveChat(value ? "[寻路:开 (停止:鼠标左键或右键)]" : "[寻路:关]", MessageType.System);
+            }
+        }
+        private bool _autoPath;
+
+        public DateTime ProtectTime
+        {
+            get
+            {
+                return GameScene.Game.BigPatchBox._ProtectTime;
+            }
+            set
+            {
+                GameScene.Game.BigPatchBox._ProtectTime = value;
+            }
+        }
 
         #region MapInformation
 
@@ -55,6 +89,12 @@ namespace Client.Scenes.Views
                 DXSoundManager.Play(nValue.Music);
 
             LLayer.UpdateLights();
+
+            PathFinder = new PathFinder(this);
+
+            if (GameScene.Game != null && GameScene.Game.BigPatchBox != null)
+                GameScene.Game.AutoGuajiChanged();
+
             MapInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -151,7 +191,8 @@ namespace Client.Scenes.Views
         public static int OffSetX;
         public static int OffSetY;
 
-
+        private Point TargetLocation;
+        private DateTime UpdateTarget;
         #endregion
 
         public MapControl()
@@ -760,16 +801,136 @@ namespace Client.Scenes.Views
             
             if (MapObject.TargetObject != null && !MapObject.TargetObject.Dead && ((MapObject.TargetObject.Race == ObjectType.Monster && string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) || (CEnvir.Shift || Config.免SHIFT)))
             {
-                if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) ==  1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                //if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) ==  1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                //{
+                //    MapObject.User.AttemptAction(new ObjectAction(
+                //        MirAction.Attack,
+                //        Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation),
+                //        MapObject.User.CurrentLocation,
+                //        0, //Ranged Attack Target ID
+                //        MagicType.None,
+                //        Element.None));
+                //    return;
+                //}
+                bool flag = true;
+                if (Config.自动四花)
                 {
-                    MapObject.User.AttemptAction(new ObjectAction(
-                        MirAction.Attack,
-                        Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation),
-                        MapObject.User.CurrentLocation,
-                        0, //Ranged Attack Target ID
+                    if (!User.Buffs.Any(x =>
+                    {
+                        if (x.Type != BuffType.FullBloom && x.Type != BuffType.WhiteLotus)
+                            return x.Type == BuffType.RedLotus;
+
+                        return true;
+                    }))
+                    {
+                        GameScene.Game.UseMagic(MagicType.FullBloom);
+                        flag = false;
+                    }
+
+
+                    if (User.Buffs.Any(x => x.Type == BuffType.FullBloom))
+                    {
+                        GameScene.Game.UseMagic(MagicType.WhiteLotus);
+                        flag = false;
+                    }
+
+                    if (User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.WhiteLotus)))
+                    {
+                        GameScene.Game.UseMagic(MagicType.RedLotus);
+                        flag = false;
+                    }
+
+                    if (User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.RedLotus)))
+                    {
+                        GameScene.Game.UseMagic(MagicType.SweetBrier);
+                        flag = false;
+                    }
+                }
+
+                if (Config.开始挂机)
+                {
+                    PathFinderTime = CEnvir.Now.AddSeconds(2.0);
+                    if (Config.自动躲避 && ((User.Class == MirClass.Wizard || User.Class == MirClass.Taoist) && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 3.0))
+                    {
+                        MirDirection mirDirection1 = Functions.ShiftDirection(Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation), 4);
+                        if (!CanMove(mirDirection1, 1))
+                        {
+                            MirDirection mirDirection2 = DirectionBest(mirDirection1, 1, MapObject.TargetObject.CurrentLocation);
+                            
+                            if (mirDirection2 == mirDirection1)
+                            {
+                                if (mirDirection1 != User.Direction)
+                                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
+
+                                if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                                    return;
+
+                                GameScene.Game.UseMagic(Config.挂机自动技能);
+                                return;
+                            }
+                            mirDirection1 = mirDirection2;
+                        }
+
+                        if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
+                        {
+                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, mirDirection1, Functions.Move(MapObject.User.CurrentLocation, mirDirection1, 1), new object[2]
+                            {
+                                1,
+                                MagicType.None
+                            }));
+                            return;
+                        }
+                    }
+
+                    if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10) && ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green))
+                    {
+                        GameScene.Game.UseMagic(MagicType.PoisonDust);
+                        return;
+                    }
+
+                    if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                    {
+                        GameScene.Game.UseMagic(Config.挂机自动技能);
+                        return;
+                    }
+                }
+
+                if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                {
+                    if (Config.开始挂机 && (flag && User.Class == MirClass.Assassin && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)))
+                        GameScene.Game.UseMagic(Config.挂机自动技能);
+
+                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Attack, Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation), MapObject.User.CurrentLocation, new object[3]
+                    {
+                        0,
                         MagicType.None,
-                        Element.None));
+                        Element.None
+                    }));
+
                     return;
+                }
+            }
+            else if(Config.开始挂机 && (PathFinderTime < CEnvir.Now && !GameScene.Game.MapControl.AutoPath))
+            {
+                int x;
+                int y;
+
+                if (Config.范围挂机)
+                {
+                    x = CEnvir.Random.Next(Math.Max((int)(Config.范围挂机坐标.X - Config.范围距离), 0), Math.Min((int)(Config.范围挂机坐标.X + Config.范围距离), GameScene.Game.MapControl.Width - 1));
+                    y = CEnvir.Random.Next(Math.Max((int)(Config.范围挂机坐标.Y - Config.范围距离), 0), Math.Min((int)(Config.范围挂机坐标.Y + Config.范围距离), GameScene.Game.MapControl.Height - 1));
+                }
+                else
+                {
+                    x = CEnvir.Random.Next(0, GameScene.Game.MapControl.Width - 1);
+                    y = CEnvir.Random.Next(0, GameScene.Game.MapControl.Height - 1);
+                }
+
+                List<Node> path = GameScene.Game.MapControl.PathFinder.FindPath(MapObject.User.CurrentLocation, new Point(x, y));
+                if (path != null && path.Count != 0)
+                {
+                    GameScene.Game.MapControl.CurrentPath = path;
+                    GameScene.Game.MapControl.AutoPath = true;
                 }
             }
 
@@ -779,7 +940,9 @@ namespace Client.Scenes.Views
 
             if (GameScene.Game.AutoRun)
             {
-                if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) return;
+                if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) 
+                    return;
+
                 Run(direction);
                 return;
             }
@@ -855,20 +1018,26 @@ namespace Client.Scenes.Views
 
                             direction = best;
                         }
+
                         if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
                             MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction), 1, MagicType.None));
+                        
                         return;
                     case MouseButtons.Right:
 
                         Mining = false;
-                        if (MapObject.MouseObject is PlayerObject && MapObject.MouseObject != MapObject.User && CEnvir.Ctrl) break;
 
-                        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) break;
+                        if (MapObject.MouseObject is PlayerObject && MapObject.MouseObject != MapObject.User && CEnvir.Ctrl) 
+                            break;
+
+                        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) 
+                            break;
                         
                         if (Functions.InRange(MapLocation, MapObject.User.CurrentLocation, 2))
                         {
                             if (direction != User.Direction)
                                 MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
+                            
                             return;
                         }
 
@@ -887,11 +1056,11 @@ namespace Client.Scenes.Views
                     Functions.Distance(MiningPoint, MapObject.User.CurrentLocation) == 1  && User.Horse == HorseType.None)
                 {
                     if (CEnvir.Now > User.AttackTime)
-                    MapObject.User.AttemptAction(new ObjectAction(
-                        MirAction.Mining,
-                        Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MiningPoint),
-                        MapObject.User.CurrentLocation,
-                        false));
+                        MapObject.User.AttemptAction(new ObjectAction(
+                            MirAction.Mining,
+                            Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MiningPoint),
+                            MapObject.User.CurrentLocation,
+                            false));
                 }
                 else
                 {
@@ -900,8 +1069,13 @@ namespace Client.Scenes.Views
             }
 
             if (MapObject.TargetObject == null || MapObject.TargetObject.Dead) return;
-            if ((MapObject.TargetObject.Race == ObjectType.Player || !string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) && (!CEnvir.Shift && !Config.免SHIFT)) return;
-            if (Functions.InRange(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation, 1)) return;
+
+            if ((MapObject.TargetObject.Race == ObjectType.Player || !string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) 
+                && (!CEnvir.Shift && !Config.免SHIFT)) 
+                return;
+
+            if (Functions.InRange(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation, 1)) 
+                return;
 
             direction = Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation);
 
@@ -913,6 +1087,7 @@ namespace Client.Scenes.Views
                 {
                     if (direction != User.Direction)
                         MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
+                    
                     return;
                 }
                 direction = best;
@@ -922,7 +1097,7 @@ namespace Client.Scenes.Views
                 MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction), 1, MagicType.None));
         }
 
-        public void Run(MirDirection direction)
+        public void Run(MirDirection direction, bool bDetour = true)
         {
             int steps = 1;
 
@@ -937,7 +1112,10 @@ namespace Client.Scenes.Views
             {
                 if (CanMove(direction, i)) continue;
 
-                MirDirection best = MouseDirectionBest(direction, 1);
+                MirDirection best = direction;
+
+                if (bDetour)
+                    best = MouseDirectionBest(direction, 1);
 
                 if (best == direction)
                 {
@@ -951,9 +1129,8 @@ namespace Client.Scenes.Views
                     steps = i - 1;
                 }
                 else
-                {
                     steps = 1;
-                }
+
                 direction = best;
                 break;
             }
@@ -1171,8 +1348,596 @@ namespace Client.Scenes.Views
 
             return !Cells[location.X, location.Y].Flag;
         }
+        public bool EmptyCell(Point loc)
+        {
+            return loc.X >= 0 && loc.Y >= 0 && loc.X < Width && loc.Y <= Height && !Cells[loc.X, loc.Y].Blocking();
+        }
+        public MapObject LaoSelectMonster()
+        {
+            float num1 = 100f;
+            ClientObjectData minob = null;
+            foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
+            {
+                if (GameScene.Game.MapControl.MapInfo != null 
+                    && clientObjectData.MapIndex == GameScene.Game.MapControl.MapInfo.Index 
+                    && (clientObjectData.ItemInfo == null && clientObjectData.MonsterInfo != null) 
+                    && !clientObjectData.Dead 
+                    && ((clientObjectData.MonsterInfo == null || !clientObjectData.Dead) && string.IsNullOrEmpty(clientObjectData.PetOwner) && clientObjectData.MonsterInfo.AI >= 0) 
+                    && (!Config.范围挂机 || clientObjectData.Location.X >= (int)(Config.范围挂机坐标.X - Config.范围距离) && clientObjectData.Location.X <= (int)(Config.范围挂机坐标.X + Config.范围距离) && (clientObjectData.Location.Y >= (int)(Config.范围挂机坐标.Y - Config.范围距离) && clientObjectData.Location.Y <= (int)(Config.范围挂机坐标.Y + Config.范围距离))))
+                {
+                    float num2 = (float)Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
+                    if ((double)num2 < (double)num1)
+                    {
+                        num1 = num2;
+                        minob = clientObjectData;
+                    }
+                }
+            }
+
+            if (minob == null)
+                return null;
+
+            if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
+            {
+                MirDirection direction = Functions.DirectionFromPoint(minob.Location, GameScene.Game.User.CurrentLocation);
+                Point target = Functions.Move(minob.Location, direction, 1);
+
+                if (minob.MapIndex != GameScene.Game.MapControl.MapInfo.Index)
+                    return null;
+
+                List<Node> path = GameScene.Game.MapControl.PathFinder.FindPath(MapObject.User.CurrentLocation, target);
+                
+                if (path == null || path.Count == 0 || (double)path.Count > (double)num1)
+                    return null;
+
+                path.Clear();
+            }
+
+            if ((double)num1 > 9.0)
+                return null;
+
+            return GameScene.Game.MapControl.Objects.FirstOrDefault(x => (int)x.ObjectID == (int)minob.ObjectID);
+        }
+
+        public MapObject SelectMonster()
+        {
+            int num1 = 100;
+            ClientObjectData minob = null;
+            List<Node> nodeList = null;
+            foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
+            {
+                int mapIndex = clientObjectData.MapIndex;
+                int? index = GameScene.Game.MapControl?.MapInfo?.Index;
+                int valueOrDefault = index.GetValueOrDefault();
+                if (mapIndex == valueOrDefault & index.HasValue 
+                    && clientObjectData.ItemInfo == null 
+                    && (clientObjectData.MonsterInfo != null && clientObjectData.MonsterInfo.Index != 16) 
+                    && !clientObjectData.Dead 
+                    && ((clientObjectData.MonsterInfo == null || !clientObjectData.Dead) 
+                    && string.IsNullOrEmpty(clientObjectData.PetOwner) 
+                    && (clientObjectData.MonsterInfo.AI >= 0 && clientObjectData.MapIndex == GameScene.Game.MapControl.MapInfo.Index)))
+                {
+                    if (Config.范围挂机)
+                    {
+                        int x1 = clientObjectData.Location.X;
+                        Point androidCoord = Config.范围挂机坐标;
+                        int num2 = (int)(androidCoord.X - Config.范围距离);
+                        int num3;
+
+                        if (x1 >= num2)
+                        {
+                            int x2 = clientObjectData.Location.X;
+                            androidCoord = Config.范围挂机坐标;
+                            int num4 = (int)(androidCoord.X + Config.范围距离);
+                            num3 = x2 > num4 ? 1 : 0;
+                        }
+                        else
+                            num3 = 1;
+
+                        if (num3 == 0)
+                        {
+                            int y1 = clientObjectData.Location.Y;
+                            androidCoord = Config.范围挂机坐标;
+                            int num4 = (int)(androidCoord.Y - Config.范围距离);
+                            int num5;
+
+                            if (y1 >= num4)
+                            {
+                                int y2 = clientObjectData.Location.Y;
+                                androidCoord = Config.范围挂机坐标;
+                                int num6 = (int)(androidCoord.Y + Config.范围距离);
+                                num5 = y2 > num6 ? 1 : 0;
+                            }
+                            else
+                                num5 = 1;
+
+                            if (num5 != 0)
+                                continue;
+                        }
+                        else
+                            continue;
+                    }
+                    int num7 = Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
+                    
+                    if (minob == null)
+                    {
+                        minob = clientObjectData;
+                        num1 = num7;
+                    }
+                    else
+                    {
+                        if (num7 < num1)
+                        {
+                            num1 = num7;
+                            minob = clientObjectData;
+                        }
+                        if ((User.Class == MirClass.Assassin || (uint)User.Class <= 0U) && Functions.InRange(clientObjectData.Location, User.CurrentLocation, 10))
+                        {
+                            List<Node> path = PathFinder.FindPath(User.CurrentLocation, Functions.PointNearTarget(User.CurrentLocation, clientObjectData.Location, 1));
+                            
+                            if (path != null && num7 + 25 >= path.Count)
+                                nodeList = path;
+                        }
+                    }
+                }
+            }
+
+            if (nodeList != null && nodeList.Count > 0)
+            {
+                CurrentPath = nodeList;
+                AutoPath = true;
+            }
+
+            return Objects.FirstOrDefault<MapObject>((Func<MapObject, bool>)(x =>
+            {
+                int objectId1 = (int)x.ObjectID;
+                uint? objectId2 = minob?.ObjectID;
+                int valueOrDefault = (int)objectId2.GetValueOrDefault();
+                return objectId1 == valueOrDefault & objectId2.HasValue;
+            }));
+        }
+
+        public void ProcessInput2()
+        {
+            bool bDetour = true;
+            if (GameScene.Game.Observer || User == null || (User.Dead || (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x =>
+            {
+                if (x.Type != BuffType.DragonRepulse)
+                    return x.Type == BuffType.FrostBite;
+                return true;
+            }))))
+                return;
+            if (User.MagicAction != null)
+            {
+                if (CEnvir.Now < MapObject.User.NextActionTime || (uint)MapObject.User.ActionQueue.Count > 0U)
+                    return;
+                MapObject.User.AttemptAction(User.MagicAction);
+                User.MagicAction = (ObjectAction)null;
+                Mining = false;
+            }
+            //bool haselementalhurricane = MapObject.User.VisibleBuffs.Contains(BuffType.ElementalHurricane);
+            if (Config.开始挂机)
+            {
+                //if (!haselementalhurricane)
+                {
+                    if (GameScene.Game.TargetObject == null || GameScene.Game.TargetObject.Dead || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, MapControl.User.CurrentLocation, 10))
+                    {
+                        MapObject mapObject = null;
+
+                        if (GameScene.Game.User.XunzhaoGuaiwuMoshi01)
+                            mapObject = LaoSelectMonster();
+                        else if (GameScene.Game.User.XunzhaoGuaiwuMoshi02)
+                            mapObject = SelectMonster();
+                        else if (!GameScene.Game.User.XunzhaoGuaiwuMoshi01 && !GameScene.Game.User.XunzhaoGuaiwuMoshi02)
+                            mapObject = LaoSelectMonster();
+
+                        int num;
+                        if (mapObject != null)
+                        {
+                            int objectId1 = (int)mapObject.ObjectID;
+                            uint? objectId2 = GameScene.Game.TargetObject?.ObjectID;
+                            int valueOrDefault = (int)objectId2.GetValueOrDefault();
+                            num = !(objectId1 == valueOrDefault & objectId2.HasValue) ? 1 : 0;
+                        }
+                        else
+                            num = 0;
+                        if (num != 0)
+                            GameScene.Game.TargetObject = mapObject;
+                        else
+                            ChangeAutoFightLocation();
+                    }
+                    else
+                        AndroidProcess();
+                }
+            }
+            MirDirection mirDirection1 = MouseDirection();
+            if (GameScene.Game.AutoRun)//if(GameScene.Game.AutoRun && !haselementalhurricane)
+            {
+                if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
+                    return;
+                Run(mirDirection1, true);
+            }
+            else
+            {
+                if (MouseControl == this)
+                {
+                    switch (MapButtons)
+                    {
+                        case MouseButtons.Left:
+                            Mining = false;
+                            if (MapLocation == MapObject.User.CurrentLocation)
+                            {
+
+                                if (CEnvir.Now <= GameScene.Game.PickUpTime) return;
+
+                                CEnvir.Enqueue(new C.PickUp());
+                                GameScene.Game.PickUpTime = CEnvir.Now.AddMilliseconds(250);
+
+                                return;
+                            }
+                            if (MapObject.TargetObject == null && (Config.免SHIFT || CEnvir.Shift))
+                            {
+                                if (!(CEnvir.Now > User.AttackTime) || User.Horse != HorseType.None)
+                                    return;
+
+                                MapObject.User.AttemptAction(new ObjectAction(MirAction.Attack, mirDirection1, MapObject.User.CurrentLocation, new object[3]
+                                {
+                                    0,
+                                    MagicType.None,
+                                    Element.None
+                                }));
+
+                                return;
+                            }
+                            if (CEnvir.Alt)
+                            {
+                                if (User.Horse != HorseType.None)
+                                    return;
+
+                                MapObject.User.AttemptAction(new ObjectAction(MirAction.Harvest, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
+                                return;
+                            }
+
+
+                            if (AutoPath)
+                                AutoPath = false;
+
+                            if (MapObject.MouseObject == null || MapObject.MouseObject.Race == ObjectType.Item || MapObject.MouseObject.Dead)
+                            {
+                                ClientUserItem clientUserItem = GameScene.Game.Equipment[0];
+                                if (MapInfo.CanMine && clientUserItem != null && clientUserItem.Info.Effect == ItemEffect.PickAxe) //if (!haselementalhurricane && MapInfo.CanMine && clientUserItem != null && clientUserItem.Info.Effect == ItemEffect.PickAxe)
+                                {
+                                    MiningPoint = Functions.Move(User.CurrentLocation, mirDirection1, 1);
+                                    if (MiningPoint.X >= 0 && MiningPoint.Y >= 0 && (MiningPoint.X < Width && MiningPoint.Y < Height) && Cells[MiningPoint.X, MiningPoint.Y].Flag)
+                                    {
+                                        Mining = true;
+                                        break;
+                                    }
+                                }
+                                if (!CanMove(mirDirection1, 1))
+                                {
+                                    MirDirection mirDirection2 = mirDirection1;
+                                    if (bDetour)
+                                        mirDirection2 = MouseDirectionBest(mirDirection1, 1);
+                                    if (mirDirection2 == mirDirection1)
+                                    {
+                                        if (mirDirection1 == User.Direction)
+                                            return;
+                                        Run(mirDirection1, bDetour);
+                                        return;
+                                    }
+                                    mirDirection1 = mirDirection2;
+                                }
+                                if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
+                                    return;
+
+                                Walk(mirDirection1);
+                                return;
+                            }
+                            break;
+                        case MouseButtons.Right:
+                            Mining = false;
+
+
+                            if (AutoPath)
+                                AutoPath = false;
+
+
+                            if ((!(MapObject.MouseObject is PlayerObject) || MapObject.MouseObject == MapObject.User || !CEnvir.Ctrl) && (GameScene.Game.MoveFrame && (MapControl.User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip))
+                            {
+                                if (Functions.InRange(MapLocation, MapObject.User.CurrentLocation, 1))
+                                {
+                                    if (mirDirection1 == User.Direction)
+                                        return;
+                                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
+                                    return;
+                                }
+                                Run(mirDirection1, bDetour);
+                                return;
+                            }
+                            break;
+                    }
+                }
+
+                if (MapObject.TargetObject != null)
+                {
+                    if (UpdateTarget < CEnvir.Now)
+                    {
+                        UpdateTarget = CEnvir.Now.AddMilliseconds(200.0);
+                        TargetLocation = MapObject.TargetObject.CurrentLocation;
+                    }
+                    if (ForceAttack(TargetLocation))
+                        return;
+                }
+
+                DigEarth();
+
+                if (!AutoPath) return;
+
+                AutoWalkPath();
+            }
+        }
+        public static bool CanAttackAction(MapObject target)
+        {
+            return target != null && !target.Dead && (target.Race == ObjectType.Monster && string.IsNullOrEmpty(target.PetOwner) || (CEnvir.Shift || Config.免SHIFT));
+        }
+        public void ChangeAutoFightLocation()
+        {
+            if (PathFinderTime >= CEnvir.Now || AutoPath)
+                return;
+
+            int x = User.CurrentLocation.X;
+            int y = User.CurrentLocation.Y;
+
+            if (Config.范围挂机)
+            {
+                Random random1 = CEnvir.Random;
+                int minValue1 = (int)((long)Config.范围挂机坐标.X - Config.范围距离);
+                Point androidCoord = Config.范围挂机坐标;
+                int maxValue1 = (int)((long)androidCoord.X + Config.范围距离);
+                x = random1.Next(minValue1, maxValue1);
+                Random random2 = CEnvir.Random;
+                androidCoord = Config.范围挂机坐标;
+                int minValue2 = (int)((long)androidCoord.Y - Config.范围距离);
+                androidCoord = Config.范围挂机坐标;
+                int maxValue2 = (int)((long)androidCoord.Y + Config.范围距离);
+                y = random2.Next(minValue2, maxValue2);
+            }
+            else if (Config.是否开启随机保护)
+            {
+                DXItemCell dxItemCell = (GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(X => X?.Item?.Info.ItemName == "随机传送卷");
+                if (dxItemCell != null && dxItemCell.UseItem())
+                    ProtectTime = CEnvir.Now.AddSeconds(5.0);
+            }
+            else
+            {
+                Point currentLocation = User.CurrentLocation;
+                x = CEnvir.Random.Next(currentLocation.X - 5, currentLocation.X + 5);
+                y = CEnvir.Random.Next(currentLocation.Y - 5, currentLocation.Y + 5);
+            }
+
+            List<Node> path = PathFinder.FindPath(User.CurrentLocation, new Point(x, y));
+
+            if (path == null || path.Count == 0)
+                return;
+
+            CurrentPath = path;
+            AutoPath = true;
+        }
+
+        public void AndroidProcess()
+        {
+            if (AutoPath)
+                return;
+
+            if (GameScene.Game.TargetObject == null || GameScene.Game.TargetObject.Dead)
+            {
+                CurrentPath?.Clear();
+            }
+            else
+            {
+                if (!CanAttackAction(GameScene.Game.TargetObject))
+                    return;
+
+                if (User.Class == MirClass.Wizard || User.Class == MirClass.Taoist)
+                {
+                    GameScene.Game.MagicObject = GameScene.Game.TargetObject;
+
+                    if (Config.自动躲避 && Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation) < 3)
+                    {
+                        MirDirection mirDirection1 = Functions.ShiftDirection(Functions.DirectionFromPoint(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation), 4);
+                        if (!CanMove(mirDirection1, 1))
+                        {
+                            MirDirection mirDirection2 = DirectionBest(mirDirection1, 1, GameScene.Game.TargetObject.CurrentLocation);
+                            if (mirDirection2 == mirDirection1)
+                            {
+                                if (mirDirection1 != User.Direction)
+                                    User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, User.CurrentLocation, Array.Empty<object>()));
+
+                                if (!Config.是否开启挂机自动技能 || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                                    return;
+
+                                GameScene.Game.UseMagic(Config.挂机自动技能);
+                                return;
+                            }
+                            mirDirection1 = mirDirection2;
+                        }
+
+                        if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
+                        {
+                            User.AttemptAction(new ObjectAction(MirAction.Moving, mirDirection1, Functions.Move(User.CurrentLocation, mirDirection1, 1), new object[2]
+                            {
+                                1,
+                                MagicType.None
+                            }));
+                            return;
+                        }
+                    }
+                }
+                if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10) && ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green))
+                    GameScene.Game.UseMagic(MagicType.PoisonDust);
+
+                if (Config.是否开启挂机自动技能 && (User.Class == MirClass.Taoist || User.Class == MirClass.Wizard))
+                {
+                    if (Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                    {
+                        GameScene.Game.UseMagic(Config.挂机自动技能);
+                        return;
+                    }
+
+                    GameScene.Game.TargetObject = null;
+                }
+
+                if (Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation) == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                    User.AttemptAction(new ObjectAction(MirAction.Attack, Functions.DirectionFromPoint(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation), User.CurrentLocation, new object[3]
+                    {
+                        0,
+                        MagicType.None,
+                        Element.None
+                    }));
+            }
+        }
+        public static void Walk(MirDirection direction)
+        {
+            MapObject.User.Moving(direction, 1);
+        }
+
+        public bool ForceAttack(Point target)
+        {
+            if (AutoPath || Config.开始挂机 && (User.Class == MirClass.Taoist || User.Class == MirClass.Wizard))
+                return false;
+
+            bool flag = false;
+
+            if (CanAttackAction(MapObject.TargetObject))
+            {
+                if (Functions.Distance(target, MapObject.User.CurrentLocation) == 1)
+                {
+                    if (CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Attack, Functions.DirectionFromPoint(MapObject.User.CurrentLocation, target), MapObject.User.CurrentLocation, new object[3]
+                        {
+                            0,
+                            MagicType.None,
+                            Element.None
+                        }));
+
+                    flag = true;
+                }
+                else
+                {
+                    bool bDetour = true;
+                    MirDirection direction = Functions.DirectionFromPoint(MapObject.User.CurrentLocation, target);
+                    
+                    if (bDetour)
+                        direction = Detour(direction, target, 1);
+
+                    if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
+                    {
+                        int num = Functions.Distance(target, MapObject.User.CurrentLocation);
+                        if (num == 2)
+                            Walk(direction);
+                        else if (num > 2)
+                            Run(direction, bDetour);
+                    }
+                }
+            }
+
+            return flag;
+        }
+
+        public static MirDirection Detour(MirDirection direction, Point targ, int step)
+        {
+            MirDirection mirDirection = direction;
+            if (!GameScene.Game.MapControl.CanMove(direction, step))
+                mirDirection = GameScene.Game.MapControl.DirectionBest(direction, step, targ);
+            return mirDirection;
+        }
+
+        public void DigEarth()
+        {
+            if (!Mining)
+                return;
+            ClientUserItem clientUserItem = GameScene.Game.Equipment[0];
+            if (MapInfo.CanMine && clientUserItem != null && (clientUserItem.CurrentDurability > 0 || clientUserItem.Info.Durability == 0) && (clientUserItem.Info.Effect == ItemEffect.PickAxe && MiningPoint.X >= 0 && (MiningPoint.Y >= 0 && MiningPoint.X < Width)) && (MiningPoint.Y < Height && Cells[MiningPoint.X, MiningPoint.Y].Flag && Functions.Distance(MiningPoint, MapObject.User.CurrentLocation) == 1) && User.Horse == HorseType.None)
+            {
+                if (CEnvir.Now > User.AttackTime)
+                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Mining, Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MiningPoint), MapObject.User.CurrentLocation, new object[1]
+                    {
+                        false
+                    }));
+            }
+            else
+                Mining = false;
+        }
+
+
+        public void AutoWalkPath()
+        {
+            if (CurrentPath == null || CurrentPath.Count == 0)
+            {
+                AutoPath = false;
+            }
+            else
+            {
+                if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
+                    return;
+                Node node1 = CurrentPath.SingleOrDefault<Node>((Func<Node, bool>)(x => User.CurrentLocation == x.Location));
+                if (node1 != null)
+                {
+                    Node node2;
+                    do
+                    {
+                        node2 = CurrentPath.First<Node>();
+                        CurrentPath.Remove(node2);
+                    }
+                    while (node2 != node1);
+                }
+
+                if (CurrentPath.Count <= 0)
+                    return;
+
+                MirDirection dir = Functions.DirectionFromPoint(User.CurrentLocation, CurrentPath.First<Node>().Location);
+                
+                if (!CanMove(dir, 1))
+                {
+                    CurrentPath = PathFinder.FindPath(MapObject.User.CurrentLocation, CurrentPath.Last<Node>().Location);
+                }
+                else
+                {
+                    int distance = 1;
+                    if (GameScene.Game.CanRun && CEnvir.Now >= User.NextRunTime && User.BagWeight <= User.Stats[Stat.BagWeight] && User.WearWeight <= User.Stats[Stat.WearWeight])
+                    {
+                        ++distance;
+                        if ((uint)User.Horse > 0U)
+                            ++distance;
+                    }
+
+                    Node node2 = (Node)null;
+
+                    for (int i = distance; i > 0; i--)
+                    {
+                        if (CanMove(dir, i))
+                        {
+                            node2 = CurrentPath.SingleOrDefault<Node>((Func<Node, bool>)(x => Functions.Move(User.CurrentLocation, dir, i) == x.Location));
+                            if (node2 != null)
+                            {
+                                distance = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (node2 != null)
+                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, dir, Functions.Move(MapObject.User.CurrentLocation, dir, distance), new object[2]
+                        {
+                            distance,
+                            MagicType.None
+                        }));
+                }
+            }
+        }
         #endregion
-        
+
         #region IDisposable
 
         protected override void Dispose(bool disposing)

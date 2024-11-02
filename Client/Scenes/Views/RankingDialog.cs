@@ -253,8 +253,9 @@ namespace Client.Scenes.Views
 
             OnlineOnlyBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "只看在线的" },
+                Text = "只看在线的",
             };
             OnlineOnlyBox.CheckedChanged += (o, e) =>
             {
@@ -280,33 +281,33 @@ namespace Client.Scenes.Views
             new DXListBoxItem
             {
                 Parent = RequiredClassBox.ListBox,
-                Label = { Text = $"{RequiredClass.All}" },
+                Label = { Text = $"全部" },
                 Item = RequiredClass.All
             };
 
             new DXListBoxItem
             {
                 Parent = RequiredClassBox.ListBox,
-                Label = { Text = $"{RequiredClass.Warrior}" },
+                Label = { Text = $"战士" },
                 Item = RequiredClass.Warrior
             };
             new DXListBoxItem
             {
                 Parent = RequiredClassBox.ListBox,
-                Label = { Text = $"{RequiredClass.Wizard}" },
+                Label = { Text = $"法师" },
                 Item = RequiredClass.Wizard
             };
             new DXListBoxItem
             {
                 Parent = RequiredClassBox.ListBox,
-                Label = { Text = $"{RequiredClass.Taoist}" },
+                Label = { Text = $"道士" },
                 Item = RequiredClass.Taoist
             };
 
             new DXListBoxItem
             {
                 Parent = RequiredClassBox.ListBox,
-                Label = { Text = $"{RequiredClass.Assassin}" },
+                Label = { Text = $"刺客" },
                 Item = RequiredClass.Assassin
             };
 

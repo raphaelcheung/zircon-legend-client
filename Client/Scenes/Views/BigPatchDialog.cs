@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Timers;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Data.SqlTypes;
 
 namespace Client.Scenes.Views
 {
@@ -34,6 +35,11 @@ namespace Client.Scenes.Views
         public DXViewRangeObjectTab ViewRange;
         public DXMagicHelperTab Magic;
         public DateTime _ProtectTime;
+
+        private ClientUserMagic FlamingSword = null;
+        private ClientUserMagic DragonRise = null;
+        private ClientUserMagic BladeStorm = null;
+        //private ClientUserMagic FlamingSword = null;
 
         public override WindowType Type
         {
@@ -62,15 +68,18 @@ namespace Client.Scenes.Views
         public static DXCheckBox CreateCheckBox(DXControl parent, string name, int x, int y, EventHandler<EventArgs> Changed, bool Checked = false)
         {
             DXCheckBox dxCheckBox1 = new DXCheckBox();
-            dxCheckBox1.Label.Text = name;
+            dxCheckBox1.AutoSize = true;
+
+            dxCheckBox1.Text = name;
             dxCheckBox1.Parent = parent;
             dxCheckBox1.Checked = Checked;
-            dxCheckBox1.Size = new Size(80, 20);
+
             //dxCheckBox1.bAlignRight = false;
-            DXCheckBox dxCheckBox2 = dxCheckBox1;
-            dxCheckBox2.Location = new Point(x, y);
-            dxCheckBox2.CheckedChanged += Changed;
-            return dxCheckBox2;
+            //DXCheckBox dxCheckBox2 = dxCheckBox1;
+            dxCheckBox1.Location = new Point(x, y);
+            dxCheckBox1.CheckedChanged += Changed;
+            dxCheckBox1.UpdateControl();
+            return dxCheckBox1;
         }
 
         public BigPatchDialog()
@@ -195,8 +204,8 @@ namespace Client.Scenes.Views
             string str4 = string.Concat(strArray);
             timeLable.Text = str4;
             */
-            if (AutoTime == 0L)
-                Helper.AndroidPlayer.Checked = false;
+            //if (AutoTime == 0L)
+            //    Helper.AndroidPlayer.Checked = false;
         }
 
         public void CastFourFlowers()
@@ -215,6 +224,45 @@ namespace Client.Scenes.Views
                 GameScene.Game.UseMagic(MagicType.RedLotus);
             if (GameScene.Game.User.Buffs.Any(x => x.Type == BuffType.RedLotus))
                 GameScene.Game.UseMagic(MagicType.SweetBrier);
+        }
+
+        public void ReadySkillInfo()
+        {
+            if (FlamingSword == null)
+            {
+                foreach(var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.FlamingSword)
+                    {
+                        FlamingSword = pair.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (DragonRise == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.DragonRise)
+                    {
+                        DragonRise = pair.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (BladeStorm == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.BladeStorm)
+                    {
+                        BladeStorm = pair.Value;
+                        break;
+                    }
+                }
+            }
         }
 
         public void AutoSkills()
@@ -247,6 +295,17 @@ namespace Client.Scenes.Views
             if (Config.自动风之闪避 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Evasion))
                 GameScene.Game.UseMagic(MagicType.Evasion);
 
+            if (MapObject.User.Class == MirClass.Warrior)
+            {
+                if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
+                    GameScene.Game.UseMagic(MagicType.BladeStorm);
+                else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
+                    GameScene.Game.UseMagic(MagicType.FlamingSword);
+                else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
+                    GameScene.Game.UseMagic(MagicType.DragonRise);
+
+            }
+
             if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.RagingWind)))
                 return;
             GameScene.Game.UseMagic(MagicType.RagingWind);
@@ -275,7 +334,7 @@ namespace Client.Scenes.Views
                 float num = (float)Config.血量剩下百分之多少时自动随机 / 100f;
                 if ((double)GameScene.Game.User.CurrentHP < (double)GameScene.Game.User.Stats[Stat.Health] * (double)num && CEnvir.Now > _ProtectTime)
                 {
-                    DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault<DXItemCell>((Func<DXItemCell, bool>)(x => x?.Item?.Info.ItemName == "随机传送卷"));
+                    DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(x => x?.Item?.Info.ItemName == "随机传送卷");
                     if (dxItemCell != null && dxItemCell.UseItem())
                         _ProtectTime = CEnvir.Now.AddSeconds(5.0);
                 }
@@ -293,8 +352,10 @@ namespace Client.Scenes.Views
 
             if (!Config.开始挂机)
                 return;
+
             if (GameScene.Game.User.Dead && Config.死亡回城)
                 CEnvir.Enqueue((Packet)new TownRevive());
+
             if (Config.是否开启每间隔自动随机 && CEnvir.Now > _ProtectTime)
             {
                 DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault<DXItemCell>((Func<DXItemCell, bool>)(x => x?.Item?.Info.ItemName == "随机传送卷"));
@@ -336,14 +397,18 @@ namespace Client.Scenes.Views
 
         public bool PickupItems()
         {
-
+            AutoPick?.SycFilters(false);
             bool flag = false;
             if (AutoPick != null && !GameScene.Game.Observer && (!GameScene.Game.User.Dead && !(CEnvir.Now < GameScene.Game.PickUpTime)))
             {
-                GameScene.Game.PickUpTime = CEnvir.Now.AddMilliseconds(250.0);
+                GameScene.Game.PickUpTime = CEnvir.Now.AddMilliseconds(500.0);
                 int stat = GameScene.Game.User.Stats[Stat.PickUpRadius];
                 int x = GameScene.Game.User.CurrentLocation.X;
                 int y = GameScene.Game.User.CurrentLocation.Y;
+
+                List<PickItemInfo> user_items = new List<PickItemInfo>();
+                List<PickItemInfo> compain_items = new List<PickItemInfo>();
+
                 for (int index1 = 0; index1 <= stat; ++index1)
                 {
                     for (int index2 = y - index1; index2 <= y + index1; ++index2)
@@ -377,9 +442,8 @@ namespace Client.Scenes.Views
 
                                                         if (itemObject.Item.Info.Effect == ItemEffect.ItemPart)
                                                         {
-                                                            int part;
                                                             str = itemObject.Name;
-                                                            part = itemObject.Item.AddedStats[Stat.ItemIndex];
+                                                            int part = itemObject.Item.AddedStats[Stat.ItemIndex];
                                                             num = part;
                                                         }
 
@@ -387,31 +451,31 @@ namespace Client.Scenes.Views
                                                         {
                                                             if (item.pick && !item.picks)
                                                             {
-                                                                CEnvir.Enqueue((Packet)new PickUpA()
+                                                                user_items.Add(new PickItemInfo()
                                                                 {
-                                                                    ItemIdx = itemObject.Item.Info.Index,
-                                                                    Xpos = index3,
-                                                                    Ypos = index2
+                                                                    ItemIndex = itemObject.Item.Info.Index,
+                                                                    xPos = index3,
+                                                                    yPos = index2
                                                                 });
                                                                 flag = true;
                                                             }
                                                             else if (item.picks && !item.pick)
                                                             {
-                                                                CEnvir.Enqueue((Packet)new PickUpC()
+                                                                compain_items.Add(new PickItemInfo()
                                                                 {
-                                                                    ItemIdx = itemObject.Item.Info.Index,
-                                                                    Xpos = index3,
-                                                                    Ypos = index2
+                                                                    ItemIndex = itemObject.Item.Info.Index,
+                                                                    xPos = index3,
+                                                                    yPos = index2
                                                                 });
                                                                 flag = true;
                                                             }
                                                             else if (item.picks && item.pick)
                                                             {
-                                                                CEnvir.Enqueue((Packet)new PickUpA()
+                                                                user_items.Add(new PickItemInfo()
                                                                 {
-                                                                    ItemIdx = itemObject.Item.Info.Index,
-                                                                    Xpos = index3,
-                                                                    Ypos = index2
+                                                                    ItemIndex = itemObject.Item.Info.Index,
+                                                                    xPos = index3,
+                                                                    yPos = index2
                                                                 });
                                                                 flag = true;
                                                             }
@@ -432,7 +496,17 @@ namespace Client.Scenes.Views
                         }
                     }
                 }
+
+
+                if (user_items.Count > 0 || compain_items.Count > 0)
+                    CEnvir.Enqueue(new PickUpS()
+                    {
+                        CompanionItems = compain_items,
+                        UserItems = user_items,
+                    });
             }
+
+
             return flag;
         }
 
@@ -888,7 +962,7 @@ namespace Client.Scenes.Views
                 for (int index2 = 0; index2 < chkItemSetArray2.Length; ++index2)
                 {
                     BigPatchDialog.CreateCheckBox((DXControl)GroupNormal, chkItemSetArray2[index2].name, x1, num1, chkItemSetArray2[index2].method, chkItemSetArray2[index2].state);
-                    num1 += num2;
+                    num1 += 24;
                 }
                 BigPatchDialog.DXGroupBox groupNormal = GroupNormal;
                 Size size1 = GroupNormal.Size;
@@ -1476,7 +1550,7 @@ namespace Client.Scenes.Views
                 dxGroupBox6.Size = new Size(120, 32);
                 dxGroupBox6.Location = new Point(130, 0);
                 dxGroupBox6.Name.Text = "挂机";
-                dxGroupBox6.Visible = false;
+                dxGroupBox6.Visible = true;
 
                 Android = dxGroupBox6;
    
@@ -1517,9 +1591,19 @@ namespace Client.Scenes.Views
                         Slot = AutoSetConf.SetBladeStormBox
                     });
                 });
-                AutoDefiance = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动铁布衫", x1 + 120, y2, (EventHandler<EventArgs>)((o, e) => Config.自动铁布衫 = AutoDefiance.Checked), Config.自动铁布衫);
+                AutoDefiance = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动铁布衫", x1 + 120, y2, (EventHandler<EventArgs>)((o, e) => {
+                    Config.自动铁布衫 = AutoDefiance.Checked;
+                    if (Config.自动铁布衫)
+                        AutoMight.Checked = false;
+
+                }), Config.自动铁布衫);
                 int num2;
-                AutoMight = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动破血", x1, num2 = y2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动破血 = AutoMight.Checked), Config.自动破血);
+                AutoMight = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动破血", x1, num2 = y2 + 25, (EventHandler<EventArgs>)((o, e) => {
+                    
+                    Config.自动破血 = AutoMight.Checked;
+                    if (Config.自动破血)
+                        AutoDefiance.Checked = false;
+                }), Config.自动破血);
                 int num3 = 5;
                 int num4;
                 AutoMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔法盾", x1, num4 = num3 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);
@@ -1551,8 +1635,9 @@ namespace Client.Scenes.Views
                 AutoRagingWind = BigPatchDialog.CreateCheckBox((DXControl)Assassin, "自动风之守护", x1, num2 = num11 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之守护 = AutoRagingWind.Checked), Config.自动风之守护);
                 int y3 = 35;
                 DXLabel dxLabel1 = new DXLabel();
+                dxLabel1.AutoSize = true;
                 dxLabel1.Parent = (DXControl)AutoSkill;
-                dxLabel1.Text = "技能Ⅰ ";
+                dxLabel1.Text = "技能Ⅰ";
                 dxLabel1.Hint = "根据定义的时间间隔(秒单位)自动释放技能";
                 DXLabel dxLabel2 = dxLabel1;
                 dxLabel2.Location = new Point(x1, y3);
@@ -1594,6 +1679,7 @@ namespace Client.Scenes.Views
                 Point point1 = new Point(x2, y4);
                 numbSkill1.Location = point1;
                 DXCheckBox dxCheckBox1 = new DXCheckBox();
+                dxCheckBox1.AutoSize = true;
                 dxCheckBox1.Parent = (DXControl)AutoSkill;
                 dxCheckBox1.Checked = Config.是否开启自动技能1;
                 dxCheckBox1.Hint = "自动技能\x2460";
@@ -1655,6 +1741,7 @@ namespace Client.Scenes.Views
                 Point point3 = new Point(x5, y8);
                 numbSkill2.Location = point3;
                 DXCheckBox dxCheckBox2 = new DXCheckBox();
+                dxCheckBox2.AutoSize = true;
                 dxCheckBox2.Parent = (DXControl)AutoSkill;
                 dxCheckBox2.Checked = Config.是否开启自动技能2;
                 dxCheckBox2.Hint = "自动技能\x2461";
@@ -1678,20 +1765,10 @@ namespace Client.Scenes.Views
                 dxListBoxItem1.Parent = (DXControl)CombCmdBox.ListBox;
                 dxListBoxItem1.Label.Text = "空";
                 dxListBoxItem1.Item = (object)null;
-                string[] strArray = new string[26]
+                string[] strArray = new string[12]
                 {
-                   "@时间",
-                   "@神舰之门",
-                   "@介绍人",
-                   "@介绍人数",
-                   "@股子",
-                   "@赞助记录",
-                   "@武器属性提取",
-                   "@法宝属性提取",
-                   "@徽章属性提取",
-                   "@盾牌属性提取",
-                   "@碎片快速合成",
-                   "@武器铭文传承",
+                   "@允许召唤",
+                   "@队伍召唤",
                    "@宠物技能3",
                    "@宠物技能5",
                    "@宠物技能7",
@@ -1700,12 +1777,8 @@ namespace Client.Scenes.Views
                    "@宠物技能13",
                    "@宠物技能15",
                    "@允许交易",
-                   "@拒绝私聊",
-                   "@允许加入公会",
-                   "@退出公会",
-                   "@清理物品栏",
-                   "@允许天地合一",
-                   "@天地合一"
+                   "@允许加入行会",
+                   "@退出行会",
                 };
                 int dijihang = 0;
                 foreach (string str in strArray)
@@ -1748,6 +1821,7 @@ namespace Client.Scenes.Views
                 {
                     if (GameScene.Game.Observer)
                         return;
+
                     if (AndroidPlayer.Checked && GameScene.Game.User.AutoTime == 0L)
                     {
                         AndroidPlayer.Checked = false;
@@ -2375,15 +2449,14 @@ namespace Client.Scenes.Views
                 Point point2 = new Point(x2, y4);
                 manaLabel.Location = point2;
                 DXCheckBox dxCheckBox = new DXCheckBox();
-                dxCheckBox.Label.Text = "启动";
+                dxCheckBox.AutoSize = true;
+                dxCheckBox.Text = "启用";
                 dxCheckBox.Parent = (DXControl)this;
                 EnabledCheckBox = dxCheckBox;
                 EnabledCheckBox.CheckedChanged += (EventHandler<EventArgs>)((o, e) => SendUpdate());
                 DXCheckBox enabledCheckBox = EnabledCheckBox;
-                Size size3 = Size;
-                int width1 = size3.Width;
-                size3 = EnabledCheckBox.Size;
-                int width2 = size3.Width;
+                int width1 = Size.Width;
+                int width2 = EnabledCheckBox.Size.Width;
                 Point point3 = new Point(width1 - width2 - 5, 5);
                 enabledCheckBox.Location = point3;
             }
@@ -2533,9 +2606,10 @@ namespace Client.Scenes.Views
             public DXAnsweringTab()
             {
                 DXCheckBox dxCheckBox1 = new DXCheckBox();
+                dxCheckBox1.AutoSize = true;
+                dxCheckBox1.bAlignRight = false;
                 dxCheckBox1.Parent = (DXControl)this;
-                dxCheckBox1.Label.Text = "自动回复";
-                //dxCheckBox1.bAlignRight = false;
+                dxCheckBox1.Text = "自动回复";
                 dxCheckBox1.Location = new Point(10, 10);
                 dxCheckBox1.Checked = Config.自动回复;
                 ChkAutoReplay = dxCheckBox1;
@@ -2846,11 +2920,11 @@ namespace Client.Scenes.Views
 
         public class CItemFilterSet
         {
-            public int idx;
+            public int idx { get; set; }
             public string name;
             public bool hint;
             public bool pick;
-            public bool picks;
+            public bool picks { get; set; }
             public bool show
             {
                 get => _show;
@@ -2865,6 +2939,8 @@ namespace Client.Scenes.Views
 
             public bool sell;
             public bool buy;
+
+            public bool OldPicks { get; set; }
 
             public event EventHandler<EventArgs> ShowChanged;
 
@@ -2930,23 +3006,21 @@ namespace Client.Scenes.Views
             {
                 FileName = file;
                 if (!File.Exists(FileName))
-                    File.Create(FileName);
+                    File.Create(FileName)?.Close();
 
-                int tick = 0;
                 foreach (string readAllLine in File.ReadAllLines(FileName))
                 {
-                    tick++;
                     if (!string.IsNullOrEmpty(readAllLine) && readAllLine[0] != ';')
                     {
                         string[] strArray = readAllLine.Split(',');
                         if (strArray.Length >= 6)
                         {
                             int result1 = 0;
-                            CItemFilterSet citemFilterSet = Items[tick - 1];
+
                             if (int.TryParse(strArray[0].Trim(), out result1))
                             {
+                                if (!dictItems.TryGetValue(result1, out CItemFilterSet citemFilterSet)) continue;
 
-                                citemFilterSet.idx = result1;
                                 bool result2 = false;
                                 if (bool.TryParse(strArray[2].Trim(), out result2))
                                     citemFilterSet.hint = result2;
@@ -2971,11 +3045,10 @@ namespace Client.Scenes.Views
                 if (!File.Exists(FileName))
                     File.Create(FileName);
                 string[] contents = new string[Items.Count];
-                for (int index = 0; index < this.Items.Count; ++index)
+                for (int index = 0; index < Items.Count; ++index)
                 {
                     CItemFilterSet citemFilterSet = Items[index];
-                    if (citemFilterSet.name != null && citemFilterSet.idx != 0 && citemFilterSet.idx <= Items.Count && (citemFilterSet.hint || citemFilterSet.pick || citemFilterSet.picks || citemFilterSet.show))
-                    {
+
                         contents[index] = string.Format("{0}, {1}, {2}, {3}, {4}, {5}"
                             , Items[index].idx,
                             Items[index].name,
@@ -2984,7 +3057,7 @@ namespace Client.Scenes.Views
                             Items[index].picks,
                             Items[index].show
                         );
-                    }
+
                 }
                 File.WriteAllLines(FileName, contents);
             }
@@ -2998,8 +3071,10 @@ namespace Client.Scenes.Views
             public DXTextBox sTextBox;
             public DXButton AddButton;
             public DXButton DelButton;
-            public CItemFilter ItemFilter;
+            public CItemFilter ItemFilter { get; set; }
             public DXListView ItemView;
+
+            public bool NeedSycFilters { get; set; } = true;
 
             public DXAutoPickItemTab()
             {
@@ -3098,15 +3173,136 @@ namespace Client.Scenes.Views
                 dxListView.Location = new Point(x5, y5);
                 dxListView.ItemBorder = false;
                 ItemView = dxListView;
-                int num1 = (int)ItemView.InsertColumn(0U, "物品名称", 268, 24, "  物品的名字");
-                int num2 = (int)ItemView.InsertColumn(1U, "勾选提示", 58, 24, "  聊天框中紫色文字提示");
-                int num3 = (int)ItemView.InsertColumn(2U, "角色拾取", 58, 24, "  角色拾取");
-                int num4 = (int)ItemView.InsertColumn(3U, "宠物拾取", 58, 24, "  宠物拾取");
-                int num5 = (int)ItemView.InsertColumn(4U, "勾选显示", 58, 24, "  物品在地上是否显示名字");
+                int num1 = (int)ItemView.InsertColumn(0U, "物品名称", 158, 24, "  物品的名字");
+
+
+                var ckb = new DXCheckBox()
+                {
+                    Size = new Size(80, 24),
+                    //AutoSize = true,
+                    Checked = false,
+                    Text = "提示",
+                    BackColour = Color.Green,
+                };
+
+                ckb.CheckedChanged += (o, e) =>
+                {
+                    if (o is DXCheckBox box)
+                        foreach (DXControl row in ItemView.Controls[1].Controls)
+                        {
+                            if (row.Controls[1] is DXCheckBox tmp)
+                                tmp.Checked = box.Checked;
+                        }
+                };
+
+                int num2 = (int)ItemView.InsertColumn(1U, ckb);
+
+
+                ckb = new DXCheckBox()
+                {
+                    Size = new Size(80, 24),
+                    //AutoSize = true,
+                    Checked = false,
+                    Text = "角色拾取",
+                    BackColour = Color.Empty,
+                };
+
+                ckb.CheckedChanged += (o, e) =>
+                {
+                    if (o is DXCheckBox box)
+                        foreach (DXControl row in ItemView.Controls[1].Controls)
+                        {
+                            if (row.Controls[2] is DXCheckBox tmp)
+                                tmp.Checked = box.Checked;
+                        }
+                };
+
+                int num3 = (int)ItemView.InsertColumn(2U, ckb);
+
+                ckb = new DXCheckBox()
+                {
+                    Size = new Size(80, 24),
+                    //AutoSize = true,
+                    Checked = false,
+                    Text = "宠物拾取",
+                    BackColour = Color.Empty,
+                };
+                ckb.CheckedChanged += (o, e) =>
+                {
+                    if (o is DXCheckBox box)
+                        foreach (DXControl row in ItemView.Controls[1].Controls)
+                        {
+                            if (row.Controls[3] is DXCheckBox tmp)
+                                tmp.Checked = box.Checked;
+                        }
+                };
+
+                int num4 = (int)ItemView.InsertColumn(3U, ckb);
+
+
+                ckb = new DXCheckBox()
+                {
+                    Size = new Size(80, 24),
+                    //AutoSize = true,
+                    Checked = false,
+                    Text = "显示",
+                    BackColour = Color.Empty,
+                };
+                ckb.CheckedChanged += (o, e) =>
+                {
+                    if (o is DXCheckBox box)
+                        foreach (DXControl row in ItemView.Controls[1].Controls)
+                        {
+                            if (row.Controls[4] is DXCheckBox tmp)
+                                tmp.Checked = box.Checked;
+                        }
+                };
+
+                int num5 = (int)ItemView.InsertColumn(4U, ckb);
+
                 ItemFilter = new CItemFilter();
-                ItemFilter.Initialize("./PickupFilter.ini");
+
+                string old_name = "./PickupFilter.ini";
+                string new_name = $"./{CEnvir.LogonCharacterDesc}-PickupFilter.ini";
+
+                if (File.Exists(old_name) && !File.Exists(new_name))
+                {
+                    try { File.Move(old_name, new_name); }
+                    catch { }
+                }
+
+                ItemFilter.Initialize(new_name);
                 Initialize();
 
+                NeedSycFilters = true;
+                SycFilters(true);
+            }
+
+            public void SycFilters(bool first_syc)
+            {
+                if (!NeedSycFilters) return;
+
+                List<string> filters = new List<string>();
+                foreach (var pair in ItemFilter.dictItems)
+                {
+                    if (first_syc)
+                    {
+                        pair.Value.OldPicks = pair.Value.picks;
+                        if (pair.Value.picks)
+                            filters.Add($"{pair.Key},1");
+                    }
+                    else if (pair.Value.picks != pair.Value.OldPicks)
+                    {
+                        pair.Value.OldPicks = pair.Value.picks;
+                        filters.Add($"{pair.Key},{(pair.Value.picks ? 1 : 0)}");
+                    }
+                }
+
+                CEnvir.Enqueue(new PktFilterItem()
+                {
+                    FilterStr = filters,
+                });
+                NeedSycFilters = false;
             }
             public void Initialize()
             {
@@ -3117,7 +3313,7 @@ namespace Client.Scenes.Views
                     {
                         uint nItem = ItemView.InsertItem(uint.MaxValue, citemFilterSet.name);
                         DXCheckBox dxCheckBox1 = new DXCheckBox();
-                        //dxCheckBox1.AutoSize = false;
+                        dxCheckBox1.AutoSize = false;
                         dxCheckBox1.Checked = citemFilterSet.hint;
                         dxCheckBox1.Tag = (object)index;
                         DXCheckBox dxCheckBox2 = dxCheckBox1;
@@ -3128,7 +3324,7 @@ namespace Client.Scenes.Views
                         });
                         ItemView.SetItem(nItem, 1U, (DXControl)dxCheckBox2);
                         DXCheckBox dxCheckBox4 = new DXCheckBox();
-                        //dxCheckBox4.AutoSize = false;
+                        dxCheckBox4.AutoSize = false;
                         dxCheckBox4.Checked = citemFilterSet.pick;
                         dxCheckBox4.Tag = (object)index;
                         DXCheckBox dxCheckBox5 = dxCheckBox4;
@@ -3141,53 +3337,54 @@ namespace Client.Scenes.Views
 
 
                         DXCheckBox DXCheckBox16 = new DXCheckBox();
-                        //DXCheckBox16.AutoSize = false;
+                        DXCheckBox16.AutoSize = false;
                         DXCheckBox16.Checked = citemFilterSet.picks;
                         DXCheckBox16.Tag = (object)index;
                         DXCheckBox DXCheckBox17 = DXCheckBox16;
                         DXCheckBox17.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
-                            this.ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(2, dxCheckBox.Checked);
+                            ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(2, dxCheckBox.Checked);
+                            NeedSycFilters = true;
                         });
-                        this.ItemView.SetItem(nItem, 3U, (DXControl)DXCheckBox17);
+                        ItemView.SetItem(nItem, 3U, (DXControl)DXCheckBox17);
 
                         DXCheckBox dxCheckBox6 = new DXCheckBox();
-                        //dxCheckBox6.AutoSize = false;
+                        dxCheckBox6.AutoSize = false;
                         dxCheckBox6.Checked = citemFilterSet.show;
                         dxCheckBox6.Tag = (object)index;
                         DXCheckBox dxCheckBox7 = dxCheckBox6;
                         dxCheckBox7.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
-                            this.ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(3, dxCheckBox.Checked);
+                            ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(3, dxCheckBox.Checked);
                         });
-                        this.ItemView.SetItem(nItem, 4U, (DXControl)dxCheckBox7);
+                        ItemView.SetItem(nItem, 4U, (DXControl)dxCheckBox7);
 
                         DXCheckBox dxCheckBox8 = new DXCheckBox();
-                        //dxCheckBox8.AutoSize = false;
+                        dxCheckBox8.AutoSize = false;
                         dxCheckBox8.Checked = citemFilterSet.sell;
                         dxCheckBox8.Tag = (object)index;
                         DXCheckBox dxCheckBox9 = dxCheckBox8;
                         dxCheckBox9.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
-                            this.ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(4, dxCheckBox.Checked);
+                            ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(4, dxCheckBox.Checked);
                         });
-                        this.ItemView.SetItem(nItem, 5U, (DXControl)dxCheckBox9);
+                        ItemView.SetItem(nItem, 5U, (DXControl)dxCheckBox9);
                         DXCheckBox dxCheckBox10 = new DXCheckBox();
-                        //dxCheckBox10.AutoSize = false;
+                        dxCheckBox10.AutoSize = false;
                         dxCheckBox10.Checked = citemFilterSet.buy;
                         dxCheckBox10.Tag = (object)index;
                         DXCheckBox dxCheckBox11 = dxCheckBox10;
                         dxCheckBox11.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
-                            this.ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(5, dxCheckBox.Checked);
+                            ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(5, dxCheckBox.Checked);
                         });
-                        this.ItemView.SetItem(nItem, 6U, (DXControl)dxCheckBox11);
+                        ItemView.SetItem(nItem, 6U, (DXControl)dxCheckBox11);
                         DXCheckBox dxCheckBox12 = new DXCheckBox();
-                        //dxCheckBox12.AutoSize = false;
+                        dxCheckBox12.AutoSize = false;
                         dxCheckBox12.Checked = citemFilterSet.buy;
                         dxCheckBox12.Enabled = false;
                         dxCheckBox12.Tag = (object)index;
@@ -3195,9 +3392,9 @@ namespace Client.Scenes.Views
                         dxCheckBox13.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
-                            this.ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(6, dxCheckBox.Checked);
+                            ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(6, dxCheckBox.Checked);
                         });
-                        this.ItemView.SetItem(nItem, 7U, (DXControl)dxCheckBox13);
+                        ItemView.SetItem(nItem, 7U, (DXControl)dxCheckBox13);
                     }
                 }
                 ItemView.UpdateItems();
@@ -3252,10 +3449,10 @@ namespace Client.Scenes.Views
                 dxListView.Size = new Size(410, 405);
                 dxListView.Location = new Point(140, 0);
                 MagicView = dxListView;
-                int num1 = (int)MagicView.InsertColumn(0U, "魔法名称", 80, 24, "只显示已学过的技能");
+                int num1 = (int)MagicView.InsertColumn(0U, "魔法名称", 90, 24, "只显示已学过的技能");
                 int num2 = (int)MagicView.InsertColumn(1U, "等级", 35, 24, "技能等级");
                 int num3 = (int)MagicView.InsertColumn(2U, "快捷键", 80, 24, "选中技能，按下F1-F12注册一个快捷键");
-                int num4 = (int)MagicView.InsertColumn(3U, "扩展", 80, 24, "保留");
+                int num4 = (int)MagicView.InsertColumn(3U, "扩展", 70, 24, "保留");
                 int num5 = (int)MagicView.InsertColumn(4U, "锁人", 35, 24, "设置自动锁定人");
                 int num6 = (int)MagicView.InsertColumn(5U, "锁怪", 35, 24, "设置自动锁定怪");
                 int num7 = (int)MagicView.InsertColumn(6U, "毒符设定", 150, 24, "道士的自动换符设置");
@@ -3430,6 +3627,8 @@ namespace Client.Scenes.Views
                 Type type = typeof(SpellKey);
                 foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in GameScene.Game.User.Magics)
                 {
+                    if (magic.Value.Info.School == MagicSchool.Passive) continue;
+
                     ClientUserMagic clientUserMagic = magic.Value;
                     if (clientUserMagic.Info.Magic != MagicType.None)
                     {
@@ -3462,9 +3661,13 @@ namespace Client.Scenes.Views
                         DXControl control = MagicView.Items.Controls[(int)nItem];
                         control.Tag = (object)magicHelper;
                         MagicView.SetItem(nItem, 1U, clientUserMagic.Level.ToString() ?? "");
+
                         string text1 = "";
                         if ((uint)clientUserMagic.Set1Key > 0U)
-                            text1 = type.GetMember(clientUserMagic.Set1Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>().Description;
+                            text1 = Functions.GetEnumDesc(clientUserMagic.Set1Key);// type.GetMember(clientUserMagic.Set1Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>().Description;
+
+                        text1 = text1.Replace('\n', ' ');
+
                         (MagicView.SetItem(nItem, 2U, text1) as DXLabel).KeyUp += (EventHandler<KeyEventArgs>)((o, e) =>
                         {
                             DXControl dxControl = o as DXControl;
@@ -3536,16 +3739,16 @@ namespace Client.Scenes.Views
                             dxListBoxItem4.Label.Text = "红毒绿毒交换";
                             dxListBoxItem4.Item = (object)2;
                         }
-                        else
-                        {
+                        else if (clientUserMagic.Info.Class == MirClass.Taoist)
+                        { 
                             switch (clientUserMagic.Info.Magic)
                             {
-                                case MagicType.DragonRise:
                                 case MagicType.ExplosiveTalisman:
                                 case MagicType.EvilSlayer:
                                 case MagicType.Invisibility:
                                 case MagicType.MagicResistance:
                                 case MagicType.MassInvisibility:
+                                case MagicType.Resilience:
                                 case MagicType.GreaterEvilSlayer:
                                 case MagicType.TrapOctagon:
                                 case MagicType.ElementalSuperiority:
@@ -3572,6 +3775,7 @@ namespace Client.Scenes.Views
                                     break;
                             }
                         }
+
                         dxComboBox1.ListBox.SelectItem((object)magicHelper.Amulet);
                     }
                 }

@@ -268,6 +268,9 @@ namespace Client.Scenes
         #region Methods
         private bool CheckDbVersion()
         {
+#if DEBUG
+            CEnvir.DbVersionChecked = true;
+#endif
             if (CEnvir.DbVersionChecked) return true;
 
             if (CEnvir.DbVersionChecking) return false;
@@ -345,8 +348,8 @@ namespace Client.Scenes
                 if (ConnectionAttempt >= 1)
                 {
                     CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
-                    Config.IPAddress = "43.132.119.207";
-                    Config.Port = 53536;
+                    Config.IPAddress = "117.174.202.3";
+                    Config.Port = 13371;
                 }
 
                 try
@@ -763,7 +766,7 @@ namespace Client.Scenes
 
             public LoginDialog()
             {
-                Size = new Size(300, 250);
+                Size = new Size(340, 250);
                 TitleLabel.Text = "登录";
                 Visible = false;
 
@@ -793,6 +796,7 @@ namespace Client.Scenes
 
                 DXLabel label = new DXLabel
                 {
+                    AutoSize = true,
                     Parent = this,
                     Text = "邮箱:",
                 };
@@ -800,6 +804,8 @@ namespace Client.Scenes
 
                 label = new DXLabel
                 {
+                    AutoSize = true,
+
                     Parent = this,
                     Text = "密码:",
                 };
@@ -807,6 +813,8 @@ namespace Client.Scenes
 
                 EMailHelpLabel = new DXLabel
                 {
+                    AutoSize = true,
+
                     Visible = false,
                     Parent = this,
                     Text = "[?]",
@@ -816,6 +824,8 @@ namespace Client.Scenes
 
                 PasswordHelpLabel = new DXLabel
                 {
+                    AutoSize = true,
+
                     Visible = false,
                     Parent = this,
                     Text = "[?]",
@@ -826,7 +836,8 @@ namespace Client.Scenes
 
                 RememberCheckBox = new DXCheckBox
                 {
-                    Label = { Text = "记住登录信息?" },
+                    AutoSize = true,
+                    Text = "记住登录信息?",
                     Parent = this,
                     Checked = Config.RememberDetails,
                 };
@@ -888,10 +899,15 @@ namespace Client.Scenes
             {
                 LoginAttempted = true;
 
+                string psd = PasswordTextBox.TextBox.Text;
+
+                //if (Config.RememberedPassword != PasswordTextBox.TextBox.Text)
+                //    psd = Functions.CalcMD5($"{EMailTextBox.TextBox.Text}-{PasswordTextBox.TextBox.Text}");
+
                 C.Login packet = new C.Login
                 {
                     EMailAddress = EMailTextBox.TextBox.Text,
-                    Password = PasswordTextBox.TextBox.Text,
+                    Password = psd,
                     CheckSum = CEnvir.C,
                 };
 
@@ -929,7 +945,7 @@ namespace Client.Scenes
             }
             private void PasswordTextBox_TextChanged(object sender, EventArgs e)
             {
-                PasswordValid = !string.IsNullOrEmpty(PasswordTextBox.TextBox.Text) && Globals.PasswordRegex.IsMatch(PasswordTextBox.TextBox.Text);
+                PasswordValid = !string.IsNullOrEmpty(PasswordTextBox.TextBox.Text) && (Globals.PasswordRegex.IsMatch(PasswordTextBox.TextBox.Text) || PasswordTextBox.TextBox.Text == Config.RememberedPassword);
 
                 if (string.IsNullOrEmpty(PasswordTextBox.TextBox.Text))
                     PasswordTextBox.BorderColour = Color.FromArgb(198, 166, 99);

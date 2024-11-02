@@ -624,8 +624,9 @@ namespace Client.Scenes.Views
 
             BuyGuildBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = BuyPanel,
-                Label = { Text = "使用帮会资金:" },
+                Text = "使用帮会资金:",
                 Enabled = false,
             };
             BuyGuildBox.Location = new Point(158 - BuyGuildBox.Size.Width, 101);
@@ -879,8 +880,9 @@ namespace Client.Scenes.Views
 
             ConsignGuildBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = ConsignConfirmPanel,
-                Label = { Text = "使用帮会资金:" },
+                Text = "使用帮会资金:",
                 Enabled = false,
             };
             ConsignGuildBox.Location = new Point(169 - ConsignGuildBox.Size.Width, 45);
@@ -1296,8 +1298,9 @@ namespace Client.Scenes.Views
 
             UseHuntGoldBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = StoreBuyPanel,
-                Label = { Text = "使用猎币:" },
+                Text = "使用猎币:",
             };
             UseHuntGoldBox.Location = new Point(158 - UseHuntGoldBox.Size.Width, 101);
             UseHuntGoldBox.CheckedChanged += UpdateStoreBuyTotal;

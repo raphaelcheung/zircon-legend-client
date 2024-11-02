@@ -634,8 +634,9 @@ namespace Client.Scenes.Views
 
             GuildCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "使用帮会基金:" },
+                Text = "使用帮会基金:",
                 Enabled = false,
             };
             GuildCheckBox.Location = new Point( 200, BuyButton.Location.Y + (BuyButton.Size.Height - GuildCheckBox.Size.Height) /2);
@@ -1456,8 +1457,9 @@ namespace Client.Scenes.Views
 
             SpecialCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "特殊修理" },
+                Text = "特殊修理",
                 Checked = Config.SpecialRepair,
             };
             SpecialCheckBox.Location = new Point(ClientArea.Right - 80 - SpecialCheckBox.Size.Width - 5, GoldLabel.Location.Y + GoldLabel.Size.Height + 7);
@@ -1481,8 +1483,9 @@ namespace Client.Scenes.Views
 
             GuildCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "使用帮会基金" },
+                Text = "使用帮会基金",
                 Enabled = false,
             };
             GuildCheckBox.Location = new Point(ClientArea.Right - 80 - GuildCheckBox.Size.Width - 5, GoldLabel.Location.Y + GoldLabel.Size.Height + SpecialCheckBox.Size.Height + 5 + 7);
@@ -1844,63 +1847,71 @@ namespace Client.Scenes.Views
             
             DCCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "破坏力" },
+                Text = "破坏力",
                 ReadOnly = true,
             };
             DCCheckBox.MouseClick += (o, e) => RefineType = RefineType.DC;
             SPCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法攻击力" },
+                Text = "魔法攻击力",
                 ReadOnly = true,
             };
             SPCheckBox.MouseClick += (o, e) => RefineType = RefineType.SpellPower;
 
             FireCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "火焰" },
+                Text = "火焰",
                 ReadOnly = true,
             };
             FireCheckBox.MouseClick += (o, e) => RefineType = RefineType.Fire;
 
             IceCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "寒冰" },
+                Text = "寒冰",
                 ReadOnly = true,
             };
             IceCheckBox.MouseClick += (o, e) => RefineType = RefineType.Ice;
 
             LightningCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "雷电" },
+                Text = "雷电",
                 ReadOnly = true,
             };
             LightningCheckBox.MouseClick += (o, e) => RefineType = RefineType.Lightning;
 
             WindCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "风暴" },
+                Text = "风暴",
                 ReadOnly = true,
             };
             WindCheckBox.MouseClick += (o, e) => RefineType = RefineType.Wind;
 
             HolyCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "神圣" },
+                Text = "神圣",
                 ReadOnly = true,
             };
             HolyCheckBox.MouseClick += (o, e) => RefineType = RefineType.Holy;
 
             DarkCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "暗黑" },
+                Text = "暗黑",
                 ReadOnly = true,
             };
             DarkCheckBox.MouseClick += (o, e) => RefineType = RefineType.Dark;
@@ -1908,14 +1919,15 @@ namespace Client.Scenes.Views
 
             PhantomCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "幻影" },
+                Text = "幻影",
                 ReadOnly = true,
             };
             PhantomCheckBox.MouseClick += (o, e) => RefineType = RefineType.Phantom;
 
 
-            DCCheckBox.Location = new Point(ClientArea.Right - DCCheckBox.Size.Width - 240, ClientArea.Y + 50);
+            DCCheckBox.Location = new Point(ClientArea.Right - DCCheckBox.Size.Width - 280, ClientArea.Y + 50);
             SPCheckBox.Location = new Point(ClientArea.Right - SPCheckBox.Size.Width - 156, ClientArea.Y + 50);
 
             FireCheckBox.Location = new Point(ClientArea.Right - FireCheckBox.Size.Width - 240, ClientArea.Y + 73);
@@ -3967,6 +3979,8 @@ namespace Client.Scenes.Views
 
         public void UpdateScrollBar()
         {
+            if (Companions == null) return;
+
             ScrollBar.MaxValue = Companions.Count;
 
             for (int i = 0; i < Rows.Length; i++)
@@ -5167,63 +5181,71 @@ namespace Client.Scenes.Views
 
             DCCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "破坏力" },
+                Text = "破坏",
                 ReadOnly = true,
             };
             DCCheckBox.MouseClick += (o, e) => RefineType = RefineType.DC;
             SPCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法攻击力" },
+                Text = "魔法攻击",
                 ReadOnly = true,
             };
             SPCheckBox.MouseClick += (o, e) => RefineType = RefineType.SpellPower;
 
             FireCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "火焰" },
+                Text = "火焰",
                 ReadOnly = true,
             };
             FireCheckBox.MouseClick += (o, e) => RefineType = RefineType.Fire;
 
             IceCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "寒冰" },
+                Text = "寒冰" ,
                 ReadOnly = true,
             };
             IceCheckBox.MouseClick += (o, e) => RefineType = RefineType.Ice;
 
             LightningCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "雷电" },
+                Text = "雷电" ,
                 ReadOnly = true,
             };
             LightningCheckBox.MouseClick += (o, e) => RefineType = RefineType.Lightning;
 
             WindCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "风暴" },
+                Text = "风暴",
                 ReadOnly = true,
             };
             WindCheckBox.MouseClick += (o, e) => RefineType = RefineType.Wind;
 
             HolyCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "神圣" },
+                Text = "神圣",
                 ReadOnly = true,
             };
             HolyCheckBox.MouseClick += (o, e) => RefineType = RefineType.Holy;
 
             DarkCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "暗黑" },
+                Text = "暗黑",
                 ReadOnly = true,
             };
             DarkCheckBox.MouseClick += (o, e) => RefineType = RefineType.Dark;
@@ -5231,8 +5253,9 @@ namespace Client.Scenes.Views
 
             PhantomCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "幻影" },
+                Text = "幻影",
                 ReadOnly = true,
             };
             PhantomCheckBox.MouseClick += (o, e) => RefineType = RefineType.Phantom;
@@ -5784,152 +5807,171 @@ namespace Client.Scenes.Views
 
             DCPercentCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "破坏力 1%" },
+                Text = "破坏 1%",
                 ReadOnly = true,
             };
             DCPercentCheckBox.MouseClick += (o, e) => RefineType = RefineType.DCPercent;
 
             SPPercentCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法攻击力 1%" },
+                Text = "魔法攻击 1%",
                 ReadOnly = true,
             };
             SPPercentCheckBox.MouseClick += (o, e) => RefineType = RefineType.SPPercent;
 
             HealthPercentCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "生命值 1%" },
+                Text = "生命值 1%",
                 ReadOnly = true,
             };
             HealthPercentCheckBox.MouseClick += (o, e) => RefineType = RefineType.HealthPercent;
 
             ManaPercentCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法值 1%" },
+                Text = "魔法值 1%",
                 ReadOnly = true,
             };
             ManaPercentCheckBox.MouseClick += (o, e) => RefineType = RefineType.ManaPercent;
 
             DCCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "破坏力 0-1" },
+                Text = "破坏 0-1",
                 ReadOnly = true,
             };
             DCCheckBox.MouseClick += (o, e) => RefineType = RefineType.DC;
 
             SPCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法攻击力 0-1" },
+                Text = "魔法攻击 0-1",
                 ReadOnly = true,
             };
             SPCheckBox.MouseClick += (o, e) => RefineType = RefineType.SpellPower;
 
             FireCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "火 +1" },
+                Text = "火 +1",
                 ReadOnly = true,
             };
             FireCheckBox.MouseClick += (o, e) => RefineType = RefineType.Fire;
 
             IceCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "冰 +1" },
+                Text = "冰 +1",
                 ReadOnly = true,
             };
             IceCheckBox.MouseClick += (o, e) => RefineType = RefineType.Ice;
 
             LightningCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "雷 +1" },
+                Text = "雷 +1",
                 ReadOnly = true,
             };
             LightningCheckBox.MouseClick += (o, e) => RefineType = RefineType.Lightning;
 
             WindCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "风 +1" },
+                Text = "风 +1",
                 ReadOnly = true,
             };
             WindCheckBox.MouseClick += (o, e) => RefineType = RefineType.Wind;
 
             HolyCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "圣 +1" },
+                Text = "圣 +1",
                 ReadOnly = true,
             };
             HolyCheckBox.MouseClick += (o, e) => RefineType = RefineType.Holy;
 
             DarkCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "暗 +1" },
+                Text = "暗 +1",
                 ReadOnly = true,
             };
             DarkCheckBox.MouseClick += (o, e) => RefineType = RefineType.Dark;
 
             PhantomCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "幻 +1" },
+                Text = "幻 +1",
                 ReadOnly = true,
             };
             PhantomCheckBox.MouseClick += (o, e) => RefineType = RefineType.Phantom;
 
             HealthCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "生命值 +10" },
+                Text = "生命值 +10",
                 ReadOnly = true,
             };
             HealthCheckBox.MouseClick += (o, e) => RefineType = RefineType.Health;
 
             ManaCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔法值 +10" },
+                Text = "魔法值 +10",
                 ReadOnly = true,
             };
             ManaCheckBox.MouseClick += (o, e) => RefineType = RefineType.Mana;
 
             ACCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "物防 1-1" },
+                Text = "物防 1-1",
                 ReadOnly = true,
             };
             ACCheckBox.MouseClick += (o, e) => RefineType = RefineType.AC;
 
             MRCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "魔防 1-1" },
+                Text = "魔防 1-1",
                 ReadOnly = true,
             };
             MRCheckBox.MouseClick += (o, e) => RefineType = RefineType.MR;
 
             AccuracyCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "准确度 +1" },
+                Text = "准确度 +1",
                 ReadOnly = true,
             };
             AccuracyCheckBox.MouseClick += (o, e) => RefineType = RefineType.Accuracy;
 
             AgilityCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "敏捷度 +1" },
+                Text = "敏捷度 +1",
                 ReadOnly = true,
             };
             AgilityCheckBox.MouseClick += (o, e) => RefineType = RefineType.Agility;

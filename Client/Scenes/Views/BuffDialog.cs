@@ -397,7 +397,7 @@ namespace Client.Scenes.Views
             }
 
             if (buff.RemainingTime != TimeSpan.MaxValue)
-                text += $"\n持续: {Functions.ToString(buff.RemainingTime, true)}";
+                text += $"\n持续：{Functions.ToString(buff.RemainingTime, true)}";
 
             if (buff.Pause) text += "\n暂停（无效）.";
 

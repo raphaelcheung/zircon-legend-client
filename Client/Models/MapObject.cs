@@ -470,7 +470,7 @@ namespace Client.Models
                 case MirAction.Dead:
                     if (Visible && Config.清理尸体)
                     {
-                        this.Visible = false;
+                        Visible = false;
                         break;
                     }
                     else if (!Visible && !Config.清理尸体)

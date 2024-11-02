@@ -406,7 +406,8 @@ namespace Client.Scenes.Views
 
             ShowTrackerBox = new DXCheckBox
             {
-                Label = { Text = "显示任务追踪" },
+                AutoSize = true,
+                Text = "显示任务追踪",
                 Parent = this,
             };
             ShowTrackerBox.Location = new Point(width + 303 - ShowTrackerBox.Size.Width, 7);

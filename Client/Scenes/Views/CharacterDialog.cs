@@ -324,6 +324,7 @@ namespace Client.Scenes.Views
 
             ShowHelmetBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = CharacterTab,
                 Hint = "显示头盔",
                 ReadOnly = true,
@@ -1360,8 +1361,9 @@ namespace Client.Scenes.Views
 
             DXCheckBox check = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = HermitTab,
-                Label = { Text = "显示确认窗口" },
+                Text = "显示确认窗口",
                 Checked = true,
             };
             check.Location = new Point(HermitTab.Size.Width - check.Size.Width - 10, HermitTab.Size.Height - check.Size.Height - 10);

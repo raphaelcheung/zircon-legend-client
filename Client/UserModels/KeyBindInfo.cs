@@ -186,7 +186,7 @@ namespace Client.UserModels
         CompanionWindow,
         [Description("组队窗口")]
         GroupWindow,
-        [Description("自动喝药窗口")]
+        [Description("大补帖辅助窗口")]
         AutoPotionWindow,
         [Description("仓库窗口")]
         StorageWindow,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Client.Controls;
 using Client.Envir;
@@ -82,7 +83,10 @@ namespace Client.Scenes.Views
         }
 
         #endregion
-        
+        public DateTime ClickTick { get; set; }
+        private int bSearching;
+
+
         public Rectangle Area;
         public DXImageControl Image;
         public DXControl Panel;
@@ -160,6 +164,7 @@ namespace Client.Scenes.Views
 
             //if (MapObject.User.Buffs.All(z => z.Type != BuffType.Developer))
             //if (!SelectedInfo.AllowRT || !SelectedInfo.AllowTT || !GameScene.Game.MapControl.MapInfo.AllowRT || !GameScene.Game.MapControl.MapInfo.AllowTT) return;
+            GameScene.Game.MapControl.AutoPath = false;
 
 
             if ((e.Button & MouseButtons.Right) == MouseButtons.Right)
@@ -169,6 +174,44 @@ namespace Client.Scenes.Views
                 int y = (int)((e.Location.Y - Image.DisplayArea.Y) / ScaleY);
                
                 CEnvir.Enqueue(new C.TeleportRing { Location = new Point(x, y), Index = SelectedInfo.Index });
+            }
+            else
+            {
+                int x = (int)((double)(e.Location.X - Image.DisplayArea.X) / (double)ScaleX);
+                int y = (int)((double)(e.Location.Y - Image.DisplayArea.Y) / (double)ScaleY);
+
+                if ((e.Button & MouseButtons.Left) != MouseButtons.Left)
+                    return;
+
+                DateTime clickTick = ClickTick;
+                ClickTick = CEnvir.Now;
+                if (clickTick.AddSeconds(1.0) > ClickTick)
+                    GameScene.Game.ReceiveChat("你点击的太快了，请稍侯再试。。。", MessageType.System);
+                else if (Interlocked.Exchange(ref bSearching, 1) == 0)
+                {
+                    try
+                    {
+                        GameScene.Game.MapControl.AutoPath = false;
+                        PathFinder pathFinder = new PathFinder(GameScene.Game.MapControl);
+                        List<Node> path = pathFinder.FindPath(MapObject.User.CurrentLocation, new Point(x, y));
+                        if (path == null || path.Count == 0)
+                        {
+                            GameScene.Game.ReceiveChat("无法找到合适的路径", MessageType.System);
+                        }
+                        else
+                        {
+                            GameScene.Game.MapControl.PathFinder = pathFinder;
+                            GameScene.Game.MapControl.CurrentPath = path;
+                            GameScene.Game.MapControl.AutoPath = true;
+                        }
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref bSearching, 0);
+                    }
+                }
+                else
+                    GameScene.Game.ReceiveChat("正在为你查找合适的线路，请稍等。。。", MessageType.System);
             }
         }
 

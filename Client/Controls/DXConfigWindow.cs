@@ -170,7 +170,10 @@ namespace Client.Controls
             
             FullScreenCheckBox = new DXCheckBox
             {
-                Label = { Text = "全屏:" },
+                bAlignRight = true,
+
+                AutoSize = true,
+                Text = "全屏:",
                 Parent = GraphicsTab,
                 Checked = Config.FullScreen,
             };
@@ -201,34 +204,43 @@ namespace Client.Controls
 
             VSyncCheckBox = new DXCheckBox
             {
-                Label = { Text = "垂直同步:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "垂直同步:",
                 Parent = GraphicsTab,
             };
             VSyncCheckBox.Location = new Point(120 - VSyncCheckBox.Size.Width, 60);
 
             LimitFPSCheckBox = new DXCheckBox
             {
-                Label = { Text = "FPS限制:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "FPS限制:",
                 Parent = GraphicsTab,
             };
             LimitFPSCheckBox.Location = new Point(120 - LimitFPSCheckBox.Size.Width, 80);
 
             ClipMouseCheckBox = new DXCheckBox
             {
-                Label = { Text = "裁剪鼠标:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "裁剪鼠标:" ,
                 Parent = GraphicsTab,
             };
             ClipMouseCheckBox.Location = new Point(120 - ClipMouseCheckBox.Size.Width, 100);
 
             DebugLabelCheckBox = new DXCheckBox
             {
-                Label = { Text = "Debug信息:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "Debug信息:",
                 Parent = GraphicsTab,
             };
             DebugLabelCheckBox.Location = new Point(120 - DebugLabelCheckBox.Size.Width, 120);
 
             label = new DXLabel
             {
+                AutoSize = true,
                 Text = "语言:",
                 Outline = true,
                 Parent = GraphicsTab,
@@ -255,7 +267,8 @@ namespace Client.Controls
 
             BackgroundSoundBox = new DXCheckBox
             {
-                Label = { Text = "背景声音:" },
+                AutoSize = true,
+                Text = "背景声音:",
                 Parent = SoundTab,
                 Checked = Config.SoundInBackground,
             };
@@ -347,35 +360,45 @@ namespace Client.Controls
 
             ItemNameCheckBox = new DXCheckBox
             {
-                Label = { Text = "物品名称:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "物品名称:",
                 Parent = GameTab,
             };
             ItemNameCheckBox.Location = new Point(120 - ItemNameCheckBox.Size.Width, 10);
 
             MonsterNameCheckBox = new DXCheckBox
             {
-                Label = { Text = "怪物名称:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "怪物名称:",
                 Parent = GameTab,
             };
             MonsterNameCheckBox.Location = new Point(120 - MonsterNameCheckBox.Size.Width, 35);
 
             UserHealthCheckBox = new DXCheckBox
             {
-                Label = { Text = "自己血量:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "自己血量:",
                 Parent = GameTab,
             };
             UserHealthCheckBox.Location = new Point(120 - UserHealthCheckBox.Size.Width, 60);
 
             MonsterHealthCheckBox = new DXCheckBox
             {
-                Label = { Text = "怪物血量:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "怪物血量:",
                 Parent = GameTab,
             };
             MonsterHealthCheckBox.Location = new Point(120 - MonsterHealthCheckBox.Size.Width, 85);
 
             DamageNumbersCheckBox = new DXCheckBox
             {
-                Label = { Text = "伤害信息:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "伤害信息:",
                 Parent = GameTab,
             };
             DamageNumbersCheckBox.Location = new Point(120 - DamageNumbersCheckBox.Size.Width, 110);
@@ -383,14 +406,18 @@ namespace Client.Controls
 
             EscapeCloseAllCheckBox = new DXCheckBox
             {
-                Label = { Text = "ESC键关闭所有窗口:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "ESC键关闭所有窗口:",
                 Parent = GameTab,
             };
             EscapeCloseAllCheckBox.Location = new Point(270 - EscapeCloseAllCheckBox.Size.Width, 10);
 
             ShiftOpenChatCheckBox = new DXCheckBox
             {
-                Label = { Text = "Shift + 1  打开聊天:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "Shift + 1  打开聊天:",
                 Parent = GameTab,
                 Hint = "打开后, 按 Shift + 1 将打开聊天, 否则将使用 快捷栏 1 格物品"
             };
@@ -398,7 +425,9 @@ namespace Client.Controls
 
             RightClickDeTargetCheckBox = new DXCheckBox
             {
-                Label = { Text = "右键点击取消选择:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "右键点击取消选择:",
                 Parent = GameTab,
                 Hint = "打开后, 右键点击后取消选择的目标."
             };
@@ -406,21 +435,27 @@ namespace Client.Controls
 
             MonsterBoxVisibleCheckBox = new DXCheckBox
             {
-                Label = { Text = "显示怪物详情:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "显示怪物详情:",
                 Parent = GameTab,
             };
             MonsterBoxVisibleCheckBox.Location = new Point(270 - MonsterBoxVisibleCheckBox.Size.Width, 85);
 
             LogChatCheckBox = new DXCheckBox
             {
-                Label = { Text = "聊天日志:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "聊天日志:",
                 Parent = GameTab,
             };
             LogChatCheckBox.Location = new Point(270 - LogChatCheckBox.Size.Width, 110);
 
             DrawEffectsCheckBox = new DXCheckBox
             {
-                Label = { Text = "绘制效果:" },
+                bAlignRight = true,
+                AutoSize = true,
+                Text = "绘制效果:",
                 Parent = GameTab,
             };
             DrawEffectsCheckBox.Location = new Point(270 - DrawEffectsCheckBox.Size.Width, 135);
@@ -441,7 +476,9 @@ namespace Client.Controls
 
             UseNetworkConfigCheckBox = new DXCheckBox
             {
-                Label = { Text = "使用配置:" },
+
+                AutoSize = true,
+                Text = "使用配置:",
                 Parent = NetworkTab,
                 Checked = Config.FullScreen,
             };

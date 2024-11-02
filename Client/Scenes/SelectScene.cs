@@ -116,14 +116,20 @@ namespace Client.Scenes
 
             foreach (DXWindow window in DXWindow.Windows)
                 window.LoadSettings();
+        }
 
-            if (CEnvir.IsQuickGame)
+        public void QuickStart()
+        {
+            var c = SelectBox.CharacterList.Find(o => o.CharacterIndex == CEnvir.QuickSelectCharacter);
+            if (c != null)
+                CEnvir.LogonCharacterDesc = $"{c.CharacterName}({Functions.GetEnumDesc(c.Gender)}{Functions.GetEnumDesc(c.Class)})";
+            else
+                CEnvir.SaveError($"快速登录时出错！！！！！SelectBox.CharacterList.Count={SelectBox.CharacterList.Count}");
+
+            CEnvir.Enqueue(new C.StartGame
             {
-                CEnvir.Enqueue(new C.StartGame
-                {
-                    CharacterIndex = CEnvir.QuickSelectCharacter
-                });
-            }
+                CharacterIndex = CEnvir.QuickSelectCharacter
+            });
         }
 
         #region Methods
@@ -548,6 +554,9 @@ namespace Client.Scenes
                 {
                     CharacterIndex = SelectedButton.SelectInfo.CharacterIndex
                 });
+
+
+                CEnvir.LogonCharacterDesc = $"{SelectedButton.SelectInfo.CharacterName}({Functions.GetEnumDesc(SelectedButton.SelectInfo.Gender)}{Functions.GetEnumDesc(SelectedButton.SelectInfo.Class)})";
 
             }
             private void LogOut()

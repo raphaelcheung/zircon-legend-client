@@ -291,7 +291,8 @@ namespace Client.Scenes.Views
 
             TransparentCheckBox = new DXCheckBox
             {
-                Label = { Text = "透明度:" },
+                AutoSize = true,
+                Text = "透明度:",
                 Parent = this,
                 Checked = false,
             };
@@ -299,7 +300,9 @@ namespace Client.Scenes.Views
 
             AlertCheckBox = new DXCheckBox
             {
-                Label = { Text = "显示警报:" },
+
+                AutoSize = true,
+                Text = "显示警报:",
                 Parent = this,
                 Checked = false,
             };
@@ -308,7 +311,8 @@ namespace Client.Scenes.Views
 
             LocalCheckBox = new DXCheckBox
             {
-                Label = { Text = "本地聊天:" },
+                AutoSize = true,
+                Text = "本地聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -316,7 +320,8 @@ namespace Client.Scenes.Views
 
             WhisperCheckBox = new DXCheckBox
             {
-                Label = { Text = "私聊:" },
+                AutoSize = true,
+                Text = "私聊:",
                 Parent = this,
                 Checked = false,
             };
@@ -324,7 +329,8 @@ namespace Client.Scenes.Views
 
             GroupCheckBox = new DXCheckBox
             {
-                Label = { Text = "队伍聊天:" },
+                AutoSize = true,
+                Text = "队伍聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -332,7 +338,8 @@ namespace Client.Scenes.Views
 
             GuildCheckBox = new DXCheckBox
             {
-                Label = { Text = "帮会聊天:" },
+                AutoSize = true,
+                Text = "帮会聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -340,7 +347,8 @@ namespace Client.Scenes.Views
 
             ShoutCheckBox = new DXCheckBox
             {
-                Label = { Text = "喊话聊天:" },
+                AutoSize = true,
+                Text = "喊话聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -348,7 +356,8 @@ namespace Client.Scenes.Views
 
             GlobalCheckBox = new DXCheckBox
             {
-                Label = { Text = "公共聊天:" },
+                AutoSize = true,
+                Text = "公共聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -356,7 +365,8 @@ namespace Client.Scenes.Views
 
             ObserverCheckBox = new DXCheckBox
             {
-                Label = { Text = "观众聊天:" },
+                AutoSize = true,
+                Text = "观众聊天:",
                 Parent = this,
                 Checked = false,
             };
@@ -364,7 +374,8 @@ namespace Client.Scenes.Views
 
             HintCheckBox = new DXCheckBox
             {
-                Label = { Text = "提示消息:" },
+                AutoSize = true,
+                Text = "提示消息:",
                 Parent = this,
                 Checked = false,
             };
@@ -372,7 +383,8 @@ namespace Client.Scenes.Views
 
             SystemCheckBox = new DXCheckBox
             {
-                Label = { Text = "系统消息" },
+                AutoSize = true,
+                Text = "系统消息",
                 Parent = this,
                 Checked = false,
             };
@@ -380,7 +392,8 @@ namespace Client.Scenes.Views
 
             GainsCheckBox = new DXCheckBox
             {
-                Label = { Text = "获取消息:" },
+                AutoSize = true,
+                Text = "获取消息:",
                 Parent = this,
                 Checked = false,
             };

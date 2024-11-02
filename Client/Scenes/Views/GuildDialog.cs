@@ -532,7 +532,8 @@ namespace Client.Scenes.Views
 
             GoldCheckBox = new DXCheckBox
             {
-                Label = { Text = $"{Globals.GuildCreationCost:#,##0} 金币", ForeColour = Color.White },
+                AutoSize = true,
+                Text = $"{Globals.GuildCreationCost:#,##0} 金币", ForeColour = Color.White,
                 Parent = CreateTab,
                 Checked = true,
                 ReadOnly = true,
@@ -543,7 +544,8 @@ namespace Client.Scenes.Views
 
             HornCheckBox = new DXCheckBox
             {
-                Label = { Text = "沃玛教主号角", ForeColour = Color.White },
+                AutoSize = true,
+                Text = "沃玛教主号角", ForeColour = Color.White,
                 Parent = CreateTab,
                 ReadOnly = true,
             };
@@ -2425,48 +2427,54 @@ namespace Client.Scenes.Views
 
             LeaderBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "是否领袖:" },
+                Text = "是否领袖:",
             };
             LeaderBox.CheckedChanged += (o, e) => UpdatePermission();
             LeaderBox.Location = new Point(ClientArea.X + 94 - LeaderBox.Size.Width, RankTextBox.Location.Y + 24);
 
             EditNoticeBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "编辑通告:" },
+                Text = "编辑通告:",
             };
             EditNoticeBox.CheckedChanged += (o, e) => UpdatePermission();
             EditNoticeBox.Location = new Point(ClientArea.X + 94 - EditNoticeBox.Size.Width, LeaderBox.Location.Y + 20);
 
             AddMemberBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "增加成员:" },
+                Text = "增加成员:",
             };
             AddMemberBox.CheckedChanged += (o, e) => UpdatePermission();
             AddMemberBox.Location = new Point(ClientArea.X + 94 - AddMemberBox.Size.Width, EditNoticeBox.Location.Y + 20);
             
             StorageBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "使用仓库:" },
+                Text = "使用仓库:",
             };
             StorageBox.CheckedChanged += (o, e) => UpdatePermission();
             StorageBox.Location = new Point(ClientArea.X + 94 - StorageBox.Size.Width, AddMemberBox.Location.Y + 20);
 
             StartWarBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "开始战争:" },
+                Text = "开始战争:",
             };
             StartWarBox.CheckedChanged += (o, e) => UpdatePermission();
             StartWarBox.Location = new Point(ClientArea.X + 94 - StartWarBox.Size.Width, StorageBox.Location.Y + 20);
 
             RepairBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "维修基金:" },
+                Text = "维修基金:",
             };
             RepairBox.CheckedChanged += (o, e) => UpdatePermission();
             RepairBox.Location = new Point(ClientArea.X + 200 - RepairBox.Size.Width, EditNoticeBox.Location.Y );
@@ -2474,16 +2482,18 @@ namespace Client.Scenes.Views
 
             MerchantBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "贸易基金:" },
+                Text = "贸易基金:",
             };
             MerchantBox.CheckedChanged += (o, e) => UpdatePermission();
             MerchantBox.Location = new Point(ClientArea.X + 200 - MerchantBox.Size.Width, RepairBox.Location.Y + 20);
 
             MarketBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "市场基金:" },
+                Text = "市场基金:",
             };
             MarketBox.CheckedChanged += (o, e) => UpdatePermission();
             MarketBox.Location = new Point(ClientArea.X + 200 - MarketBox.Size.Width, MerchantBox.Location.Y + 20);

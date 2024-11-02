@@ -89,7 +89,7 @@ namespace Client.Envir
 
         public static bool Loaded { get; set; }
         public static string BuyAddress;
-        public static string C;
+        public static string C { get; private set; }
 
         public static bool TestServer;
 
@@ -99,6 +99,7 @@ namespace Client.Envir
         public static bool DbVersionChecking { get; set; } = false;
 
         public static StringMessages Language { get; set; }
+        public static string LogonCharacterDesc { get; set; } = "";
 
 
         static CEnvir()

@@ -96,8 +96,9 @@ namespace Client.Scenes.Views
 
             DXCheckBox PickUpCheckBox = new DXCheckBox
             {
+                AutoSize = true,
                 Parent = this,
-                Label = { Text = "捡拾物品:" },
+                Text = "捡拾物品:",
                 Visible = false
             };
             PickUpCheckBox.Location = new Point(ClientArea.Right - PickUpCheckBox.Size.Width +3, ClientArea.Y + 45);

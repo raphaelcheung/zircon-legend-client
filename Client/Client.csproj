@@ -173,6 +173,8 @@
     <Compile Include="Envir\Translations\ChineseMessages.cs" />
     <Compile Include="Envir\Translations\EnglishMessages.cs" />
     <Compile Include="Envir\Translations\StringMessages.cs" />
+    <Compile Include="Models\Heap.cs" />
+    <Compile Include="Models\IHeapItem.cs" />
     <Compile Include="Models\MirLibrary.cs" />
     <Compile Include="Models\DamageInfo.cs" />
     <Compile Include="Models\ItemObject.cs" />
@@ -180,8 +182,10 @@
     <Compile Include="Models\MirEffect.cs" />
     <Compile Include="Models\MirProjectile.cs" />
     <Compile Include="Models\MonsterObject.cs" />
+    <Compile Include="Models\Node.cs" />
     <Compile Include="Models\NPCObject.cs" />
     <Compile Include="Models\ObjectAction.cs" />
+    <Compile Include="Models\PathFinder.cs" />
     <Compile Include="Models\PlayerObject.cs" />
     <Compile Include="Models\SpellObject.cs" />
     <Compile Include="Models\UserObject.cs" />

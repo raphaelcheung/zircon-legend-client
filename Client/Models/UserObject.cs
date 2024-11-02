@@ -207,7 +207,8 @@ namespace Client.Models
         public int BagWeight { get; set; }
         public int WearWeight { get; set; }
         public int HandWeight { get; set; }
-
+        public bool XunzhaoGuaiwuMoshi01 { get; set; }
+        public bool XunzhaoGuaiwuMoshi02 { get; set; }
 
         public bool InSafeZone
         {
@@ -363,14 +364,16 @@ namespace Client.Models
 
             HermitPoints = info.HermitPoints;
 
-            foreach (ClientUserMagic magic in info.Magics)
-                Magics[magic.Info] = magic;
+            if (info.Magics != null)
+                foreach (ClientUserMagic magic in info.Magics)
+                    Magics[magic.Info] = magic;
 
-            foreach (ClientBuffInfo buff in info.Buffs)
-            {
-                Buffs.Add(buff);
-                VisibleBuffs.Add(buff.Type);
-            }
+            if (info.Buffs != null)
+                foreach (ClientBuffInfo buff in info.Buffs)
+                {
+                    Buffs.Add(buff);
+                    VisibleBuffs.Add(buff.Type);
+                }
             
 
 
@@ -749,6 +752,17 @@ namespace Client.Models
 
             GameScene.Game.CharacterBox.CharacterNameLabel.Text = Name;
             GameScene.Game.TradeBox.UserLabel.Text = Name;
+        }
+
+        public void Moving(MirDirection dir, int step)
+        {
+            if (MoveTime >= CEnvir.Now)
+                return;
+            AttemptAction(new ObjectAction(MirAction.Moving, dir, Functions.Move(CurrentLocation, dir, step), new object[2]
+            {
+                (object) step,
+                (object) MagicType.None
+            }));
         }
     }
 }

@@ -557,9 +557,12 @@ namespace Client.Envir
 
                     CEnvir.TestServer = p.TestServer;
                     
-                    if (!CEnvir.IsQuickGame && Config.RememberDetails)
+                    if (Config.RememberDetails)
                     {
                         Config.RememberedEMail = login.LoginBox.EMailTextBox.TextBox.Text;
+
+                        //if (Config.RememberedPassword != login.LoginBox.PasswordTextBox.TextBox.Text)
+                        //    Config.RememberedPassword = Functions.CalcMD5($"{Config.RememberedEMail}-{login.LoginBox.PasswordTextBox.TextBox.Text}");
                         Config.RememberedPassword = login.LoginBox.PasswordTextBox.TextBox.Text;
                     }
 
@@ -580,6 +583,9 @@ namespace Client.Envir
                     CEnvir.FillStorage(p.Items, false);
 
                     CEnvir.BlockList = p.BlockList;
+
+                    if (CEnvir.IsQuickGame)
+                        scene.QuickStart();
 
                     if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "登录消息");
                     
@@ -760,12 +766,18 @@ namespace Client.Envir
                         DXControl.ActiveScene = scene;
 
                         scene.MapControl.MapInfo = Globals.MapInfoList.Binding.FirstOrDefault(x => x.Index == p.StartInformation.MapIndex);
-                        GameScene.Game.QuestLog = p.StartInformation.Quests;
 
-                        GameScene.Game.NPCAdoptCompanionBox.AvailableCompanions = p.StartInformation.AvailableCompanions;
+                        if (p.StartInformation.Quests != null)
+                            GameScene.Game.QuestLog = p.StartInformation.Quests;
+
+                        if (p.StartInformation.AvailableCompanions != null)
+                            GameScene.Game.NPCAdoptCompanionBox.AvailableCompanions = p.StartInformation.AvailableCompanions;
+
                         GameScene.Game.NPCAdoptCompanionBox.RefreshUnlockButton();
 
-                        GameScene.Game.NPCCompanionStorageBox.Companions = p.StartInformation.Companions;
+                        if (p.StartInformation.Companions != null)
+                            GameScene.Game.NPCCompanionStorageBox.Companions = p.StartInformation.Companions;
+
                         GameScene.Game.NPCCompanionStorageBox.UpdateScrollBar();
                     
                         GameScene.Game.Companion = GameScene.Game.NPCCompanionStorageBox.Companions.FirstOrDefault(x => x.Index == p.StartInformation.Companion);
@@ -780,6 +792,8 @@ namespace Client.Envir
                         if (!string.IsNullOrEmpty(p.Message)) DXMessageBox.Show(p.Message, "开始游戏");
 
 
+                        GameScene.Game.BigPatchBox.ReadySkillInfo();
+
                         scene.ShowKeyHints();
 
                         return;
@@ -788,7 +802,7 @@ namespace Client.Envir
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw e;
             }
 
             CEnvir.IsQuickGame = false;
@@ -1504,8 +1518,6 @@ namespace Client.Envir
 
         public void Process(S.NewMagic p)
         {
-            if (!MapObject.User.Magics.TryGetValue(p.Magic.Info, out var magic)) return;
-
             MapObject.User.Magics[p.Magic.Info] = p.Magic;
 
             GameScene.Game.MagicBox.Magics[p.Magic.Info].Refresh();
@@ -2503,7 +2515,7 @@ namespace Client.Envir
                 fromCell.Item = null;
                 fromCell.RefreshItem();
 
-                GameScene.Game.ReceiveChat($"你的精炼申请已成功提交, 请等待 {Functions.ToString(Globals.RefineTimes[p.RefineQuality], false)} 后来收取", MessageType.System);
+                GameScene.Game.ReceiveChat($"你的精炼申请已成功提交, 请等待 {Functions.ToString(Globals.RefineTimes[p.RefineQuality], false)}后来收取", MessageType.System);
             }
         }
         public void Process(S.NPCMasterRefine p)
@@ -4370,6 +4382,12 @@ namespace Client.Envir
         public void Process(S.SortBagItem p)
         {
             GameScene.Game.SortFillItems(p.Items);
+        }
+
+        public void Process(Qiehuanxunzhaoguaiwumoshi p)
+        {
+            GameScene.Game.User.XunzhaoGuaiwuMoshi01 = p.Moshi01;
+            GameScene.Game.User.XunzhaoGuaiwuMoshi02 = p.Moshi02;
         }
     }
 }
