@@ -1619,6 +1619,8 @@ namespace Client.Envir
             if (weapon != null)
                 limit_level -= (2 - (int)weapon.Info.Rarity) * 3;
 
+            bool refinable = false;
+
             if (weapon != null && weapon.Info.Effect != ItemEffect.PickAxe && (weapon.Flags & UserItemFlags.Refinable) != UserItemFlags.Refinable && (weapon.Flags & UserItemFlags.NonRefinable) != UserItemFlags.NonRefinable && weapon.Level < limit_level)
             {
                 weapon.Experience += p.Amount/10;
@@ -1630,13 +1632,18 @@ namespace Client.Envir
 
                     weapon.Flags |= UserItemFlags.Refinable;
 
-                    message += ", 你的武器可精炼";
+                    if (Config.关闭经验提示)
+                        message = "你的武器可精炼";
+                    else
+                        message += ", 你的武器可精炼";
+
+                    refinable = true;
                 }
                 else
                     message += $", 武器经验 {p.Amount/10:#,##0.#}";
             }
 
-            if (!Config.关闭经验提示)
+            if (!Config.关闭经验提示 || refinable)
                 GameScene.Game.ReceiveChat(message + ".", MessageType.Combat);
 
             GameScene.Game.BigPatchBox.Helper.GainedExperience(p.Amount);

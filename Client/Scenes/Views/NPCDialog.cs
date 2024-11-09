@@ -1927,8 +1927,8 @@ namespace Client.Scenes.Views
             PhantomCheckBox.MouseClick += (o, e) => RefineType = RefineType.Phantom;
 
 
-            DCCheckBox.Location = new Point(ClientArea.Right - DCCheckBox.Size.Width - 280, ClientArea.Y + 50);
-            SPCheckBox.Location = new Point(ClientArea.Right - SPCheckBox.Size.Width - 156, ClientArea.Y + 50);
+            DCCheckBox.Location = new Point(ClientArea.Right - DCCheckBox.Size.Width - 230, ClientArea.Y + 50);
+            SPCheckBox.Location = new Point(DCCheckBox.Location.X + DCCheckBox.Size.Width + 10, DCCheckBox.Location.Y);
 
             FireCheckBox.Location = new Point(ClientArea.Right - FireCheckBox.Size.Width - 240, ClientArea.Y + 73);
             IceCheckBox.Location = new Point(ClientArea.Right - IceCheckBox.Size.Width - 156, ClientArea.Y + 73);
@@ -6697,7 +6697,7 @@ namespace Client.Scenes.Views
                 }
                 else
                 {
-                    ClassLabel.Text = "统计:";
+                    ClassLabel.Text = "职业:";
                     PreviewImageBox.Index = TemplateCell.Grid[0].Item.Info.Image;
                 }
 
@@ -6829,33 +6829,33 @@ namespace Client.Scenes.Views
             new DXListBoxItem
             {
                 Parent = ClassComboBox.ListBox,
-                Label = { Text = $"{RequiredClass.None}" },
+                Label = { Text = $"{Functions.GetEnumDesc(RequiredClass.None)}" },
                 Item = RequiredClass.None
             };
 
             new DXListBoxItem
             {
                 Parent = ClassComboBox.ListBox,
-                Label = { Text = $"{RequiredClass.Warrior}" },
+                Label = { Text = $"{Functions.GetEnumDesc(RequiredClass.Warrior)}" },
                 Item = RequiredClass.Warrior
             };
             new DXListBoxItem
             {
                 Parent = ClassComboBox.ListBox,
-                Label = { Text = $"{RequiredClass.Wizard}" },
+                Label = { Text = $"{Functions.GetEnumDesc(RequiredClass.Wizard)}" },
                 Item = RequiredClass.Wizard
             };
             new DXListBoxItem
             {
                 Parent = ClassComboBox.ListBox,
-                Label = { Text = $"{RequiredClass.Taoist}" },
+                Label = { Text = $"{Functions.GetEnumDesc(RequiredClass.Taoist)}" },
                 Item = RequiredClass.Taoist
             };
 
             new DXListBoxItem
             {
                 Parent = ClassComboBox.ListBox,
-                Label = { Text = $"{RequiredClass.Assassin}" },
+                Label = { Text = $"{Functions.GetEnumDesc(RequiredClass.Assassin)}" },
                 Item = RequiredClass.Assassin
             };
 
