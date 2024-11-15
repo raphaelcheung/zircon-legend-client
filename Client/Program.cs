@@ -105,10 +105,6 @@ namespace Client
                             if (parts.Length < 2) continue;
                             CEnvir.LauncherHash = parts[1];
                             break;
-                        case "-NeedFlushDns":
-                            if (parts.Length < 2 || !bool.TryParse(parts[1], out bool need)) continue;
-                            CEnvir.NeedFlushDns = need;
-                            break;
                     }
                 }
             }

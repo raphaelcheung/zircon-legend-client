@@ -25,7 +25,7 @@ namespace Client.Scenes.Views
         public static  Regex R = new Regex(@"\[(?<Text>.*?):(?<ID>.+?)\]", RegexOptions.Compiled);
 
         public NPCPage Page;
-        public DXLabel PageText;
+        public DXLabel PageText { get; set; }
         
         public List<DXLabel> Buttons = new List<DXLabel>();
         public bool Opened;
@@ -341,9 +341,9 @@ namespace Client.Scenes.Views
 
             List<ButtonInfo> regions = new List<ButtonInfo>();
 
-            Size tSize = TextRenderer.MeasureText(graphics, "A", font, new Size(width, 2000), flags);
+            Size tSize = TextRenderer.MeasureText(graphics, "我", font, new Size(width, 2000), flags);
             int h = tSize.Height;
-            int leading = tSize.Width - (TextRenderer.MeasureText(graphics, "AA", font, new Size(width, 2000), flags).Width - tSize.Width);
+            int leading = tSize.Width - (TextRenderer.MeasureText(graphics, "我我", font, new Size(width, 2000), flags).Width - tSize.Width);
 
             int lineStart = 0;
             int lastHeight = h;
@@ -368,6 +368,7 @@ namespace Client.Scenes.Views
             foreach (CharacterRange range in ranges)
             {
                 int height = TextRenderer.MeasureText(graphics, text.Substring(0, range.First + range.Length), font, new Size(width, 9999), flags).Height;
+                var _ = text.Substring(range.First, range.Length);
 
                 if (range.First >= index + length) break;
 
@@ -390,6 +391,7 @@ namespace Client.Scenes.Views
                             Width = TextRenderer.MeasureText(graphics, text.Substring(range.First, range.Length), font, new Size(width, 9999), flags).Width,
                             Height = h,
                         };
+
                         currentInfo = new ButtonInfo { Region = region, Index = range.First, Length = range.Length };
                         regions.Add(currentInfo);
                     }
@@ -414,6 +416,7 @@ namespace Client.Scenes.Views
 
                             if (region.X > 0)
                                 region.X -= leading;
+
                             currentInfo = new ButtonInfo { Region = region, Index = range.First, Length = range.Length };
                             regions.Add(currentInfo);
                         }

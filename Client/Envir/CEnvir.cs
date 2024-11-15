@@ -61,7 +61,6 @@ namespace Client.Envir
         public static bool IsQuickGame { get; set; } = false;
         private static bool LauncherUpgrading { get; set; } = false;
 
-        public static bool NeedFlushDns { get; set; } = false;
         public static int QuickSelectCharacter { get; set; } = -1;
 
         public static bool Shift, Alt, Ctrl;
@@ -101,6 +100,8 @@ namespace Client.Envir
         public static StringMessages Language { get; set; }
         public static string LogonCharacterDesc { get; set; } = "";
 
+        public static int WeaponRefineLevelLimit { get; set; } = 17;
+        public static int WeaponRefineRarityStep { get; set; } = 2;
 
         static CEnvir()
         {
@@ -1022,6 +1023,10 @@ namespace Client.Envir
         public static string GetDirName(Point User, Point Item)
         {
             return Item.X >= User.X ? (Item.X != User.X ? (Item.Y >= User.Y ? (Item.Y != User.Y ? "右下↘" : "正右→") : "右上↗") : (Item.Y >= User.Y ? (Item.Y != User.Y ? "正下↓" : "脚下\x3289") : "正上↑")) : (Item.Y >= User.Y ? (Item.Y != User.Y ? "左下↙" : "正左←") : "左上↖");
+        }
+        public static int GetWeaponLimitLevel(Rarity r)
+        {
+            return WeaponRefineLevelLimit - (Rarity.Elite - r) * WeaponRefineRarityStep;
         }
     }
 }

@@ -3987,6 +3987,32 @@ namespace Client.Scenes
                         case MagicType.Purification:
                         case MagicType.Infection:
                             //case MagicType.Neutralize:
+
+
+                            if (magic.Info.Magic == MagicType.Purification)
+                                mapObject = MouseObject ?? (MapObject)User;
+                            if (CanAttackTarget(MagicObject))
+                            {
+                                mapObject = MagicObject;
+                                MapObject.MagicObject = mapObject;
+                            }
+                            if (CanAttackTarget(MouseObject))
+                            {
+                                mapObject = MouseObject;
+                                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0) 
+                                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : mapObject)) 
+                                    : mapObject;
+
+                                goto case MagicType.MassBeckon;
+                            }
+                            else
+                                goto case MagicType.MassBeckon;
+
+                        case MagicType.PoisonDust:
+                        case MagicType.ImprovedExplosiveTalisman:
+                        case MagicType.ExplosiveTalisman:
+                        case MagicType.EvilSlayer:
+                        case MagicType.GreaterEvilSlayer:
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
                             {
                                 ClientUserItem clientUserItem1 = CharacterBox.Grid[10].Item;
@@ -4012,30 +4038,7 @@ namespace Client.Scenes
                                 if ((clientUserItem4 != null ? clientUserItem4.Info.Shape : -1) == -1)
                                     ReceiveChat("你的毒用完了，释放失败", MessageType.Hint);
                             }
-                            if (magic.Info.Magic == MagicType.Purification)
-                                mapObject = MouseObject ?? (MapObject)User;
-                            if (CanAttackTarget(MagicObject))
-                            {
-                                mapObject = MagicObject;
-                                MapObject.MagicObject = mapObject;
-                            }
-                            if (CanAttackTarget(MouseObject))
-                            {
-                                mapObject = MouseObject;
-                                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0) 
-                                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : mapObject)) 
-                                    : mapObject;
 
-                                goto case MagicType.MassBeckon;
-                            }
-                            else
-                                goto case MagicType.MassBeckon;
-
-                        case MagicType.PoisonDust:
-                        case MagicType.ImprovedExplosiveTalisman:
-                        case MagicType.ExplosiveTalisman:
-                        case MagicType.EvilSlayer:
-                        case MagicType.GreaterEvilSlayer:
                             if (CanAttackTarget(MagicObject))
                             {
                                 mapObject = MagicObject;

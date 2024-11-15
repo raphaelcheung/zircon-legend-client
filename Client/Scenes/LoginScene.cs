@@ -330,27 +330,27 @@ namespace Client.Scenes
 
         }
 
-        [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
-        private static extern int DnsFlushResolverCache();
+        //[DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+        //private static extern int DnsFlushResolverCache();
 
         private void ProcDnsConnect()
         {
-            if (!DnsRefreshed && CEnvir.NeedFlushDns)
-            {
-                DnsFlushResolverCache();
-                DnsRefreshed = true;
-            }
+            //if (!DnsRefreshed && CEnvir.NeedFlushDns)
+            //{
+            //    DnsFlushResolverCache();
+            //    DnsRefreshed = true;
+            //}
 
             if (CEnvir.Now >= ConnectionTime)
             {
                 ConnectingClient?.Close();
 
-                if (ConnectionAttempt >= 1)
-                {
-                    CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
-                    Config.IPAddress = "117.174.202.3";
-                    Config.Port = 13371;
-                }
+                //if (ConnectionAttempt >= 1)
+                //{
+                //    CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
+                //    Config.IPAddress = "117.174.202.3";
+                //    Config.Port = 13371;
+                //}
 
                 try
                 {
@@ -379,7 +379,7 @@ namespace Client.Scenes
                 }
                 catch(Exception ex) 
                 { 
-                    if (ConnectionAttempt > 1)
+                    //if (ConnectionAttempt > 1)
                     {
                         CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
                         CEnvir.SaveError(ex.StackTrace);

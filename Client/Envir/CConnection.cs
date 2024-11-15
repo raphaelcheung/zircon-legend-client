@@ -4396,6 +4396,12 @@ namespace Client.Envir
             GameScene.Game.User.XunzhaoGuaiwuMoshi01 = p.Moshi01;
             GameScene.Game.User.XunzhaoGuaiwuMoshi02 = p.Moshi02;
         }
+
+        public void Process(S.WeaponRefineBase p)
+        {
+            CEnvir.WeaponRefineLevelLimit = p.LevelLimit;
+            CEnvir.WeaponRefineRarityStep = p.RarityStep;
+        }
     }
 }
 

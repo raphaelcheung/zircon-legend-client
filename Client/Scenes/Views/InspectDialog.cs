@@ -345,14 +345,16 @@ namespace Client.Scenes.Views
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 82);
 
 
-
             int y = 0;
+            int offset = 35;
+            int base_width = (StatsTab.Size.Width - 50) / 4;
+
             DXLabel label = new DXLabel
             {
                 Parent = StatsTab,
                 Text = "物防:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 10);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 10);
 
             DisplayStats[Stat.MaxAC] = new DXLabel
             {
@@ -367,7 +369,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "魔防:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 2 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.MaxMR] = new DXLabel
             {
@@ -382,7 +384,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "破坏:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.MaxDC] = new DXLabel
             {
@@ -397,7 +399,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "自然魔攻:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 2 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.MaxMC] = new DXLabel
             {
@@ -412,7 +414,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "精神魔攻:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.MaxSC] = new DXLabel
             {
@@ -428,7 +430,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "准确率:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.Accuracy] = new DXLabel
             {
@@ -444,7 +446,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "敏捷度:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 2 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.Agility] = new DXLabel
             {
@@ -459,7 +461,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "负重:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             WearWeightLabel = new DXLabel
             {
@@ -474,7 +476,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "腕力:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             HandWeightLabel = new DXLabel
             {
@@ -491,7 +493,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "攻速:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.AttackSpeed] = new DXLabel
             {
@@ -507,7 +509,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "幸运:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 2 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.Luck] = new DXLabel
             {
@@ -522,7 +524,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "舒适度:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.Comfort] = new DXLabel
             {
@@ -539,7 +541,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "生命窃取:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.LifeSteal] = new DXLabel
             {
@@ -554,7 +556,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "金币增益:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.GoldRate] = new DXLabel
             {
@@ -569,7 +571,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "暴击率:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.CriticalChance] = new DXLabel
             {
@@ -584,7 +586,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "掉率增益:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.DropRate] = new DXLabel
             {
@@ -599,7 +601,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "捡拾范围:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 - label.Size.Width + 25, y += 20);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.PickUpRadius] = new DXLabel
             {
@@ -615,7 +617,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "经验增益:"
             };
-            label.Location = new Point(StatsTab.Size.Width / 4 * 3 - label.Size.Width + 25, y);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.ExperienceRate] = new DXLabel
             {
@@ -633,7 +635,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "元素攻击:"
             };
-            label.Location = new Point(50 - label.Size.Width, 175);
+            label.Location = new Point(70 - label.Size.Width, 190);
 
             DXImageControl icon = new DXImageControl
             {
@@ -778,7 +780,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "强抵抗元素:"
             };
-            label.Location = new Point(50 - label.Size.Width, 235);
+            label.Location = new Point(70 - label.Size.Width, 245);
 
 
             icon = new DXImageControl
@@ -943,7 +945,7 @@ namespace Client.Scenes.Views
                 Parent = StatsTab,
                 Text = "弱抵抗元素:"
             };
-            label.Location = new Point(50 - label.Size.Width, 295);
+            label.Location = new Point(70 - label.Size.Width, 300);
 
             icon = new DXImageControl
             {

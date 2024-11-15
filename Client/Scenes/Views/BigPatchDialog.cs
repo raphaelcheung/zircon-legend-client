@@ -39,7 +39,6 @@ namespace Client.Scenes.Views
         private ClientUserMagic FlamingSword = null;
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
-        //private ClientUserMagic FlamingSword = null;
 
         public override WindowType Type
         {
