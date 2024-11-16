@@ -191,8 +191,9 @@ namespace Client.Models
         public int HelmetFrame => DrawFrame + ((HelmetShape % 10) - 1) * ArmourShapeOffSet + ArmourShift;
 
         public MirLibrary WeaponLibrary1, WeaponLibrary2;
-        public int WeaponShapeOffSet;
-        public int WeaponShape, LibraryWeaponShape;
+        public int WeaponShapeOffSet { get; set; }
+        public int WeaponShape { get; set; }
+        public int LibraryWeaponShape { get; set; }
         public int WeaponFrame => DrawFrame + (WeaponShape % 10) * WeaponShapeOffSet;
 
         public MirLibrary BodyLibrary;

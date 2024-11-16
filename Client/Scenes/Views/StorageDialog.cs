@@ -6,6 +6,7 @@ using Client.Controls;
 using Client.Envir;
 using Client.UserModels;
 using Library;
+using C = Library.Network.ClientPackets;
 
 //Cleaned
 namespace Client.Scenes.Views
@@ -13,7 +14,7 @@ namespace Client.Scenes.Views
     public sealed class StorageDialog : DXWindow
     {
         #region Properties
-        public DXItemGrid Grid;
+        public DXItemGrid Grid { get; set; }
         
         public override void OnIsVisibleChanged(bool oValue, bool nValue)
         {
@@ -37,8 +38,10 @@ namespace Client.Scenes.Views
         public DXTextBox ItemNameTextBox;
         public DXComboBox ItemTypeComboBox;
         public DXButton ClearButton;
+        private DXButton RefreshButton;
         public DXVScrollBar StorageScrollBar;
         public ClientUserItem[] GuildStorage = new ClientUserItem[1000];
+        private DateTime RefreshTime = DateTime.MinValue;
 
         public StorageDialog()
         {
@@ -65,7 +68,7 @@ namespace Client.Scenes.Views
             ItemNameTextBox = new DXTextBox
             {
                 Parent = filterPanel,
-                Size = new Size(180, 20),
+                Size = new Size(120, 20),
                 Location = new Point(label.Location.X + label.Size.Width + 5, label.Location.Y),
             };
             ItemNameTextBox.TextBox.TextChanged += (o, e) => ApplyStorageFilter();
@@ -116,7 +119,7 @@ namespace Client.Scenes.Views
 
             ClearButton = new DXButton
             {
-                Size = new Size(80, SmallButtonHeight),
+                Size = new Size(60, SmallButtonHeight),
                 Location = new Point(ItemTypeComboBox.Location.X + ItemTypeComboBox.Size.Width + 17, label.Location.Y - 1),
                 Parent = filterPanel,
                 ButtonType = ButtonType.SmallButton,
@@ -127,6 +130,23 @@ namespace Client.Scenes.Views
                 ItemTypeComboBox.ListBox.SelectItem(null);
                 ItemNameTextBox.TextBox.Text = string.Empty;
             };
+
+
+            RefreshButton = new DXButton
+            {
+                Size = new Size(60, SmallButtonHeight),
+                Location = new Point(ClearButton.Location.X + ClearButton.Size.Width + 17, label.Location.Y - 1),
+                Parent = filterPanel,
+                ButtonType = ButtonType.SmallButton,
+                Label = { Text = "整理" }
+            };
+            RefreshButton.MouseClick += (o, e) =>
+            {
+                RefreshButton.Enabled = false;
+                RefreshTime = CEnvir.Now.AddSeconds(5);
+                CEnvir.Connection.Enqueue(new C.SortStorageItem() { });
+            };
+
 
             Grid = new DXItemGrid
             {
@@ -157,6 +177,15 @@ namespace Client.Scenes.Views
                 cell.MouseWheel += StorageScrollBar.DoMouseWheel;
 
 
+        }
+
+        public void Proccess()
+        {
+            if (!RefreshButton.Enabled && CEnvir.Now > RefreshTime)
+            {
+                RefreshButton.Enabled = true;
+            }
+            
         }
 
         public void RefreshStorage()

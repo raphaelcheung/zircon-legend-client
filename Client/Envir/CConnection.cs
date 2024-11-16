@@ -801,7 +801,8 @@ namespace Client.Envir
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                CEnvir.SaveError(e.Message);
+                CEnvir.SaveError(e.StackTrace);
                 throw e;
             }
 
@@ -4401,6 +4402,11 @@ namespace Client.Envir
         {
             CEnvir.WeaponRefineLevelLimit = p.LevelLimit;
             CEnvir.WeaponRefineRarityStep = p.RarityStep;
+        }
+
+        public void Process(S.SortStorageItem p)
+        {
+            GameScene.Game.SortFillStorageItems(p.Items);
         }
     }
 }

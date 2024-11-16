@@ -200,7 +200,7 @@ namespace Client.Scenes
         public MagicDialog MagicBox;
         public GroupDialog GroupBox;
         public BuffDialog BuffBox;
-        public StorageDialog StorageBox;
+        public StorageDialog StorageBox { get; set; }
 
         public InspectDialog InspectBox;
         public RankingDialog RankingBox { get; set; }
@@ -891,6 +891,7 @@ namespace Client.Scenes
                     MouseItem = null;
             }
 
+            StorageBox?.Proccess();
 
             TimeSpan ticks = CEnvir.Now - ItemTime;
             ItemTime = CEnvir.Now;
@@ -4443,7 +4444,8 @@ namespace Client.Scenes
                     continue;
                 }
 
-                InventoryBox.Grid.Grid[item.Slot].Item = item;
+                if (item.Slot >= 0 && item.Slot < InventoryBox.Grid.Grid.Length)
+                    InventoryBox.Grid.Grid[item.Slot].Item = item;
             }
         }
         public void AddItems(List<ClientUserItem> items)
@@ -5777,9 +5779,23 @@ namespace Client.Scenes
             {
                 InventoryBox.Grid.Grid[i].Item = null;
             }
+
             foreach (ClientUserItem item in items)
             {
                 InventoryBox.Grid.Grid[item.Slot].Item = item;
+            }
+        }
+
+        public void SortFillStorageItems(List<ClientUserItem> items)
+        {
+            for (int i = 0; i < Globals.StorageSize; i++)
+            {
+                StorageBox.Grid.Grid[i].Item = null;
+            }
+
+            foreach (ClientUserItem item in items)
+            {
+                StorageBox.Grid.Grid[item.Slot].Item = item;
             }
         }
     }

@@ -76,8 +76,10 @@ namespace Client.Envir
 
         public static Dictionary<LibraryFile, MirLibrary> LibraryList = new Dictionary<LibraryFile, MirLibrary>();
 
-        public static ClientUserItem[] Storage, MainStorage;
-        
+        public static ClientUserItem[] MainStorage;
+        public static ClientUserItem[] Storage { get; set; }
+
+
         public static List<ClientBlockInfo> BlockList = new List<ClientBlockInfo>();
         public static DBCollection<KeyBindInfo> KeyBinds { get; set; }
         public static DBCollection<WindowSetting> WindowSettings { get; set; }
