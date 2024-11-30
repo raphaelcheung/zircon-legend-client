@@ -568,6 +568,7 @@ namespace Client.Controls
         {
             if (nItem >= ItemCount)
                 return;
+
             DXControl control = Items.Controls[(int)nItem];
             Items.Controls.RemoveAt((int)nItem);
             UpdateScrollBar();
@@ -575,14 +576,16 @@ namespace Client.Controls
             control.Dispose();
         }
 
+        
         public void RemoveAll()
         {
             for (uint index = 0; index < ItemCount; ++index)
             {
                 DXControl control = Items.Controls[(int)index];
-                Items.Controls.RemoveAt((int)index);
                 control.Dispose();
             }
+
+            Items.Controls.Clear();
             UpdateScrollBar();
             UpdateItems();
         }

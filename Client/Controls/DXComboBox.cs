@@ -122,7 +122,7 @@ namespace Client.Controls
 
         public const int DefaultNormalHeight = 16;
 
-        public DXButton DownArrow;
+        public DXButton DownArrow { get; set; }
         public DXLabel SelectedLabel;
         public DXListBox ListBox;
         

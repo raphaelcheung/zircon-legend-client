@@ -66,6 +66,8 @@
 
 - DirectX 9.0
 
+- C++ 运行库 （本项目不直接依赖，只是 SlimDX 依赖，建议安装合集，QQ群文件有提供）
+
 ### 下载执行文件
 
 从本项目 [发布页面](https://gitee.com/raphaelcheung/zircon-legend-client/releases) 下载最新的运行文件，与前面已下载的依赖数据文件解压到同一目录。

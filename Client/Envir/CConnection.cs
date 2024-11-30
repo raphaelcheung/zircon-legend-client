@@ -4408,6 +4408,13 @@ namespace Client.Envir
         {
             GameScene.Game.SortFillStorageItems(p.Items);
         }
+
+        public void Process(S.SkillConfig p)
+        {
+            CEnvir.SkillLevelLimit = p.SkillLevelLimit;
+            foreach(var pair in GameScene.Game.MagicBox.Magics)
+                pair.Value.Refresh();
+        }
     }
 }
 

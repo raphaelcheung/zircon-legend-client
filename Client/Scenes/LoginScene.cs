@@ -323,11 +323,7 @@ namespace Client.Scenes
         private void AttemptConnect(IPAddress ip)
         {
             ConnectingClient = new TcpClient(ip.AddressFamily);
-            if (Config.UseNetworkConfig)
-                ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
-            else
-                ConnectingClient.BeginConnect(ip, Config.DefaultPort, Connecting, ConnectingClient);
-
+            ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
         }
 
         //[DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]

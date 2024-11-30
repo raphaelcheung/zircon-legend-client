@@ -105,6 +105,10 @@ namespace Client.Envir
         public static int WeaponRefineLevelLimit { get; set; } = 17;
         public static int WeaponRefineRarityStep { get; set; } = 2;
 
+        public static int SkillLevelLimit { get; set; } = 3;
+            
+        
+
         static CEnvir()
         {
             RootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -429,7 +433,7 @@ namespace Client.Envir
 
             Task.Run(() =>
             {
-                Session = new Session(SessionMode.Users, @".\Data\"){ BackUp = false};
+                Session = new Session(SessionMode.Users, @".\Data\");
 
                 Globals.ItemInfoList = Session.GetCollection<ItemInfo>();
                 Globals.MagicInfoList = Session.GetCollection<MagicInfo>();
@@ -454,6 +458,7 @@ namespace Client.Envir
 
                 Loaded = true;
                 LoadingDb = false;
+                Session.BackUpSpace = TimeSpan.MaxValue;
             });
         }
 

@@ -4640,6 +4640,7 @@ namespace Client.Scenes
                     MagicInfo magic = Globals.MagicInfoList.Binding.FirstOrDefault(x => x.Index == item.Info.Shape);
                     if (magic == null) return false;
                     if (User.Magics.ContainsKey(magic) && (User.Magics[magic].Level < 3 || (item.Flags & UserItemFlags.NonRefinable) == UserItemFlags.NonRefinable)) return false;
+                    if (User.Magics.ContainsKey(magic) && User.Magics[magic].Level >= CEnvir.SkillLevelLimit) return false;
                     break;
                 case ItemType.Consumable:
                     switch (item.Info.Shape)
@@ -5798,5 +5799,7 @@ namespace Client.Scenes
                 StorageBox.Grid.Grid[item.Slot].Item = item;
             }
         }
+
+        
     }
 } 

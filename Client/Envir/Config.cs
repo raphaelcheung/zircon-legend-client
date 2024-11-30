@@ -12,14 +12,10 @@ namespace Client.Envir
     public static class Config
     {
         public static readonly Size IntroSceneSize = new Size(1366, 768);
-        
-        public const string DefaultIPAddress = "192.168.0.3";
-        public const int DefaultPort = 17000;
 
         [ConfigSection("Network")]
-        public static bool UseNetworkConfig { get; set; } = false;
-        public static string IPAddress { get; set; } = DefaultIPAddress;
-        public static int Port { get; set; } = DefaultPort;
+        public static string IPAddress { get; set; } = "mir.ibaboo.xyz";
+        public static int Port { get; set; } = 53536;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
 
 

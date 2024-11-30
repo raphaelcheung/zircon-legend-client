@@ -297,7 +297,8 @@ namespace Client.Scenes.Views
 
         public DXImageControl Image;
         public DXImageControl ExperienceBar;
-        public DXLabel NameLabel, LevelLabel, ExperienceLabel, KeyLabel;
+        public DXLabel NameLabel, ExperienceLabel, KeyLabel;
+        public DXLabel LevelLabel { get; set; }
 
 
         #endregion
@@ -634,6 +635,7 @@ namespace Client.Scenes.Views
 
                 DescriptionAttribute description = infos[0].GetCustomAttribute<DescriptionAttribute>();
                 KeyLabel.Text = description?.Description;
+                ExperienceBar.Visible = true;
 
                 if (Info.NeedLevel1 > MapObject.User.Level)
                 {
@@ -641,9 +643,14 @@ namespace Client.Scenes.Views
                     ExperienceLabel.Text = $"需要 等级: {Info.NeedLevel1}";
                     ExperienceLabel.ForeColour = Color.Red;
                 }
+                else if(magic.Level >= CEnvir.SkillLevelLimit)
+                {
+                    ExperienceLabel.Text = $"已满级";
+                    ExperienceLabel.ForeColour = Color.FromArgb(198, 166, 99);
+                    ExperienceBar.Visible = false;
+                }
                 else
                 {
-
                     switch (magic.Level)
                     {
                         case 0:

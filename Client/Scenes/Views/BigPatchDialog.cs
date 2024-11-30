@@ -2920,7 +2920,8 @@ namespace Client.Scenes.Views
         public class CItemFilterSet
         {
             public int idx { get; set; }
-            public string name;
+            public string name {  get; set; }
+            public ItemType type { get; set; }
             public bool hint;
             public bool pick;
             public bool picks { get; set; }
@@ -2986,7 +2987,8 @@ namespace Client.Scenes.Views
                     CItemFilterSet tmp = new CItemFilterSet()
                     {
                         name = itemInfo.ItemName,
-                        idx = itemInfo.Index
+                        idx = itemInfo.Index,
+                        type = itemInfo.ItemType,
                     };
 
                     Items.Add(tmp);
@@ -3071,7 +3073,7 @@ namespace Client.Scenes.Views
             public DXButton AddButton;
             public DXButton DelButton;
             public CItemFilter ItemFilter { get; set; }
-            public DXListView ItemView;
+            public DXListView ItemView { get; set; }
 
             public bool NeedSycFilters { get; set; } = true;
 
@@ -3083,7 +3085,14 @@ namespace Client.Scenes.Views
                 dxComboBox.Location = new Point(10, 5);
                 dxComboBox.DropDownHeight = 198;
                 CombTypeBox = dxComboBox;
-                CombTypeBox.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => { });
+                CombTypeBox.SelectedLabel.MouseClick += (o, e) =>
+                {
+                    if (e.Button == MouseButtons.Left) CombTypeBox.Showing = true;
+                };
+                CombTypeBox.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => {
+                    RefreshItems(CombTypeBox.SelectedItem as ItemType?);
+                });
+
                 DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
                 dxListBoxItem1.Parent = (DXControl)CombTypeBox.ListBox;
                 dxListBoxItem1.Text = $"全部";
@@ -3105,6 +3114,15 @@ namespace Client.Scenes.Views
                 Point location = CombTypeBox.Location;
                 int y1 = location.Y;
                 dxTextBox.Location = new Point(x1, y1);
+                dxTextBox.TextBox.KeyPress += (o, e)=>{
+                    if (e.KeyChar == (char)Keys.Enter)
+                    {
+                        SearchItem();
+                        e.Handled = true;
+                    }
+                    else
+                        e.Handled = false;
+                };
                 sTextBox = dxTextBox;
                 DXButton dxButton1 = new DXButton();
                 dxButton1.Parent = (DXControl)this;
@@ -3119,11 +3137,7 @@ namespace Client.Scenes.Views
                 Search = dxButton1;
                 Search.MouseClick += (EventHandler<MouseEventArgs>)((o, e) =>
                 {
-                    string text = sTextBox.TextBox.Text;
-                    if (text == null || text.Length <= 0)
-                        return;
-                    ItemView.SortByName(text);
-
+                    SearchItem();
                 });
                 DXButton dxButton2 = new DXButton();
                 dxButton2.Parent = (DXControl)this;
@@ -3145,7 +3159,8 @@ namespace Client.Scenes.Views
                     {
                         ItemFilter.Items.Add(new CItemFilterSet()
                         {
-                            name = itemInfo.ItemName
+                            name = itemInfo.ItemName,
+                            type = itemInfo.ItemType,
                         });
                     }
                     ItemFilter.Inited = true;
@@ -3276,7 +3291,13 @@ namespace Client.Scenes.Views
                 NeedSycFilters = true;
                 SycFilters(true);
             }
-
+            private void SearchItem()
+            {
+                string text = sTextBox.TextBox.Text;
+                if (text == null || text.Length <= 0)
+                    return;
+                ItemView.SortByName(text);
+            }
             public void SycFilters(bool first_syc)
             {
                 if (!NeedSycFilters) return;
@@ -3303,11 +3324,16 @@ namespace Client.Scenes.Views
                 });
                 NeedSycFilters = false;
             }
-            public void Initialize()
+
+            private void RefreshItems(ItemType? type = null)
             {
+                ItemView.RemoveAll();
+
                 for (int index = 0; index < ItemFilter.Items.Count; ++index)
                 {
-                    BigPatchDialog.CItemFilterSet citemFilterSet = ItemFilter.Items[index];
+                    CItemFilterSet citemFilterSet = ItemFilter.Items[index];
+                    if (type != null && citemFilterSet.type != type) continue;
+                    
                     if (citemFilterSet.name != null && citemFilterSet.name.Length != 0)
                     {
                         uint nItem = ItemView.InsertItem(uint.MaxValue, citemFilterSet.name);
@@ -3316,23 +3342,23 @@ namespace Client.Scenes.Views
                         dxCheckBox1.Checked = citemFilterSet.hint;
                         dxCheckBox1.Tag = (object)index;
                         DXCheckBox dxCheckBox2 = dxCheckBox1;
-                        dxCheckBox2.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox2.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(0, dxCheckBox.Checked);
-                        });
-                        ItemView.SetItem(nItem, 1U, (DXControl)dxCheckBox2);
+                        };
+                        ItemView.SetItem(nItem, 1U, dxCheckBox2);
                         DXCheckBox dxCheckBox4 = new DXCheckBox();
                         dxCheckBox4.AutoSize = false;
                         dxCheckBox4.Checked = citemFilterSet.pick;
                         dxCheckBox4.Tag = (object)index;
                         DXCheckBox dxCheckBox5 = dxCheckBox4;
-                        dxCheckBox5.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox5.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(1, dxCheckBox.Checked);
-                        });
-                        ItemView.SetItem(nItem, 2U, (DXControl)dxCheckBox5);
+                        };
+                        ItemView.SetItem(nItem, 2U, dxCheckBox5);
 
 
                         DXCheckBox DXCheckBox16 = new DXCheckBox();
@@ -3340,63 +3366,68 @@ namespace Client.Scenes.Views
                         DXCheckBox16.Checked = citemFilterSet.picks;
                         DXCheckBox16.Tag = (object)index;
                         DXCheckBox DXCheckBox17 = DXCheckBox16;
-                        DXCheckBox17.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        DXCheckBox17.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(2, dxCheckBox.Checked);
                             NeedSycFilters = true;
-                        });
-                        ItemView.SetItem(nItem, 3U, (DXControl)DXCheckBox17);
+                        };
+                        ItemView.SetItem(nItem, 3U, DXCheckBox17);
 
                         DXCheckBox dxCheckBox6 = new DXCheckBox();
                         dxCheckBox6.AutoSize = false;
                         dxCheckBox6.Checked = citemFilterSet.show;
                         dxCheckBox6.Tag = (object)index;
                         DXCheckBox dxCheckBox7 = dxCheckBox6;
-                        dxCheckBox7.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox7.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(3, dxCheckBox.Checked);
-                        });
-                        ItemView.SetItem(nItem, 4U, (DXControl)dxCheckBox7);
+                        };
+                        ItemView.SetItem(nItem, 4U, dxCheckBox7);
 
                         DXCheckBox dxCheckBox8 = new DXCheckBox();
                         dxCheckBox8.AutoSize = false;
                         dxCheckBox8.Checked = citemFilterSet.sell;
                         dxCheckBox8.Tag = (object)index;
                         DXCheckBox dxCheckBox9 = dxCheckBox8;
-                        dxCheckBox9.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox9.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(4, dxCheckBox.Checked);
-                        });
+                        };
                         ItemView.SetItem(nItem, 5U, (DXControl)dxCheckBox9);
                         DXCheckBox dxCheckBox10 = new DXCheckBox();
                         dxCheckBox10.AutoSize = false;
                         dxCheckBox10.Checked = citemFilterSet.buy;
                         dxCheckBox10.Tag = (object)index;
                         DXCheckBox dxCheckBox11 = dxCheckBox10;
-                        dxCheckBox11.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox11.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(5, dxCheckBox.Checked);
-                        });
-                        ItemView.SetItem(nItem, 6U, (DXControl)dxCheckBox11);
+                        };
+                        ItemView.SetItem(nItem, 6U, dxCheckBox11);
                         DXCheckBox dxCheckBox12 = new DXCheckBox();
                         dxCheckBox12.AutoSize = false;
                         dxCheckBox12.Checked = citemFilterSet.buy;
                         dxCheckBox12.Enabled = false;
                         dxCheckBox12.Tag = (object)index;
                         DXCheckBox dxCheckBox13 = dxCheckBox12;
-                        dxCheckBox13.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                        dxCheckBox13.CheckedChanged += (o, e) =>
                         {
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(6, dxCheckBox.Checked);
-                        });
+                        };
                         ItemView.SetItem(nItem, 7U, (DXControl)dxCheckBox13);
                     }
                 }
+
                 ItemView.UpdateItems();
+            }
+            public void Initialize()
+            {
+                RefreshItems();
             }
 
             public override void OnSizeChanged(Size oValue, Size nValue)

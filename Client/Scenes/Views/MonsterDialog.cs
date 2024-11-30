@@ -479,7 +479,12 @@ namespace Client.Scenes.Views
             panel_height += 15;
             List<Library.SystemModels.DropInfo> drops = Monster.MonsterInfo.Drops.ToList();
 
-            drops = drops.OrderByDescending(n => n.Chance).Distinct(new DropCompareByName()).Where(n => n.Item != null && n.Chance > 0 && n.Amount > 0 && !n.EasterEvent).ToList();
+            drops = drops.Distinct(new DropCompareByName()).Where(n => n.Item != null 
+                && n.Chance > 0 
+                && n.Amount > 0 
+                && !n.EasterEvent 
+                && !n.Item.BlockMonsterDrop).OrderByDescending(n => n.Chance).ToList();
+
             List<Library.SystemModels.DropInfo> drops_result = drops;
             if (drops.Count > 12)
             {
@@ -492,8 +497,12 @@ namespace Client.Scenes.Views
                         case ItemType.Meat:
                         case ItemType.Torch:
                         case ItemType.Nothing:
-                            return false;
+                            if (n.Item.Rarity == Rarity.Common)
+                                return false;
+
+                            break;
                     }
+
                     return true;
                 }).ToList();
             }

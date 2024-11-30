@@ -29,6 +29,22 @@ namespace Client.Controls
 
             return tempSize;
         }
+
+        public Size MeasureSize()
+        {
+            if (string.IsNullOrEmpty(Text))
+                return Size.Empty;
+
+            Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, Text, Font, DisplayArea.Size, DrawFormat);
+
+            if (Outline && tempSize.Width > 0 && tempSize.Height > 0)
+            {
+                tempSize.Width += 2;
+                tempSize.Height += 2;
+            }
+
+            return tempSize;
+        }
         public static Size GetHeight(DXLabel label, int width)
         {
             Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, label.Text, label.Font, new Size(width, 2000), label.DrawFormat);
@@ -253,9 +269,9 @@ namespace Client.Controls
 
             if (!AutoSize && VerticalCenter)
             {
-                var text_size = GetSize(Text, Font, Outline);
+                var text_size = MeasureSize();
 
-                start = new Point((width - text_size.Width) / 2, (height - text_size.Height) / 2);
+                start = new Point(0, (height - text_size.Height) / 2);
             }
 
             using (Bitmap image = new Bitmap(width, height, width*4, PixelFormat.Format32bppArgb, rect.Data.DataPointer))

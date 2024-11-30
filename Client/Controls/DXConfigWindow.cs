@@ -36,7 +36,7 @@ namespace Client.Controls
 
         //Network
         public DXTab NetworkTab;
-        private DXCheckBox UseNetworkConfigCheckBox;
+        //private DXCheckBox UseNetworkConfigCheckBox;
         private DXTextBox IPAddressTextBox;
         private DXNumberBox PortBox;
 
@@ -69,7 +69,7 @@ namespace Client.Controls
             PlayerVolumeBox.ValueTextBox.TextBox.Text = Config.PlayerVolume.ToString();
             MonsterVolumeBox.ValueTextBox.TextBox.Text = Config.MonsterVolume.ToString();
             SpellVolumeBox.ValueTextBox.TextBox.Text = Config.MagicVolume.ToString();
-            UseNetworkConfigCheckBox.Checked = Config.UseNetworkConfig;
+            //UseNetworkConfigCheckBox.Checked = Config.UseNetworkConfig;
             IPAddressTextBox.TextBox.Text = Config.IPAddress;
             PortBox.ValueTextBox.TextBox.Text = Config.Port.ToString();
 
@@ -474,15 +474,15 @@ namespace Client.Controls
 
             #region Network
 
-            UseNetworkConfigCheckBox = new DXCheckBox
-            {
+            //UseNetworkConfigCheckBox = new DXCheckBox
+            //{
 
-                AutoSize = true,
-                Text = "使用配置:",
-                Parent = NetworkTab,
-                Checked = Config.FullScreen,
-            };
-            UseNetworkConfigCheckBox.Location = new Point(120 - UseNetworkConfigCheckBox.Size.Width, 10);
+            //    AutoSize = true,
+            //    Text = "使用配置:",
+            //    Parent = NetworkTab,
+            //    Checked = Config.FullScreen,
+            //};
+            //UseNetworkConfigCheckBox.Location = new Point(120 - UseNetworkConfigCheckBox.Size.Width, 10);
 
             label = new DXLabel
             {
@@ -650,7 +650,7 @@ namespace Client.Controls
             if (volumeChanged)
                 DXSoundManager.AdjustVolume();
 
-            Config.UseNetworkConfig = UseNetworkConfigCheckBox.Checked;
+            //Config.UseNetworkConfig = UseNetworkConfigCheckBox.Checked;
             Config.IPAddress = IPAddressTextBox.TextBox.Text;
             Config.Port = (int)PortBox.Value;
 
@@ -927,13 +927,13 @@ namespace Client.Controls
                     NetworkTab = null;
                 }
                 
-                if (UseNetworkConfigCheckBox != null)
-                {
-                    if (!UseNetworkConfigCheckBox.IsDisposed)
-                        UseNetworkConfigCheckBox.Dispose();
+                //if (UseNetworkConfigCheckBox != null)
+                //{
+                //    if (!UseNetworkConfigCheckBox.IsDisposed)
+                //        UseNetworkConfigCheckBox.Dispose();
 
-                    UseNetworkConfigCheckBox = null;
-                }
+                //    UseNetworkConfigCheckBox = null;
+                //}
 
                 if (IPAddressTextBox != null)
                 {
