@@ -561,9 +561,9 @@ namespace Client.Envir
                     {
                         Config.RememberedEMail = login.LoginBox.EMailTextBox.TextBox.Text;
 
-                        //if (Config.RememberedPassword != login.LoginBox.PasswordTextBox.TextBox.Text)
-                        //    Config.RememberedPassword = Functions.CalcMD5($"{Config.RememberedEMail}-{login.LoginBox.PasswordTextBox.TextBox.Text}");
-                        Config.RememberedPassword = login.LoginBox.PasswordTextBox.TextBox.Text;
+                        if (Config.RememberedPassword != login.LoginBox.PasswordTextBox.TextBox.Text)
+                            Config.RememberedPassword = Functions.CalcMD5($"{Config.RememberedEMail}-{login.LoginBox.PasswordTextBox.TextBox.Text}");
+                        //Config.RememberedPassword = login.LoginBox.PasswordTextBox.TextBox.Text;
                     }
 
                     login.Dispose();
@@ -713,12 +713,10 @@ namespace Client.Envir
         {
             try
             {
-                
                 SelectScene select = DXControl.ActiveScene as SelectScene;
                 if (select == null) return;
 
                 select.SelectBox.StartGameAttempted = false;
-
 
                 DXMessageBox box;
                 DateTime expiry;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using Client.Controls;
 using Client.Envir;
 using Client.UserModels;
@@ -53,7 +54,7 @@ namespace Client.Scenes.Views
                 };
                 window.ValueTextBox.TextBox.TextChanged += (o1, e1) =>
                 {
-                    window.ConfirmButton.Enabled = Globals.CharacterReg.IsMatch(window.ValueTextBox.TextBox.Text);
+                    window.ConfirmButton.Enabled = Regex.IsMatch(window.ValueTextBox.TextBox.Text, Globals.CharacterReg, RegexOptions.IgnoreCase);
                 };
                 window.ConfirmButton.MouseClick += (o1, e1) =>
                 {

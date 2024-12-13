@@ -3762,7 +3762,7 @@ namespace Client.Scenes.Views
         #region Methods
         private void TextBox_TextChanged(object sender, EventArgs e)
         {
-            CompanionNameValid = Globals.CharacterReg.IsMatch(CompanionNameTextBox.TextBox.Text);
+            CompanionNameValid = Regex.IsMatch(CompanionNameTextBox.TextBox.Text, Globals.CharacterReg, RegexOptions.IgnoreCase);
 
             if (string.IsNullOrEmpty(CompanionNameTextBox.TextBox.Text))
                 CompanionNameTextBox.BorderColour = Color.FromArgb(198, 166, 99);

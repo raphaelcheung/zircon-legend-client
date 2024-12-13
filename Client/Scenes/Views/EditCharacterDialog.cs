@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Client.Controls;
 using Client.Envir;
 using Client.UserModels;
 using Library;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using C = Library.Network.ClientPackets;
 
 namespace Client.Scenes.Views
@@ -594,7 +596,7 @@ namespace Client.Scenes.Views
         }
         private void CharacterNameTextBox_TextChanged(object sender, EventArgs e)
         {
-            CharacterNameValid = Globals.CharacterReg.IsMatch(CharacterNameTextBox.TextBox.Text);
+            CharacterNameValid = Regex.IsMatch(CharacterNameTextBox.TextBox.Text, Globals.CharacterReg, RegexOptions.IgnoreCase);
 
             if (string.IsNullOrEmpty(CharacterNameTextBox.TextBox.Text))
                 CharacterNameTextBox.BorderColour = Color.FromArgb(198, 166, 99);

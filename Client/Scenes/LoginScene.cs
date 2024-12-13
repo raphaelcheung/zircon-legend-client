@@ -322,6 +322,8 @@ namespace Client.Scenes
 
         private void AttemptConnect(IPAddress ip)
         {
+            CEnvir.SaveError($"AttemptConnect: {ip}");
+            Console.WriteLine($"AttemptConnect: {ip}");
             ConnectingClient = new TcpClient(ip.AddressFamily);
             ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
         }
@@ -331,22 +333,9 @@ namespace Client.Scenes
 
         private void ProcDnsConnect()
         {
-            //if (!DnsRefreshed && CEnvir.NeedFlushDns)
-            //{
-            //    DnsFlushResolverCache();
-            //    DnsRefreshed = true;
-            //}
-
             if (CEnvir.Now >= ConnectionTime)
             {
                 ConnectingClient?.Close();
-
-                //if (ConnectionAttempt >= 1)
-                //{
-                //    CEnvir.SaveError($"连接失败，采用默认域名和端口再次尝试连接");
-                //    Config.IPAddress = "117.174.202.3";
-                //    Config.Port = 13371;
-                //}
 
                 try
                 {
@@ -375,12 +364,9 @@ namespace Client.Scenes
                 }
                 catch(Exception ex) 
                 { 
-                    //if (ConnectionAttempt > 1)
-                    {
-                        CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
-                        CEnvir.SaveError(ex.StackTrace);
-                    }
 
+                    CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
+                    CEnvir.SaveError(ex.StackTrace);
                     ConnectionAttempt++;
                 }
             }
@@ -897,8 +883,8 @@ namespace Client.Scenes
 
                 string psd = PasswordTextBox.TextBox.Text;
 
-                //if (Config.RememberedPassword != PasswordTextBox.TextBox.Text)
-                //    psd = Functions.CalcMD5($"{EMailTextBox.TextBox.Text}-{PasswordTextBox.TextBox.Text}");
+                if (Config.RememberedPassword != PasswordTextBox.TextBox.Text)
+                    psd = Functions.CalcMD5($"{EMailTextBox.TextBox.Text}-{PasswordTextBox.TextBox.Text}");
 
                 C.Login packet = new C.Login
                 {

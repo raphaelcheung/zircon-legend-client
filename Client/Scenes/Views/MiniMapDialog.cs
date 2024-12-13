@@ -16,9 +16,9 @@ namespace Client.Scenes.Views
     { 
         #region Properties
 
-        public Rectangle Area;
-        private DXImageControl Image;
-        public DXControl Panel;
+        public Rectangle Area { get; set; }
+        private DXImageControl Image { get; set; }
+        public DXControl Panel { get;set; }
 
         public Dictionary<object, DXControl> MapInfoObjects = new Dictionary<object, DXControl>();
 
@@ -114,6 +114,10 @@ namespace Client.Scenes.Views
             Image.Location = new Point(x, y);
         }
 
+        private void RefreshTitle()
+        {
+            TitleLabel.Text = $"{GameScene.Game.MapControl?.MapInfo?.Description ?? "???"} ({X}，{Y})";
+        }
         private void MapControl_MapInfoChanged(object sender, EventArgs e)
         {
             foreach (DXControl temp in MapInfoObjects.Values)
@@ -123,7 +127,7 @@ namespace Client.Scenes.Views
 
             if (GameScene.Game.MapControl.MapInfo == null) return;
 
-            TitleLabel.Text = GameScene.Game.MapControl.MapInfo.Description;
+            RefreshTitle();
             Image.Index = GameScene.Game.MapControl.MapInfo.MiniMap;
 
             ScaleX = Image.Size.Width/(float) GameScene.Game.MapControl.Width;
@@ -374,6 +378,10 @@ namespace Client.Scenes.Views
             if (MapObject.User.ObjectID != ob.ObjectID) return;
 
             Image.Location = new Point(-control.Location.X + Area.Width / 2, -control.Location.Y + Area.Height / 2);
+
+            X = ob.Location.X;
+            Y = ob.Location.Y;
+            RefreshTitle();
         }
         
         public void UpdateMapPosition()
@@ -387,9 +395,11 @@ namespace Client.Scenes.Views
             DXControl control;
             if (!MapInfoObjects.TryGetValue(data, out control)) return;
 
-            Point location = control.Location;
-            Image.Location = new Point(-location.X + Area.Width / 2, -location.Y + Area.Height / 2);
+            Image.Location = new Point(-control.Location.X + Area.Width / 2, -control.Location.Y + Area.Height / 2);
         }
+
+        private int X = 0;
+        private int Y = 0;
 
         public void Remove(object ob)
         {

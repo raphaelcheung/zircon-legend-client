@@ -140,6 +140,26 @@ namespace Client.Scenes
 
         #endregion
 
+        public int PatchGridSize
+        {
+            get
+            {
+                return _PatchGridSize;
+            }
+            set
+            {
+                if (_PatchGridSize == value)
+                    return;
+                int patchGridSize = _PatchGridSize;
+                _PatchGridSize = value;
+                OnPatchGridSizeChanged(patchGridSize, value);
+            }
+        }
+        private int _PatchGridSize;
+        public void OnPatchGridSizeChanged(int oValue, int nValue)
+        {
+            InventoryBox.RefreshPatchGrid();
+        }
         #region MouseMagic
 
         public MagicInfo MouseMagic
@@ -168,6 +188,7 @@ namespace Client.Scenes
 
         #endregion
         public BigPatchDialog BigPatchBox { get; set; }
+        public ClientUserItem[] PatchGrid = new ClientUserItem[98];
 
         public MapControl MapControl;
         public MainPanel MainPanel;
@@ -195,7 +216,7 @@ namespace Client.Scenes
         public NPCAccessoryLevelDialog NPCAccessoryLevelBox;
         public NPCAccessoryResetDialog NPCAccessoryResetBox;
         public NPCMasterRefineDialog NPCMasterRefineBox;
-        public MiniMapDialog MiniMapBox;
+        public MiniMapDialog MiniMapBox { get; set; }
         public BigMapDialog BigMapBox;
         public MagicDialog MagicBox;
         public GroupDialog GroupBox;

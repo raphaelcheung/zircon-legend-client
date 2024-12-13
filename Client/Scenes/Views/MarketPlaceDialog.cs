@@ -322,7 +322,6 @@ namespace Client.Scenes.Views
                 DropDownHeight = 198
             };
 
-
             new DXListBoxItem
             {
                 Parent = ItemTypeBox.ListBox,
@@ -987,6 +986,7 @@ namespace Client.Scenes.Views
                 DropDownHeight = 198
             };
 
+            
 
             new DXListBoxItem
             {

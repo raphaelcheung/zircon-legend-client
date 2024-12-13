@@ -12,6 +12,7 @@ using C = Library.Network.ClientPackets;
 using System.ComponentModel;
 using System.Reflection;
 using static Client.Scenes.SelectScene;
+using System.Text.RegularExpressions;
 //Cleaned
 namespace Client.Scenes
 {
@@ -1306,7 +1307,7 @@ namespace Client.Scenes
             }
             private void CharacterNameTextBox_TextChanged(object sender, EventArgs e)
             {
-                CharacterNameValid = Globals.CharacterReg.IsMatch(CharacterNameTextBox.TextBox.Text);
+               CharacterNameValid = Regex.IsMatch(CharacterNameTextBox.TextBox.Text, Globals.CharacterReg, RegexOptions.IgnoreCase);
 
                 if (string.IsNullOrEmpty(CharacterNameTextBox.TextBox.Text))
                     CharacterNameTextBox.BorderColour = Color.FromArgb(198, 166, 99);

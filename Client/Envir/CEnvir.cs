@@ -913,17 +913,18 @@ namespace Client.Envir
         {
             try
             {
-                if (++ErrorCount > 20 || String.Compare(ex, LastError, StringComparison.OrdinalIgnoreCase) == 0) return;
+                if (++ErrorCount > 200 || String.Compare(ex, LastError, StringComparison.OrdinalIgnoreCase) == 0) return;
 
                 const string LogPath = @".\Errors\";
 
-                LastError = ex;
-                string state = $"State = {Target?.DisplayRectangle}"; 
+                var now = DateTime.Now.ToLocalTime();
+
+                LastError = $"[{now.Year}-{now.Month}-{now.Day}-{now.Hour}:{now.Minute}:{now.Second}:{now.Millisecond}] {ex}";
 
                 if (!Directory.Exists(LogPath))
                     Directory.CreateDirectory(LogPath);
 
-                File.AppendAllText($"{LogPath}{Now.Year}-{Now.Month}-{Now.Day}.txt", LastError + Environment.NewLine + state + Environment.NewLine);
+                File.AppendAllText($"{LogPath}{now.Year}-{now.Month}-{now.Day}.txt", LastError + Environment.NewLine);
             }
             catch
             { }

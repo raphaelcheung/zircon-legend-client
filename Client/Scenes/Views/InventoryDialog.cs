@@ -18,6 +18,8 @@ namespace Client.Scenes.Views
         public DXItemGrid Grid;
 
         public DXLabel GoldLabel, WeightLabel, GameGoldLabel;
+        private DXTab PatchTab { get; set; }
+        public DXItemGrid PatchGrid { get; set; }
         public override void OnIsVisibleChanged(bool oValue, bool nValue)
         {
             if (!IsVisible)
@@ -36,6 +38,7 @@ namespace Client.Scenes.Views
         public DXImageControl BagWeightBar;
         private DXTabControl TabControl;
         private DXTab GridTab;
+        public DXVScrollBar PatchGridScrollBar { get; set; }
         //private DXTab PatchTab, BaoshiTab;
         //public DXItemGrid PatchGrid, BaoshiGrid;
         //public DXVScrollBar PatchGridScrollBar, BaoshiScrollBar;
@@ -76,18 +79,18 @@ namespace Client.Scenes.Views
                 Change = 1,
             };
 
-            DXTab dxTab2 = new DXTab();
-            dxTab2.Parent = TabControl;
-            dxTab2.Border = true;
-            dxTab2.TabButton.Label.Text = "碎片";
+            //DXTab dxTab2 = new DXTab();
+            //dxTab2.Parent = TabControl;
+            //dxTab2.Border = true;
+            //dxTab2.TabButton.Label.Text = "碎片";
             //PatchTab = dxTab2;
-            DXImageControl dxImageControl6 = new DXImageControl()
-            {
-                LibraryFile = LibraryFile.Interface,
-                Index = 122,
-                Location = new Point(1, 1),
-                Parent = dxTab2,
-            };
+            //DXImageControl dxImageControl6 = new DXImageControl()
+            //{
+            //    LibraryFile = LibraryFile.Interface,
+            //    Index = 122,
+            //    Location = new Point(1, 1),
+            //    Parent = dxTab2,
+            //};
             //DXTab dxTab3 = new DXTab();
             //dxTab3.Parent = TabControl;
             //dxTab3.Border = true;
@@ -370,12 +373,12 @@ namespace Client.Scenes.Views
                 GameScene.Game.GoldPickedUp = !GameScene.Game.GoldPickedUp && MapObject.User.Gold > 0;
         }
 
-        //public void RefreshPatchGrid()
-        //{
-        //    PatchGrid.GridSize = new Size(7, Math.Max(7, (int)Math.Ceiling((double)GameScene.Game.PatchGridSize / 7.0)));
-        //    PatchGridScrollBar.MaxValue = PatchGrid.GridSize.Height;
-        //    ApplyPatchGridFilter();
-        //}
+        public void RefreshPatchGrid()
+        {
+            PatchGrid.GridSize = new Size(7, Math.Max(7, (int)Math.Ceiling((double)GameScene.Game.PatchGridSize / 7.0)));
+            PatchGridScrollBar.MaxValue = PatchGrid.GridSize.Height;
+            ApplyPatchGridFilter();
+        }
 
         //public void RefreshBaoshiGrid()
         //{
@@ -384,11 +387,11 @@ namespace Client.Scenes.Views
         //    ApplyBaoshiGridFilter();
         //}
 
-        //public void ApplyPatchGridFilter()
-        //{
-        //    foreach (DXItemCell cell in PatchGrid.Grid)
-        //        FilterCell(cell);
-        //}
+        public void ApplyPatchGridFilter()
+        {
+            foreach (DXItemCell cell in PatchGrid.Grid)
+                FilterCell(cell);
+        }
 
         //public void ApplyBaoshiGridFilter()
         //{
@@ -398,10 +401,10 @@ namespace Client.Scenes.Views
 
         public void FilterCell(DXItemCell cell)
         {
-            //if (cell.Slot >= GameScene.Game.PatchGridSize)
-            //    cell.Enabled = false;
-            //else
-            //    cell.Enabled = true;
+            if (cell.Slot >= GameScene.Game.PatchGridSize)
+                cell.Enabled = false;
+            else
+                cell.Enabled = true;
         }
 
         //public void FilterBaoshiCell(DXItemCell cell)
@@ -445,7 +448,21 @@ namespace Client.Scenes.Views
         //}
 
         #endregion
+        private void PatchGrid_GridSizeChanged(object sender, EventArgs e)
+        {
+            foreach (DXItemCell dxItemCell in PatchGrid.Grid)
+            {
+                DXItemCell cell = dxItemCell;
+                cell.ItemChanged += (EventHandler<EventArgs>)((o, e1) => FilterCell(cell));
+            }
+            foreach (DXControl dxControl in PatchGrid.Grid)
+                dxControl.MouseWheel += new EventHandler<MouseEventArgs>(PatchGridScrollBar.DoMouseWheel);
+        }
 
+        private void PatchGridScrollBar_ValueChanged(object sender, EventArgs e)
+        {
+            PatchGrid.ScrollValue = PatchGridScrollBar.Value;
+        }
         #region IDisposable
 
         protected override void Dispose(bool disposing)

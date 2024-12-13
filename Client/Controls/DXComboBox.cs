@@ -170,6 +170,8 @@ namespace Client.Controls
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.WordEllipsis,
             };
 
+            SelectedLabel.MouseClick += (a, b) => { if (b.Button == MouseButtons.Left) Showing = true; };
+
             ListBox = new DXListBox
             {
                 Parent = ActiveScene,

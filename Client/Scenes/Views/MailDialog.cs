@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Client.Controls;
 using Client.Envir;
@@ -994,7 +995,7 @@ namespace Client.Scenes.Views
 
         private void RecipientBox_TextChanged(object sender, EventArgs e)
         {
-            RecipientValid = Globals.CharacterReg.IsMatch(RecipientBox.TextBox.Text);
+            RecipientValid = Regex.IsMatch(RecipientBox.TextBox.Text, Globals.CharacterReg, RegexOptions.IgnoreCase);
 
             if (string.IsNullOrEmpty(RecipientBox.TextBox.Text))
                 RecipientBox.BorderColour = Color.FromArgb(198, 166, 99);

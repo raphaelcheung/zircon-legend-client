@@ -4,6 +4,8 @@ using SlimDX.Direct3D9;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Client.Controls
 {
@@ -240,13 +242,17 @@ namespace Client.Controls
         public void UpdateItems()
         {
             int x = 1;
+
             int y = 0;
             int num1 = VScrollBar.Value;
             int num2 = -num1;
             if (ItemCount > 0U)
                 _First = num1 / VScrollBar.Change;
+
             for (int index = 0; index < _First; ++index)
-                Items.Controls[index].Visible = false;
+                if (index < Items.Controls.Count)
+                    Items.Controls[index].Visible = false;
+
             int first1 = _First;
             Size size1;
             while (true)
@@ -579,12 +585,15 @@ namespace Client.Controls
         
         public void RemoveAll()
         {
-            for (uint index = 0; index < ItemCount; ++index)
-            {
-                DXControl control = Items.Controls[(int)index];
-                control.Dispose();
-            }
+            List<DXControl> ctrls = new();
 
+            foreach(DXControl ctrl in Items.Controls)
+                ctrls.Add(ctrl);
+
+            foreach (DXControl ctrl in ctrls)
+                ctrl.Dispose();
+
+            ctrls.Clear();
             Items.Controls.Clear();
             UpdateScrollBar();
             UpdateItems();

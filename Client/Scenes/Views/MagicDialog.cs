@@ -663,7 +663,7 @@ namespace Client.Scenes.Views
                             ExperienceLabel.Text = $"经验: {magic.Experience}/{magic.Info.Experience3}";
                             break;
                         default:
-                            ExperienceLabel.Text = $"经验: {magic.Experience}/{(magic.Level - 2) * 500}";
+                            ExperienceLabel.Text = $"经验: {magic.Experience}/{Math.Pow(2, magic.Level - 3) * 500}";
                             break;
                     }
                     ExperienceLabel.ForeColour = Color.FromArgb(198, 166, 99);

@@ -211,7 +211,7 @@ namespace Client.Controls
                 Visible = HasTitle,
                 IsControl = false,
             };
-            TitleLabel.SizeChanged += (o, e) => TitleLabel.Location = new Point((Size.Width - TitleLabel.Size.Width) / 2, 8);
+            TitleLabel.SizeChanged += (o, e) => TitleLabel.Location = new Point((Size.Width - TitleLabel.Size.Width) / 2, 10);
         }
 
         #region Methods
@@ -265,7 +265,7 @@ namespace Client.Controls
                 CloseButton.Location = new Point(DisplayArea.Width - CloseButton.Size.Width - 5, 5);
 
             if (TitleLabel != null)
-                TitleLabel.Location = new Point((DisplayArea.Width - TitleLabel.Size.Width) / 2, 8);
+                TitleLabel.Location = new Point((DisplayArea.Width - TitleLabel.Size.Width) / 2, 10);
 
         }
 

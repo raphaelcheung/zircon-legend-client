@@ -48,7 +48,7 @@ namespace Client.Scenes.Views
 
             if (SelectedInfo == null) return;
 
-            TitleLabel.Text = SelectedInfo.Description;
+            RefreshTitle();
             Image.Index = SelectedInfo.MiniMap;
 
             SetClientSize(Image.Size);
@@ -214,7 +214,10 @@ namespace Client.Scenes.Views
                     GameScene.Game.ReceiveChat("正在为你查找合适的线路，请稍等。。。", MessageType.System);
             }
         }
-
+        private void RefreshTitle()
+        {
+            TitleLabel.Text = $"{GameScene.Game.MapControl?.MapInfo?.Description ?? "???"} ({X}，{Y})";
+        }
         #region Methods
         public override void Draw()
         {
@@ -438,6 +441,9 @@ namespace Client.Scenes.Views
                 if (MapObject.User.ObjectID == ob.ObjectID)
                 {
                     colour = Color.Cyan;
+                    X = ob.Location.X;
+                    Y = ob.Location.Y;
+                    RefreshTitle();
                 }
                 else if (GameScene.Game.Observer)
                 {
@@ -472,7 +478,9 @@ namespace Client.Scenes.Views
             control.Dispose();
             MapInfoObjects.Remove(ob);
         }
-        
+
+        private int X = 0;
+        private int Y = 0;
         #endregion
 
         #region IDisposable

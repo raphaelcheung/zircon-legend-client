@@ -189,13 +189,13 @@ namespace Client.Scenes.Views
 
         public RankingDialog()
         {
-            SetClientSize(new Size(359, 480));
+            SetClientSize(new Size(379, 480));
 
             TitleLabel.Text = "排名";
             
             Panel = new DXControl
             {
-                Location = new Point(ClientArea.Location.X + 1, ClientArea.Location.Y+20),
+                Location = new Point(ClientArea.Location.X + 1, ClientArea.Location.Y + 20),
                 Size = new Size(ClientArea.Size.Width - 1, ClientArea.Size.Height - 20),
                 Parent = this,
             };
@@ -592,7 +592,7 @@ namespace Client.Scenes.Views
 
         public RankingLine()
         {
-            Size = new Size(340, 20);
+            Size = new Size(360, 20);
             DrawTexture = true;
             BackColour = Color.FromArgb(25, 20, 0);
 
@@ -623,7 +623,7 @@ namespace Client.Scenes.Views
                 Parent = this,
                 AutoSize = false,
                 Location = new Point(RankLabel.Location.X + RankLabel.Size.Width + 1, 0),
-                Size = new Size(100, 18),
+                Size = new Size(120, 18),
                 ForeColour = Color.White,
                 DrawFormat = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter,
                 IsControl = false,
@@ -656,7 +656,7 @@ namespace Client.Scenes.Views
                 Parent = this,
                 Location = new Point(LevelLabel.Location.X + LevelLabel.Size.Width + 5, 1),
                 ButtonType = ButtonType.SmallButton,
-                Label = { Text = "观众" },
+                Label = { Text = "旁观" },
                 Enabled = false,
                 Size = new Size(53, SmallButtonHeight)
             };

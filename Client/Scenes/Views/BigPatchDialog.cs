@@ -1466,7 +1466,7 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoEvasion;
             public DXCheckBox AutoRagingWind;
             public BigPatchDialog.DXGroupBox AutoSkill;
-            public DXComboBox CombSkill1;
+            public DXComboBox CombSkill1 { get; set; }
             public DXNumberBox NumbSkill1;
             public DXCheckBox AutoSkill_1;
             public DXComboBox CombSkill2;
@@ -2200,8 +2200,11 @@ namespace Client.Scenes.Views
             public void UpdateMagic()
             {
                 foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in GameScene.Game.User.Magics)
-                {
+                { 
                     ClientUserMagic clientUserMagic = magic.Value;
+                    if (clientUserMagic.Info.School == MagicSchool.Passive || clientUserMagic.Info.School == MagicSchool.None)
+                        continue;
+
                     DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
                     dxListBoxItem1.Parent = (DXControl)CombSkill1.ListBox;
                     dxListBoxItem1.Label.Text = clientUserMagic.Info.Name;
@@ -2984,6 +2987,8 @@ namespace Client.Scenes.Views
                 dictItems = new Dictionary<int, CItemFilterSet>();
                 foreach (ItemInfo itemInfo in Globals.ItemInfoList.Binding)
                 {
+                    if (itemInfo.BlockMonsterDrop) continue;
+
                     CItemFilterSet tmp = new CItemFilterSet()
                     {
                         name = itemInfo.ItemName,
@@ -3085,10 +3090,7 @@ namespace Client.Scenes.Views
                 dxComboBox.Location = new Point(10, 5);
                 dxComboBox.DropDownHeight = 198;
                 CombTypeBox = dxComboBox;
-                CombTypeBox.SelectedLabel.MouseClick += (o, e) =>
-                {
-                    if (e.Button == MouseButtons.Left) CombTypeBox.Showing = true;
-                };
+
                 CombTypeBox.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => {
                     RefreshItems(CombTypeBox.SelectedItem as ItemType?);
                 });
@@ -3166,6 +3168,7 @@ namespace Client.Scenes.Views
                     ItemFilter.Inited = true;
                     Initialize();
                 });
+
                 DXButton dxButton3 = new DXButton();
                 dxButton3.Parent = (DXControl)this;
                 dxButton3.Size = new Size(64, 18);
@@ -3657,7 +3660,7 @@ namespace Client.Scenes.Views
                 Type type = typeof(SpellKey);
                 foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in GameScene.Game.User.Magics)
                 {
-                    if (magic.Value.Info.School == MagicSchool.Passive) continue;
+                    if (magic.Value.Info.School == MagicSchool.Passive || magic.Value.Info.School == MagicSchool.None) continue;
 
                     ClientUserMagic clientUserMagic = magic.Value;
                     if (clientUserMagic.Info.Magic != MagicType.None)

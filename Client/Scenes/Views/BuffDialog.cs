@@ -376,7 +376,7 @@ namespace Client.Scenes.Views
                            $"你的魔法抵抗力大幅降低.\n";
                     break;
                 case BuffType.Companion:
-                    text = $"伙伴\n";
+                    text = $"小伙伴\n";
                     break;
             }
             
