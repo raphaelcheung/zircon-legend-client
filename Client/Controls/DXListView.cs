@@ -585,7 +585,7 @@ namespace Client.Controls
         
         public void RemoveAll()
         {
-            List<DXControl> ctrls = new();
+            List<DXControl> ctrls = new List<DXControl>();
 
             foreach(DXControl ctrl in Items.Controls)
                 ctrls.Add(ctrl);

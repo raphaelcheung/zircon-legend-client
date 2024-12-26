@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +14,7 @@ using Client.Scenes;
 using Library;
 using SlimDX;
 using SlimDX.Direct3D9;
+using static System.Net.Mime.MediaTypeNames;
 using Frame = Library.Frame;
 using S = Library.Network.ServerPackets;
 
@@ -722,6 +725,8 @@ namespace Client.Models
                     }
                     break;
             }
+
+            DrawWeaponEffect();
         }
         public override void DrawBlend()
         {
@@ -773,9 +778,9 @@ namespace Client.Models
                     t = Math.Min(t, DrawY + image.OffSetY);
                     r = Math.Max(r, image.Width + DrawX + image.OffSetX);
                     b = Math.Max(b, image.Height + DrawY + image.OffSetY);
+
                     break;
             }
-
 
             image = BodyLibrary?.GetImage(ArmourFrame);
             if (image != null)
@@ -909,7 +914,7 @@ namespace Client.Models
             CEnvir.DPSCounter++;
             if (oldOpacity != Opacity && !DXManager.Blending) DXManager.SetOpacity(oldOpacity);
 
-            }
+        }
         public void DrawShadow2(int l, int t, int r, int b)
         {
             MirImage image = BodyLibrary?.GetImage(ArmourFrame);
@@ -984,7 +989,22 @@ namespace Client.Models
                 library.Draw(79, DrawX + 1, DrawY - 51 + 1, color, new Rectangle(0, 0, (int)(size.Width * percent), size.Height), 1F, ImageType.Image);
             }
         }
-
+        private void DrawWeaponEffect()
+        {
+            if (GameScene.Game?.CharacterBox?.Grid[(int)EquipmentSlot.Weapon]?.Item?.Info?.Rarity == Rarity.Elite 
+                && CEnvir.LibraryList.TryGetValue(LibraryFile.EquipEffect_Full, out var effectLibrary))
+            {
+                switch (WeaponShape)
+                {
+                    case 67:  //焚天
+                        effectLibrary.DrawBlend((Gender == MirGender.Male ? 20000 : 25000) + DrawFrame, DrawX, DrawY, Color.White, true, 0.8f, ImageType.Image);
+                        break;
+                    case 44: //影魅之刃
+                        effectLibrary.DrawBlend((Gender == MirGender.Male ? 40000 : 45000) + DrawFrame, DrawX, DrawY, Color.White, true, 0.8f, ImageType.Image);
+                        break;
+                }
+            }
+        }
         private void DrawWings()
         {
             if (!Config.DrawEffects) return;
@@ -1042,7 +1062,6 @@ namespace Client.Models
                     break;
 
             }
-
         }
         
         public override bool MouseOver(Point p)

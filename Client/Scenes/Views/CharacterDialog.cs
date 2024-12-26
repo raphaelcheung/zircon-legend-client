@@ -7,6 +7,7 @@ using Client.Envir;
 using Client.Models;
 using Client.UserModels;
 using Library;
+using static System.Net.Mime.MediaTypeNames;
 using C = Library.Network.ClientPackets;
 
 //Cleaned
@@ -1783,12 +1784,43 @@ namespace Client.Scenes.Views
 
                     library.Draw(index, DisplayArea.X + x, DisplayArea.Y + y, Color.White, true, 1F, ImageType.Image);
                     library.Draw(index, DisplayArea.X + x, DisplayArea.Y + y, Grid[(int)EquipmentSlot.Weapon].Item.Colour, true, 1F, ImageType.Overlay);
-                }
 
+                    if (Grid[(int)EquipmentSlot.Weapon].Item.Info.Rarity == Rarity.Elite && CEnvir.LibraryList.TryGetValue(LibraryFile.EquipEffect_UI, out var effectLibrary))
+                    {
+                        MirImage image = null;
+
+                        switch (index)
+                        {
+                            case 2529:
+                            case 2530:
+                                image = effectLibrary.CreateImage(1900 + (GameScene.Game.MapControl.Animation % 12), ImageType.Image);
+                                break;
+                            case 1075:
+                            case 1076:
+                                image = effectLibrary.CreateImage(2000 + (GameScene.Game.MapControl.Animation % 10), ImageType.Image);
+                                break;
+                            case 3422:
+                                image = effectLibrary.CreateImage(3183 + (GameScene.Game.MapControl.Animation % 30), ImageType.Image);
+                                break;
+                            default:
+                                //image = effectLibrary.CreateImage(1932 + (GameScene.Game.MapControl.Animation % 30), ImageType.Image);
+                                break;
+                        }
+
+                        if (image != null)
+                        {
+
+                            bool oldBlend = DXManager.Blending;
+                            float oldRate = DXManager.BlendRate;
+                            DXManager.SetBlend(true, 0.8F);
+                            PresentTexture(image.Image, CharacterTab, new Rectangle(DisplayArea.X + x + image.OffSetX, DisplayArea.Y + y + image.OffSetY, image.Width, image.Height), ForeColour, this);
+                            DXManager.SetBlend(oldBlend, oldRate);
+                        }
+                    }
+                }
                 if (Grid[(int)EquipmentSlot.Shield].Item != null)
                 {
                     int index = Grid[(int)EquipmentSlot.Shield].Item.Info.Image;
-
                     library.Draw(index, DisplayArea.X + x, DisplayArea.Y + y, Color.White, true, 1F, ImageType.Image);
                     library.Draw(index, DisplayArea.X + x, DisplayArea.Y + y, Grid[(int)EquipmentSlot.Shield].Item.Colour, true, 1F, ImageType.Overlay);
                 }

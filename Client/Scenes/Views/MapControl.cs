@@ -850,7 +850,7 @@ namespace Client.Scenes.Views
                 if (Config.开始挂机)
                 {
                     PathFinderTime = CEnvir.Now.AddSeconds(2.0);
-                    if (Config.自动躲避 && ((User.Class == MirClass.Wizard || User.Class == MirClass.Taoist) && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 3.0))
+                    if (Config.自动躲避 && ((User.Class == MirClass.Wizard || User.Class == MirClass.Taoist) && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 18.0))
                     {
                         MirDirection mirDirection1 = Functions.ShiftDirection(Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation), 4);
                         if (!CanMove(mirDirection1, 1))
