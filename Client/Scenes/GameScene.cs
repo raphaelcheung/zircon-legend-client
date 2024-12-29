@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using Library.Network.ClientPackets;
 using Library.Network;
+using Client.Properties;
 
 //Cleaned
 namespace Client.Scenes
@@ -718,7 +719,8 @@ namespace Client.Scenes
 
             MapControl.Size = Size;
 
-            MainPanel.Location = new Point((Size.Width - MainPanel.Size.Width)/2, Size.Height - MainPanel.Size.Height);
+            MainPanel.Location = new Point((Size.Width - MainPanel.Size.Width)/2
+                , Size.Height - MainPanel.Size.Height);
 
 
             MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
@@ -830,59 +832,178 @@ namespace Client.Scenes
         public void LoadChatTabs()
         {
             if (ConfigBox == null) return;
-
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
-            DBCollection<ChatTabControlSetting> controlSettings = CEnvir.Session.GetCollection<ChatTabControlSetting>();
-
-            bool result = false;
-            foreach (ChatTabControlSetting cSetting in controlSettings.Binding)
+            List<ChatTabPageSetting> settings = new();
+            settings.Add(new ChatTabPageSetting
             {
-                if (cSetting.Resolution != Config.GameSize) continue;
+                Name = "全部",
+                Transparent = false,
 
-                result = true;
+                LocalChat = true,
+                Alert = true,
+                GlobalChat = true,
+                GroupChat = true,
+                GuildChat = true,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = true,
+                HintChat = true,
+                SystemChat = true,
+                GainsChat = true,
+                AnnouncementChat = true,
+            });
 
-                DXTabControl tabControl = new DXTabControl
-                {
-                    Location = cSetting.Location,
-                    Size = cSetting.Size,
-                    Parent = this,
-                };
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "私聊",
+                Transparent = false,
 
-                ChatTab selected = null;
-                foreach (ChatTabPageSetting pSetting in cSetting.Controls)
-                {
-                    ChatTab tab = ChatOptionsBox.AddNewTab();
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = false,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
 
-                    tab.Parent = tabControl;
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "队伍",
+                Transparent = false,
 
-                    tab.Panel.NameTextBox.TextBox.Text = pSetting.Name;
-                    tab.Panel.TransparentCheckBox.Checked = pSetting.Transparent;
-                    tab.Panel.AlertCheckBox.Checked = pSetting.Alert;
-                    tab.Panel.LocalCheckBox.Checked = pSetting.LocalChat;
-                    tab.Panel.WhisperCheckBox.Checked = pSetting.WhisperChat;
-                    tab.Panel.GroupCheckBox.Checked = pSetting.GroupChat;
-                    tab.Panel.GuildCheckBox.Checked = pSetting.GuildChat;
-                    tab.Panel.ShoutCheckBox.Checked = pSetting.ShoutChat;
-                    tab.Panel.GlobalCheckBox.Checked = pSetting.GlobalChat;
-                    tab.Panel.ObserverCheckBox.Checked = pSetting.ObserverChat;
+                LocalChat = true,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = true,
+                GuildChat = false,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
 
-                    tab.Panel.HintCheckBox.Checked = pSetting.HintChat;
-                    tab.Panel.SystemCheckBox.Checked = pSetting.SystemChat;
-                    tab.Panel.GainsCheckBox.Checked = pSetting.GainsChat;
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "行会",
+                Transparent = false,
 
-                    if (pSetting == cSetting.SelectedPage)
-                        selected = tab;
-                }
+                LocalChat = true,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = true,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
 
-                tabControl.SelectedTab = selected;
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "系统",
+                Transparent = false,
+
+                LocalChat = true,
+                Alert = true,
+                GlobalChat = true,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = false,
+                WhisperChat = false,
+                ShoutChat = true,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = true
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "提示",
+                Transparent = false,
+
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = false,
+                WhisperChat = false,
+                ShoutChat = false,
+                HintChat = true,
+                SystemChat = true,
+                GainsChat = true,
+                AnnouncementChat = false,
+            });
+
+            _LoadChatTabs(settings);
+
+            foreach(var set in settings)
+                set.Delete();
+
+            settings.Clear();
+        }
+        private void _LoadChatTabs(List<ChatTabPageSetting> controlSettings)
+        {
+            if (ConfigBox == null) return;
+
+            for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
+                ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
+            
+            DXTabControl tabControl = new DXTabControl
+            {
+                Location = new Point(Game.ChatTextBox.Location.X, Game.ChatTextBox.Location.Y - 150),
+                Size = new Size(Game.ChatTextBox.Size.Width, 150),
+                Parent = this,
+                AllowDragOut = false,
+                AllowResize = false,
+            };
+
+            ChatTab selected = null;
+            foreach (ChatTabPageSetting pSetting in controlSettings)
+            {
+                ChatTab tab = ChatOptionsBox.AddNewTab();
+
+                tab.Parent = tabControl;
+                tab.AllowDragOut = false;
+                tab.AllowResize = false;
+                
+
+                tab.Panel.NameTextBox.TextBox.Text = pSetting.Name;
+                tab.Panel.TransparentCheckBox.Checked = pSetting.Transparent;
+                tab.Panel.AlertCheckBox.Checked = pSetting.Alert;
+                tab.Panel.LocalCheckBox.Checked = pSetting.LocalChat;
+                tab.Panel.WhisperCheckBox.Checked = pSetting.WhisperChat;
+                tab.Panel.GroupCheckBox.Checked = pSetting.GroupChat;
+                tab.Panel.GuildCheckBox.Checked = pSetting.GuildChat;
+                tab.Panel.ShoutCheckBox.Checked = pSetting.ShoutChat;
+                tab.Panel.GlobalCheckBox.Checked = pSetting.GlobalChat;
+                tab.Panel.ObserverCheckBox.Checked = pSetting.ObserverChat;
+
+                tab.Panel.HintCheckBox.Checked = pSetting.HintChat;
+                tab.Panel.SystemCheckBox.Checked = pSetting.SystemChat;
+                tab.Panel.GainsCheckBox.Checked = pSetting.GainsChat;
+                tab.Panel.AnnouncementCheckBox.Checked = pSetting.AnnouncementChat;
+
+                if (selected == null)
+                    selected = tab;
             }
 
-            if (result)
-                Game.ReceiveChat("聊天布局加载完成", MessageType.Announcement);
-            else
-                ChatOptionsBox.CreateDefaultWindows();
+            tabControl.SelectedTab = selected;
         }
 
         public override void Process()

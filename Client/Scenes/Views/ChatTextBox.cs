@@ -66,9 +66,9 @@ namespace Client.Scenes.Views
             if (TextBox == null || ChatModeButton == null || OptionsButton == null) return;
 
             ChatModeButton.Location = new Point(ClientArea.Location.X, ClientArea.Y - 1);
-            TextBox.Size = new Size(ClientArea.Width - ChatModeButton.Size.Width - 20 - OptionsButton.Size.Width, 25);
+            TextBox.Size = new Size(ClientArea.Width - ChatModeButton.Size.Width - 15, 25);
             TextBox.Location = new Point(ClientArea.Location.X + ChatModeButton.Size.Width + 15, ClientArea.Y);
-            OptionsButton.Location = new Point(ClientArea.Location.X + TextBox.Size.Width + ChatModeButton.Size.Width + 10, ClientArea.Y - 1);
+            //OptionsButton.Location = new Point(ClientArea.Location.X + TextBox.Size.Width + ChatModeButton.Size.Width + 10, ClientArea.Y - 1);
         }
 
         public override WindowType Type => WindowType.ChatTextBox;
@@ -89,7 +89,7 @@ namespace Client.Scenes.Views
             HasTopBorder = false;
             CloseButton.Visible = false;
 
-            AllowResize = true;
+            AllowResize = false;
             CanResizeHeight = false;
 
             ChatModeButton = new DXButton
@@ -107,6 +107,7 @@ namespace Client.Scenes.Views
                 Size = new Size(50, SmallButtonHeight),
                 Label = { Text = "选项" },
                 Parent = this,
+                Visible = false
             };
             OptionsButton.MouseClick += (o, e) =>
             {
@@ -117,7 +118,7 @@ namespace Client.Scenes.Views
 
             TextBox = new DXTextBox
             {
-                Size = new Size(350, 20),
+                Size = new Size(405, 20),
                 Parent = this,
                 MaxLength = Globals.MaxChatLength,
                 Opacity = 0.3f,
@@ -132,11 +133,11 @@ namespace Client.Scenes.Views
           //  TextBox.TextBox.KeyDown += TextBox_KeyDown;
           //   TextBox.TextBox.KeyUp += TextBox_KeyUp;
 
-            SetClientSize(new Size(TextBox.Size.Width + ChatModeButton.Size.Width + 15 + OptionsButton.Size.Width, TextBox.Size.Height));
+            SetClientSize(new Size(TextBox.Size.Width + ChatModeButton.Size.Width + 10, TextBox.Size.Height));
 
             ChatModeButton.Location = new Point(ClientArea.Location.X, ClientArea.Y - 1);
             TextBox.Location = new Point(ClientArea.Location.X + ChatModeButton.Size.Width + 5, ClientArea.Y);
-            OptionsButton.Location = new Point(ClientArea.Location.X + TextBox.Size.Width + ChatModeButton.Size.Width + 10, ClientArea.Y - 1);
+            //OptionsButton.Location = new Point(ClientArea.Location.X + TextBox.Size.Width + ChatModeButton.Size.Width + 10, ClientArea.Y - 1);
         }
 
         #region Methods

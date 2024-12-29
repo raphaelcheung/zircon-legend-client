@@ -221,5 +221,18 @@ namespace Client.UserModels
             }
         }
         private bool _GainsChat;
+
+        public bool AnnouncementChat
+        {
+            get => _AnnouncementChat;
+            set
+            {
+                if (_AnnouncementChat == value) return;
+                var oldValue = _AnnouncementChat;
+                _AnnouncementChat = value;
+                OnChanged(oldValue, value, "AnnouncementChat");
+            }
+        }
+        private bool _AnnouncementChat;
     }
 }

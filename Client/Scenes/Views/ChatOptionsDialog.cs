@@ -125,6 +125,7 @@ namespace Client.Scenes.Views
                     SystemCheckBox = { Checked = true },
                     GainsCheckBox = { Checked = true },
                     AlertCheckBox = { Checked = true },
+                    AnnouncementCheckBox = { Checked = true },
                 },
             };
             item.SelectedChanged += (o, e) => panel.Visible = item.Selected;
@@ -259,6 +260,7 @@ namespace Client.Scenes.Views
         public DXCheckBox ObserverCheckBox;
         public DXCheckBox SystemCheckBox, GainsCheckBox;
         public DXCheckBox HintCheckBox;
+        public DXCheckBox AnnouncementCheckBox;
 
 
         public override void OnTextChanged(string oValue, string nValue)
@@ -380,6 +382,16 @@ namespace Client.Scenes.Views
                 Checked = false,
             };
             HintCheckBox.Location = new Point(216 - HintCheckBox.Size.Width, 155);
+
+            AnnouncementCheckBox = new DXCheckBox
+            {
+                AutoSize = true,
+                Text = "通告:",
+                Parent = this,
+                Checked = false,
+                Visible = false,
+            };
+            AnnouncementCheckBox.Location = new Point(216 - AnnouncementCheckBox.Size.Width, 155);
 
             SystemCheckBox = new DXCheckBox
             {
@@ -529,6 +541,14 @@ namespace Client.Scenes.Views
                         HintCheckBox.Dispose();
 
                     HintCheckBox = null;
+                }
+
+                if (AnnouncementCheckBox != null)
+                {
+                    if (!AnnouncementCheckBox.IsDisposed)
+                        AnnouncementCheckBox.Dispose();
+
+                    AnnouncementCheckBox = null;
                 }
             }
 

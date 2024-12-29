@@ -17,7 +17,7 @@ namespace Client.Scenes.Views
     public sealed class ChatTab : DXTab
     {
         #region Properties
-        public static List<ChatTab> Tabs = new List<ChatTab>();
+        public static List<ChatTab> Tabs { get; set; } = new List<ChatTab>();
 
 
         public DXImageControl AlertIcon;
@@ -60,7 +60,7 @@ namespace Client.Scenes.Views
 
             if (Panel == null || CurrentTabControl == null || CurrentTabControl.SelectedTab != this) return;
 
-            float opacity = Panel.TransparentCheckBox.Checked ? 0.5F : 1F;
+            float opacity = Panel.TransparentCheckBox?.Checked ?? false ? 0.5F : 1F;
 
             foreach (DXButton button in CurrentTabControl.TabButtons)
                 button.Opacity = opacity;
@@ -193,6 +193,9 @@ namespace Client.Scenes.Views
                     break;
                 case MessageType.Guild:
                     if (!Panel.GuildCheckBox.Checked) return;
+                    break;
+                case MessageType.Announcement:
+                    if (!Panel.AnnouncementCheckBox.Checked) return;
                     break;
             }
 

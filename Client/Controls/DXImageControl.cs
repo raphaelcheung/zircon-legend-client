@@ -133,7 +133,7 @@ namespace Client.Controls
         }
 
         #endregion
-        
+
         #region LibraryFile
         public MirLibrary Library;
 

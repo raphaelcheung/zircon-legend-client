@@ -107,8 +107,6 @@ namespace Client.Envir
 
         public static int SkillLevelLimit { get; set; } = 3;
             
-        
-
         static CEnvir()
         {
             RootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -133,7 +131,6 @@ namespace Client.Envir
                     Language = (StringMessages)ConfigReader.ConfigObjects[typeof(ChineseMessages)]; //Todo Language Selections
                     break;
             }
-
         }
 
         private static void A()
