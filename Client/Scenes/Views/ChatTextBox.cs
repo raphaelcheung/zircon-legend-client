@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Client.Controls;
 using Client.Envir;
@@ -114,21 +116,29 @@ namespace Client.Scenes.Views
                 GameScene.Game.ChatOptionsBox.Visible = !GameScene.Game.ChatOptionsBox.Visible;
             };
 
-
-
             TextBox = new DXTextBox
             {
                 Size = new Size(405, 20),
                 Parent = this,
                 MaxLength = Globals.MaxChatLength,
-                Opacity = 0.3f,
-                BackColour = Color.White,
-                ForeColour = Color.Black,
+                Opacity = 1f,
+                BackColour = Color.DarkGray,
+                ForeColour = Color.White,
             };
+
             TextBox.TextBox.KeyPress += TextBox_KeyPress;
             TextBox.FocusEvent += (sender, focus) =>
             {
-                TextBox.Opacity = focus ? 1f : 0.3f;
+                if (focus)
+                {
+                    TextBox.BackColour = Color.White;
+                    TextBox.ForeColour = Color.Black;
+                }
+                else
+                {
+                    TextBox.BackColour = Color.DarkGray;
+                    TextBox.ForeColour = Color.White;
+                }
             };
           //  TextBox.TextBox.KeyDown += TextBox_KeyDown;
           //   TextBox.TextBox.KeyUp += TextBox_KeyUp;
@@ -250,98 +260,47 @@ namespace Client.Scenes.Views
             }
         }
 
-        private string[] SplitCommand(string command)
+        private string[] SplitCommand(string command, string[] commands)
         {
-            string tmp;
-            if (command.StartsWith("!!"))
-            {
-                tmp = command.Remove(0, 2).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
+            string[] words = Regex.Replace(command.Trim(), @"\s+", " ").Split(' ');
 
-                return new string[] { "!!", tmp };
-            }
-            else if (command.StartsWith("!@"))
-            {
-                tmp = command.Remove(0, 2).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
-
-                return new string[] { "!@", tmp };
-            }
-            else if (command.StartsWith("@!"))
-            {
-                tmp = command.Remove(0, 2).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
-
-                return new string[] { "@!", tmp };
-            }
-            else if (command.StartsWith("!~"))
-            {
-                tmp = command.Remove(0, 2).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
-
-                return new string[] { "!~", tmp };
-            }
-            else if (command.StartsWith("!"))
-            {
-                tmp = command.Remove(0, 1).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
-
-                return new string[] { "!", tmp };
-            }
-            else if (command.StartsWith("/"))
-            {
-                var split = command.Remove(0, 1).Split(' ');
-                if (split == null || split.Length < 2 || string.IsNullOrEmpty(split[1].Trim())) return null;
-
-                return new string[] { $"/{split[0]}", split[1] };
-            }
-            else if (command.StartsWith("#"))
-            {
-                tmp = command.Remove(0, 1).Trim();
-                if (string.IsNullOrEmpty(tmp)) return null;
-
-                return new string[] { "#", tmp };
-            }
+            if (words.Length <= 0) return null;
+            else if (words.Length < 3) return words;
             else
-                return null;
+                return new string[]{ words[0], string.Join(" ", words, 1, words.Length - 1) };
+
         }
 
         public void OpenChat()
         {
-            var cmd = SplitCommand(TextBox.TextBox.Text);
+            var cmd = SplitCommand(TextBox.TextBox.Text, CEnvir.ChatCommands);
 
             string header = "";
             switch (Mode)
             {
                 case ChatMode.喊话:
-                    header = @"! ";
+                    header = @"!";
                     break;
                 //case ChatMode.低语:
                 //    if (!string.IsNullOrWhiteSpace(LastPM))
                 //        TextBox.TextBox.Text = LastPM + " ";
                 //    break;
                 case ChatMode.队伍:
-                    header = @"!! ";
+                    header = @"!!";
                     break;
                 case ChatMode.行会:
-                    header= @"!~ ";
+                    header= @"!~";
                     break;
                 case ChatMode.全服:
-                    header= @"!@ ";
+                    header= @"!@";
                     break;
                 //case ChatMode.观察:
                 //    TextBox.TextBox.Text = @"# ";
                 //    break;
             }
 
-            if (string.IsNullOrEmpty(TextBox.TextBox.Text))
-                TextBox.TextBox.Text = $"{header}";
-            else if (cmd == null)
-                TextBox.TextBox.Text = $"{header}{TextBox.TextBox.Text}";
-            else
-                TextBox.TextBox.Text = $"{header}{cmd[1]}";
+            SetText(ChangeCommand(header, CEnvir.ChatCommands));
 
-            TextBox.SetFocus();
             TextBox.TextBox.SelectionLength = 0;
             TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
         }
@@ -351,6 +310,39 @@ namespace Client.Scenes.Views
             TextBox.SetFocus();
             TextBox.TextBox.SelectionLength = 0;
             TextBox.TextBox.SelectionStart = TextBox.TextBox.Text.Length;
+        }
+        public string ChangeCommand(string cmd, string[] commands)
+        {
+            string[] words = Regex.Replace(TextBox.TextBox.Text.Trim(), @"\s+", " ").Split(' ');
+
+            bool hascmd = false;
+            if (words.Length > 0 && !string.IsNullOrEmpty(words[0])) 
+                foreach(var command in commands)
+                    if (words[0] == command)
+                    {
+                        words[0] = cmd;
+                        hascmd = true;
+                        break;
+                    }
+
+            if (!hascmd && words.Length > 0 && words[0].IndexOf('/') == 0)
+                hascmd = true;
+
+            if (hascmd)
+            {
+                if (words.Length > 1)
+                    return string.Join(" ", words);
+                else
+                    return $"{words[0]} ";
+            }
+            else
+                return string.IsNullOrEmpty(words[0]) ? $"{cmd} " : $"{cmd} {string.Join(" ", words)}";
+        }
+        public void SetText(string text) 
+        { 
+            TextBox.TextBox.Text = text.TrimStart();
+
+            TextBox.SetFocus();
         }
         #endregion
 

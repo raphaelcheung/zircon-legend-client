@@ -204,6 +204,7 @@ namespace Client.Envir
         public static bool 快速自动拾取 { get; set; } = false;
 
         public static bool Tab捡取 { get; set; } = false;
+        public static bool 自动学习技能书 { get; set; } = false;
 
         public static int 天气效果 { get; set; } = 0;
 

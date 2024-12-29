@@ -1466,7 +1466,8 @@ namespace Client.Controls
                     PlayItemSound();
                     break;
                 case ItemType.Book:
-                    if (!GameScene.Game.CanUseItem(Item) || GridType != GridType.Inventory) return false;
+                    if (!GameScene.Game.CanUseItem(Item) || (GridType != GridType.Inventory && GridType != GridType.CompanionInventory))
+                        return false;
 
                     if (CEnvir.Now < GameScene.Game.UseItemTime || MapObject.User.Horse != HorseType.None) return false;
 

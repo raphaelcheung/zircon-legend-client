@@ -31,6 +31,7 @@ namespace Client.Envir
 {
     public static class CEnvir
     {
+        public static readonly string[] ChatCommands = { "!!", "!~", "!@", "@!", "!", "@", "#" };
         #region 颜色定义
         public static Color LocalTextColour { get; } = Color.White;
         public static Color GMWhisperInTextColour { get; } = Color.Red;

@@ -19,6 +19,7 @@ using System.Timers;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Data.SqlTypes;
+using C = Library.Network.ClientPackets;
 
 namespace Client.Scenes.Views
 {
@@ -39,6 +40,7 @@ namespace Client.Scenes.Views
         private ClientUserMagic FlamingSword = null;
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
+
 
         public override WindowType Type
         {
@@ -349,6 +351,12 @@ namespace Client.Scenes.Views
                 }
             }
 
+            if (Config.自动学习技能书 && CEnvir.Now > GameScene.Game.UseItemTime && MapObject.User.Horse == HorseType.None)
+            {
+                if (!_AutoUseBook(GameScene.Game.InventoryBox.Grid.Grid))
+                    _AutoUseBook(GameScene.Game.CompanionBox.InventoryGrid.Grid);
+            }
+
             if (!Config.开始挂机)
                 return;
 
@@ -366,7 +374,20 @@ namespace Client.Scenes.Views
             if (Config.是否开启指定时间无经验或者未杀死目标自动随机)
                 Helper.ExpAutoRandoms();
         }
+        private bool _AutoUseBook(DXItemCell[] grid)
+        {
 
+            foreach (var cell in grid)
+                if (cell?.Item?.Info != null && !cell.Locked && cell.Item.Info.ItemType == ItemType.Book && GameScene.Game.CanUseItem(cell.Item))
+                {
+                    GameScene.Game.UseItemTime = CEnvir.Now.AddMilliseconds(500);
+                    cell.Locked = true;
+                    CEnvir.Enqueue(new C.ItemUse { Link = new CellLinkInfo { GridType = cell.GridType, Slot = cell.Slot, Count = 1 } });
+                    return true;
+                }
+
+            return false;
+        }
         public void UserChanged()
         {
             Magic.UpdateMagic();
@@ -748,6 +769,8 @@ namespace Client.Scenes.Views
             public DXCheckBox ShowItemNames;
             public DXCheckBox ChkAutoPick;
             public DXCheckBox ChkTabPick;
+            public DXCheckBox ChkAutoBook;
+
             public BigPatchDialog.DXGroupBox GroupItem;
             public BigPatchDialog.DXGroupBox GroupWeather;
             public DXComboBox CombWeather;
@@ -1094,9 +1117,16 @@ namespace Client.Scenes.Views
                     ChkTabPick_CheckedChanged();
                 });
 
+                int y5 = y4 + num2;
+                ChkAutoBook = BigPatchDialog.CreateCheckBox((DXControl)GroupItem, "自动学习技能书", x1, y5, (EventHandler<EventArgs>)((o, e) => Config.自动学习技能书 = ChkAutoBook.Checked), Config.自动学习技能书);
+                ChkAutoBook.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                {
+                    ChkTabPick_CheckedChanged();
+                });
+
                 BigPatchDialog.DXGroupBox groupItem = GroupItem;
                 size1 = GroupItem.Size;
-                Size size4 = new Size(size1.Width, y4 + num2);
+                Size size4 = new Size(size1.Width, y5 + num2);
                 groupItem.Size = size4;
                 GroupWeather.Location = new Point(GroupWar.Location.X, y4 + num2 + 12);
                 int num4 = 30;

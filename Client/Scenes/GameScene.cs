@@ -835,7 +835,7 @@ namespace Client.Scenes
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
-            List<ChatTabPageSetting> settings = new();
+            List<ChatTabPageSetting> settings = new List<ChatTabPageSetting>();
             settings.Add(new ChatTabPageSetting
             {
                 Name = "全部",
@@ -914,7 +914,7 @@ namespace Client.Scenes
 
             settings.Add(new ChatTabPageSetting
             {
-                Name = "系统",
+                Name = "公共",
                 Transparent = false,
 
                 LocalChat = true,
@@ -925,6 +925,25 @@ namespace Client.Scenes
                 ObserverChat = false,
                 WhisperChat = false,
                 ShoutChat = true,
+                HintChat = false,
+                SystemChat = false,
+                GainsChat = false,
+                AnnouncementChat = true
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "系统",
+                Transparent = false,
+
+                LocalChat = true,
+                Alert = true,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = false,
+                WhisperChat = false,
+                ShoutChat = false,
                 HintChat = false,
                 SystemChat = true,
                 GainsChat = false,
@@ -973,6 +992,7 @@ namespace Client.Scenes
                 AllowResize = false,
             };
 
+            tabControl.SelectedTabChanged += OnChatTabChanged;
             ChatTab selected = null;
             foreach (ChatTabPageSetting pSetting in controlSettings)
             {
@@ -1005,7 +1025,38 @@ namespace Client.Scenes
 
             tabControl.SelectedTab = selected;
         }
+        private void OnChatTabChanged(object sender, EventArgs e)
+        {
+            if (!(sender is DXTabControl tab) || !(tab.SelectedTab is ChatTab chattab)) return;
 
+            switch(chattab.Panel.NameTextBox.TextBox.Text)
+            {
+                case "队伍":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("!!", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.队伍;
+                    break;
+                case "行会":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("!~", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.行会;
+                    break;
+                case "公共":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("!@", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.全服;
+                    break;
+                case "系统":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("!@", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.全服;
+                    break;
+                case "私聊":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("/", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.本地;
+                    break;
+                case "全部":
+                    //ChatTextBox.SetText(ChatTextBox.ChangeCommand("", CEnvir.ChatCommands));
+                    ChatTextBox.Mode = ChatMode.本地;
+                    break;
+            }
+        }
         public override void Process()
         {
             base.Process();
@@ -2982,411 +3033,7 @@ namespace Client.Scenes
             ReceiveChat("你的符用完了，释放失败", MessageType.Hint);
             return magicHelper;
         }
-        public void UseMagicOld(ClientUserMagic magic)
-        {
-            if (magic == null || User.Level < magic.Info.NeedLevel1) return;
-
-            switch (magic.Info.Magic)
-            {
-                case MagicType.Swordsmanship:
-                case MagicType.SpiritSword:
-                case MagicType.VineTreeDance:
-                case MagicType.WillowDance:
-                    return;
-                case MagicType.Thrusting:
-                    if (CEnvir.Now < ToggleTime) return;
-                    ToggleTime = CEnvir.Now.AddSeconds(1);
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic, CanUse = !User.CanThrusting });
-                    return;
-                case MagicType.HalfMoon:
-                    if (CEnvir.Now < ToggleTime) return;
-                    ToggleTime = CEnvir.Now.AddSeconds(1);
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic, CanUse = !User.CanHalfMoon });
-                    return;
-                case MagicType.DestructiveSurge:
-                    if (CEnvir.Now < ToggleTime) return;
-                    ToggleTime = CEnvir.Now.AddSeconds(1);
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic, CanUse = !User.CanDestructiveBlow });
-                    return;
-                case MagicType.FlamingSword:
-                case MagicType.DragonRise:
-                case MagicType.BladeStorm:
-                case MagicType.DemonicRecovery:
-                    if (CEnvir.Now < magic.NextCast || magic.Cost > User.CurrentMP) return;
-                    magic.NextCast = CEnvir.Now.AddSeconds(0.5D); //Act as an anti spam
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic });
-                    return;
-                case MagicType.FlameSplash:
-                    if (CEnvir.Now < ToggleTime) return;
-                    ToggleTime = CEnvir.Now.AddSeconds(1);
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic, CanUse = !User.CanFlameSplash });
-                    return;
-                case MagicType.FullBloom:
-                case MagicType.WhiteLotus:
-                case MagicType.RedLotus:
-                case MagicType.SweetBrier:
-                    if (CEnvir.Now < ToggleTime || CEnvir.Now < magic.NextCast) return;
-
-                    if (User.AttackMagic != magic.Info.Magic)
-                    {
-                        ReceiveChat($"{magic.Info.Name} 准备就绪.", MessageType.Hint);
-                        int attackDelay = Globals.AttackDelay - MapObject.User.Stats[Stat.AttackSpeed] * Globals.ASpeedRate;
-                        attackDelay = Math.Max(800, attackDelay);
-
-                        ToggleTime = CEnvir.Now + TimeSpan.FromMilliseconds(attackDelay + 200);
-
-                        User.AttackMagic = magic.Info.Magic;
-                    }
-                    return;
-                case MagicType.Endurance:
-                    if (CEnvir.Now < magic.NextCast || magic.Cost > User.CurrentMP) return;
-                    magic.NextCast = CEnvir.Now.AddSeconds(0.5D); //Act as an anti spam
-                    CEnvir.Enqueue(new C.MagicToggle { Magic = magic.Info.Magic });
-                    return;
-                case MagicType.Karma:
-                    if (CEnvir.Now < ToggleTime || CEnvir.Now < magic.NextCast || User.Buffs.All(x => x.Type != BuffType.Cloak)) return;
-
-                    if (User.AttackMagic != magic.Info.Magic)
-                    {
-                        ReceiveChat($"{magic.Info.Name} 准备就绪.", MessageType.Hint);
-                        ToggleTime = CEnvir.Now + TimeSpan.FromMilliseconds(500);
-
-                        User.AttackMagic = magic.Info.Magic;
-                    }
-                    return;
-
-                    //Endurance
-            }
-
-            if (CEnvir.Now < User.NextMagicTime || User.Dead || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type == BuffType.FrostBite) ||
-                (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis ||
-                (User.Poison & PoisonType.Silenced) == PoisonType.Silenced) return;
-
-            if (CEnvir.Now < magic.NextCast)
-            {
-                if (CEnvir.Now >= OutputTime)
-                {
-                    OutputTime = CEnvir.Now.AddSeconds(1);
-                    ReceiveChat($"不能施放 {magic.Info.Name}, 技能还没冷却.", MessageType.Hint);
-                }
-                return;
-            }
-
-            switch (magic.Info.Magic)
-            {
-                case MagicType.Cloak:
-                    if (User.VisibleBuffs.Contains(BuffType.Cloak)) break;
-                    if (CEnvir.Now < User.CombatTime.AddSeconds(10))
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"战斗中不能施放 {magic.Info.Name}", MessageType.Hint);
-                        }
-                        return;
-                    }
-
-                    if (User.Stats[Stat.Health] * magic.Cost / 1000 >= User.CurrentHP || User.CurrentHP < User.Stats[Stat.Health] / 10)
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"不能施放 {magic.Info.Name}, 你的生命值不够.", MessageType.Hint);
-                        }
-                        return;
-                    }
-                    break;
-                case MagicType.DarkConversion:
-                    if (User.VisibleBuffs.Contains(BuffType.DarkConversion)) break;
-
-                    if (magic.Cost > User.CurrentMP)
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"不能施放 {magic.Info.Name}, 你的魔法值不够.", MessageType.Hint);
-                        }
-                        return;
-                    }
-                    break;
-                case MagicType.DragonRepulse:
-                    if (User.Stats[Stat.Health] * magic.Cost / 1000 >= User.CurrentHP || User.CurrentHP < User.Stats[Stat.Health] / 10)
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"不能施放 {magic.Info.Name}, 你的生命值不够.", MessageType.Hint);
-                        }
-                        return;
-                    }
-                    if (User.Stats[Stat.Mana] * magic.Cost / 1000 >= User.CurrentMP || User.CurrentMP < User.Stats[Stat.Mana] / 10)
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"不能施放 {magic.Info.Name}, 你的魔法值不够.", MessageType.Hint);
-                        }
-                        return;
-                    }
-                    break;
-                default:
-
-                    if (magic.Cost > User.CurrentMP)
-                    {
-                        if (CEnvir.Now >= OutputTime)
-                        {
-                            OutputTime = CEnvir.Now.AddSeconds(1);
-                            ReceiveChat($"不能施放 {magic.Info.Name}, 你的魔法值不够.", MessageType.Hint);
-                        }
-                        return;
-                    }
-                    break;
-            }
-            MapObject target = null;
-            MirDirection direction = MapControl.MouseDirection();
-
-            switch (magic.Info.Magic)
-            {
-                case MagicType.ShoulderDash:
-                    if (CEnvir.Now < User.ServerTime) return;
-                    if ((User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) return;
-
-                    User.ServerTime = CEnvir.Now.AddSeconds(5);
-                    User.NextMagicTime = CEnvir.Now + Globals.MagicDelay;
-                    CEnvir.Enqueue(new C.Magic { Direction = direction, Action = MirAction.Spell, Type = magic.Info.Magic });
-                    return;
-
-                case MagicType.DanceOfSwallow:
-                    if (CEnvir.Now < User.ServerTime) return;
-                    if (CanAttackTarget(MouseObject))
-                        target = MouseObject;
-
-                    //    if (target == null) //TODO
-                    //        ;//target = GetCloseesTarget();
-
-                    if (target == null) return;
-
-                    if (!Functions.InRange(target.CurrentLocation, User.CurrentLocation, Globals.MagicRange))
-                    {
-                        if (CEnvir.Now < OutputTime) return;
-                        OutputTime = CEnvir.Now.AddSeconds(1);
-                        ReceiveChat($"不能施放 {magic.Info.Name}, 目标距离太远.", MessageType.Hint);
-                        return;
-                    }
-
-                    User.ServerTime = CEnvir.Now.AddSeconds(5);
-                    User.NextMagicTime = CEnvir.Now + Globals.MagicDelay;
-
-                    MapObject.TargetObject = target;
-                    MapObject.MagicObject = target;
-
-                    CEnvir.Enqueue(new C.Magic { Action = MirAction.Spell, Type = magic.Info.Magic, Target = target.ObjectID });
-                    return;
-                case MagicType.FireBall:
-                case MagicType.IceBolt:
-                case MagicType.LightningBall:
-                case MagicType.GustBlast:
-                case MagicType.ElectricShock:
-                case MagicType.AdamantineFireBall:
-                case MagicType.ThunderBolt:
-                case MagicType.IceBlades:
-                case MagicType.Cyclone:
-                case MagicType.ExpelUndead:
-                case MagicType.PoisonDust:
-                case MagicType.ExplosiveTalisman:
-                case MagicType.EvilSlayer:
-                case MagicType.GreaterEvilSlayer:
-                case MagicType.ImprovedExplosiveTalisman:
-                case MagicType.Infection:
-                    //Has Target
-                    if (CanAttackTarget(MagicObject))
-                        target = MagicObject;
-
-                    if (CanAttackTarget(MouseObject))
-                    {
-                        target = MouseObject;
-
-                        if (MouseObject.Race == ObjectType.Monster && ((MonsterObject)MouseObject).MonsterInfo.AI >= 0)
-                            MapObject.MagicObject = target;
-                        else
-                            MapObject.MagicObject = null;
-                    }
-
-                    //    if (target == null) //TODO
-                    //        ;//target = GetCloseesTarget();
-                    break;
-                case MagicType.WraithGrip:
-                case MagicType.HellFire:
-                case MagicType.Abyss:
-                    if (CanAttackTarget(MouseObject))
-                        target = MouseObject;
-
-                    //    if (target == null) //TODO
-                    //        ;//target = GetCloseesTarget();
-                    break;
-                case MagicType.Interchange:
-                case MagicType.Beckon:
-                    if (CanAttackTarget(MouseObject))
-                        target = MouseObject;
-
-                    //    if (target == null) //TODO
-                    //        ;//target = GetCloseesTarget();
-                    break;
-                case MagicType.MassBeckon:
-                    break;
-
-                case MagicType.Heal:
-                case MagicType.Purification:
-                    target = MouseObject ?? User;
-                    break;
-                case MagicType.CelestialLight:
-                    if (User.Buffs.All(x => x.Type == BuffType.CelestialLight)) return;
-                    break;
-
-                case MagicType.Resurrection:
-                    if (MouseObject == null || !MouseObject.Dead || MouseObject.Race != ObjectType.Player) return;
-
-                    target = MouseObject;
-                    break;
-
-                case MagicType.Defiance:
-                    direction = MirDirection.Down;
-                    break;
-                case MagicType.Might:
-                    direction = MirDirection.Down;
-                    break;
-                case MagicType.ReflectDamage:
-                    if (User.Buffs.Any(x => x.Type == BuffType.ReflectDamage)) return;
-                    direction = MirDirection.Down;
-                    break;
-                case MagicType.Fetter:
-                    direction = MirDirection.Down;
-                    break;
-                case MagicType.Renounce:
-                    break;
-                case MagicType.StrengthOfFaith:
-                    break;
-                case MagicType.MagicShield:
-                    if (User.Buffs.Any(x => x.Type == BuffType.MagicShield)) return;
-                    break;
-                case MagicType.FrostBite:
-                    if (User.Buffs.Any(x => x.Type == BuffType.FrostBite)) return;
-                    break;
-                case MagicType.JudgementOfHeaven:
-                    break;
-
-
-                case MagicType.SeismicSlam:
-
-                case MagicType.Repulsion:
-                case MagicType.ScortchedEarth:
-                case MagicType.LightningBeam:
-                case MagicType.Teleportation:
-                case MagicType.FrozenEarth:
-                case MagicType.BlowEarth:
-                case MagicType.GreaterFrozenEarth:
-                case MagicType.ThunderStrike:
-                case MagicType.MirrorImage:
-
-                // case MagicType.SummonSkeleton:
-                case MagicType.Invisibility:
-                case MagicType.TaoistCombatKick:
-                case MagicType.ThunderKick:
-                case MagicType.SummonSkeleton:
-                case MagicType.SummonShinsu:
-                case MagicType.SummonJinSkeleton:
-                case MagicType.SummonDemonicCreature:
-                case MagicType.DemonExplosion:
-                case MagicType.Scarecrow:
-
-                case MagicType.PoisonousCloud:
-                case MagicType.Cloak:
-                case MagicType.SummonPuppet:
-                case MagicType.TheNewBeginning:
-                case MagicType.DarkConversion:
-                case MagicType.DragonRepulse:
-                case MagicType.FlashOfLight:
-                case MagicType.Evasion:
-                case MagicType.RagingWind:
-                    break;
-
-                case MagicType.SwiftBlade:
-
-                case MagicType.FireWall:
-                case MagicType.FireStorm:
-                case MagicType.LightningWave:
-                case MagicType.IceStorm:
-                case MagicType.DragonTornado:
-                case MagicType.GeoManipulation:
-                case MagicType.Transparency:
-                case MagicType.ChainLightning:
-                case MagicType.MeteorShower:
-                case MagicType.Tempest:
-                case MagicType.Asteroid:
-
-
-                case MagicType.MagicResistance:
-                case MagicType.Resilience:
-                case MagicType.LifeSteal:
-                case MagicType.MassInvisibility:
-                case MagicType.TrapOctagon:
-                case MagicType.ElementalSuperiority:
-                case MagicType.BloodLust:
-                case MagicType.MassHeal:
-                    if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, Globals.MagicRange))
-                    {
-                        if (CEnvir.Now < OutputTime) return;
-                        OutputTime = CEnvir.Now.AddSeconds(1);
-                        ReceiveChat($"不能施放 {magic.Info.Name}, 目标太远.", MessageType.Hint);
-                        return;
-                    }
-                    break;
-                default:
-                    return;
-            }
-
-            if (target != null && !Functions.InRange(target.CurrentLocation, User.CurrentLocation, Globals.MagicRange))
-            {
-                if (CEnvir.Now < OutputTime) return;
-                OutputTime = CEnvir.Now.AddSeconds(1);
-                ReceiveChat($"不能施放 {magic.Info.Name}, 目标太远.", MessageType.Hint);
-                return;
-            }
-
-            //Check Attack Range.
-
-            if (target != null && target != User)
-                direction = Functions.DirectionFromPoint(User.CurrentLocation, target.CurrentLocation);
-
-            uint targetID = target?.ObjectID ?? 0;
-            Point targetLocation;
-
-            switch (magic.Info.Magic)
-            {
-                case MagicType.Purification:
-                case MagicType.EvilSlayer:
-                case MagicType.GreaterEvilSlayer:
-                case MagicType.ExplosiveTalisman:
-                case MagicType.ImprovedExplosiveTalisman:
-                case MagicType.PoisonDust:
-                    targetLocation = MapControl.MapLocation;
-                    break;
-                default:
-                    targetLocation = target?.CurrentLocation ?? MapControl.MapLocation;
-                    break;
-
-            }
-
-            //switch spell type.
-
-            if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
-                FocusObject = (MonsterObject)MouseObject;
-
-            User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, magic.Info.Magic, new List<uint> { targetID }, new List<Point> { targetLocation }, false);
-
-
-        }
-
+   
         public void UseMagic(ClientUserMagic magic)
         {
             if (magic == null || User.Level < magic.Info.NeedLevel1)
@@ -4829,7 +4476,6 @@ namespace Client.Scenes
         public bool CanCompanionWearItem(ClientUserItem item, CompanionSlot slot)
         {
             if (Companion == null) return false;
-
             if (!CanCompanionUseItem(item.Info)) return false;
             
             return true;
