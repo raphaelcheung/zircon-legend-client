@@ -647,9 +647,9 @@ namespace Client.Scenes.Views
                 HealthLabel.Text = $"{data.Health} / {data.MaxHealth}";
 
 
-                ACLabel.Text = $"{data.Stats[Stat.MinAC]} - {data.Stats[Stat.MaxAC]}";
-                MRLabel.Text = $"{data.Stats[Stat.MinMR]} - {data.Stats[Stat.MaxMR]}";
-                DCLabel.Text = $"{data.Stats[Stat.MinDC]} - {data.Stats[Stat.MaxDC]}";
+                ACLabel.Text = $"{data.Stats[Stat.MinAC]}-{data.Stats[Stat.MaxAC]}";
+                MRLabel.Text = $"{data.Stats[Stat.MinMR]}-{data.Stats[Stat.MaxMR]}";
+                DCLabel.Text = $"{data.Stats[Stat.MinDC]}-{data.Stats[Stat.MaxDC]}";
 
 
                 PopulateLabel(Stat.FireResistance, FireResistLabel, data.Stats);

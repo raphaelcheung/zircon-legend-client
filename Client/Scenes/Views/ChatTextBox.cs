@@ -90,9 +90,12 @@ namespace Client.Scenes.Views
             HasFooter = false;
             HasTopBorder = false;
             CloseButton.Visible = false;
+            
 
             AllowResize = false;
             CanResizeHeight = false;
+
+            Movable = false;
 
             ChatModeButton = new DXButton
             {

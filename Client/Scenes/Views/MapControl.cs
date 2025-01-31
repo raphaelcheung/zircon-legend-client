@@ -1214,7 +1214,7 @@ namespace Client.Scenes.Views
             return CanMove(next, distance) ? next : dir;
         }
 
-        private bool CanMove(MirDirection dir, int distance)
+        public bool CanMove(MirDirection dir, int distance)
         {
             for (int i = 1; i <= distance; i++)
             {
@@ -1352,29 +1352,53 @@ namespace Client.Scenes.Views
         {
             return loc.X >= 0 && loc.Y >= 0 && loc.X < Width && loc.Y <= Height && !Cells[loc.X, loc.Y].Blocking();
         }
+        public ItemObject FindNearstItem()
+        {
+            int dis = 1000;
+            ClientObjectData result = null;
+
+            foreach (ClientObjectData ob in GameScene.Game.DataDictionary.Values)
+            {
+                if (GameScene.Game.MapControl.MapInfo == null) continue;
+                if (ob.MapIndex != GameScene.Game.MapControl.MapInfo.Index) continue;
+                if (ob.MonsterInfo != null) continue;
+                if (ob.ItemInfo == null || !GameScene.Game.BigPatchBox.NeedPick(ob.ItemInfo)) continue;
+
+                var dis0 = Functions.Distance(GameScene.Game.User.CurrentLocation, ob.Location);
+                if (result != null && dis0 >= dis)
+                    continue;
+
+                result = ob;
+                dis = dis0;
+            }
+
+            if (result == null) return null;
+
+            return GameScene.Game.MapControl.Objects.FirstOrDefault(x => (int)x.ObjectID == result.ObjectID) as ItemObject;
+        }
         public MapObject LaoSelectMonster()
         {
             float num1 = 100f;
             ClientObjectData minob = null;
             foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
             {
-                if (GameScene.Game.MapControl.MapInfo != null 
-                    && clientObjectData.MapIndex == GameScene.Game.MapControl.MapInfo.Index 
-                    && (clientObjectData.ItemInfo == null && clientObjectData.MonsterInfo != null) 
-                    && !clientObjectData.Dead 
-                    && ((clientObjectData.MonsterInfo == null || !clientObjectData.Dead) && string.IsNullOrEmpty(clientObjectData.PetOwner) && clientObjectData.MonsterInfo.AI >= 0) 
-                    && (!Config.范围挂机 || clientObjectData.Location.X >= (int)(Config.范围挂机坐标.X - Config.范围距离) && clientObjectData.Location.X <= (int)(Config.范围挂机坐标.X + Config.范围距离) && (clientObjectData.Location.Y >= (int)(Config.范围挂机坐标.Y - Config.范围距离) && clientObjectData.Location.Y <= (int)(Config.范围挂机坐标.Y + Config.范围距离))))
+                if (GameScene.Game.MapControl.MapInfo == null) continue;
+                if (clientObjectData.MapIndex != GameScene.Game.MapControl.MapInfo.Index) continue;
+                if (clientObjectData.ItemInfo != null) continue;
+                if (clientObjectData.MonsterInfo == null || clientObjectData.Dead) continue;
+                if (!string.IsNullOrEmpty(clientObjectData.PetOwner) || clientObjectData.MonsterInfo.AI < 0) continue;
+                if (Config.范围挂机 && (clientObjectData.Location.X < (int)(Config.范围挂机坐标.X - Config.范围距离) || clientObjectData.Location.X > (int)(Config.范围挂机坐标.X + Config.范围距离) || clientObjectData.Location.Y < (int)(Config.范围挂机坐标.Y - Config.范围距离) || clientObjectData.Location.Y > (int)(Config.范围挂机坐标.Y + Config.范围距离)))
+                    continue;
+
+                float num2 = (float)Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
+                if ((double)num2 < (double)num1)
                 {
-                    float num2 = (float)Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
-                    if ((double)num2 < (double)num1)
-                    {
-                        num1 = num2;
-                        minob = clientObjectData;
-                    }
+                    num1 = num2;
+                    minob = clientObjectData;
                 }
             }
 
-            if (minob == null)
+            if ((double)num1 > 9.0)
                 return null;
 
             if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
@@ -1392,9 +1416,6 @@ namespace Client.Scenes.Views
 
                 path.Clear();
             }
-
-            if ((double)num1 > 9.0)
-                return null;
 
             return GameScene.Game.MapControl.Objects.FirstOrDefault(x => (int)x.ObjectID == (int)minob.ObjectID);
         }

@@ -135,7 +135,7 @@ namespace Client.Scenes.Views
             //    PassThrough = false,
                 Size = new Size(200, 200),
                 Parent = GameScene.Game,
-                Movable = true,
+                Movable = false,
             };
 
             ChatTab tab = new ChatTab
@@ -143,10 +143,10 @@ namespace Client.Scenes.Views
                 Parent = tabControl,
                 Panel =  panel,
                 Opacity = 0.7F,
-                AllowResize = true,
+                AllowResize = false,
                 TabButton =
                 {
-                    Movable = true, AllowDragOut = true,
+                    Movable = false, AllowDragOut = false,
                     Label = { Text = $"窗口 {ListBox.Controls.Count - 1}" }
                 }
             };
@@ -210,6 +210,7 @@ namespace Client.Scenes.Views
 
             GameScene.Game.ChatTextBox = new ChatTextBox
             {
+                Visible = true,
                 Parent = GameScene.Game,
             };
 

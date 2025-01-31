@@ -21,6 +21,7 @@ using System.Runtime.Remoting.Messaging;
 using Library.Network.ClientPackets;
 using Library.Network;
 using Client.Properties;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 //Cleaned
 namespace Client.Scenes
@@ -198,7 +199,7 @@ namespace Client.Scenes
         public InventoryDialog InventoryBox;
         public CharacterDialog CharacterBox;
         public ExitDialog ExitBox;
-        public ChatTextBox ChatTextBox;
+        public ChatTextBox ChatTextBox { get; set; }
         public BeltDialog BeltBox;
         public ChatOptionsDialog ChatOptionsBox;
         public NPCDialog NPCBox;
@@ -217,6 +218,11 @@ namespace Client.Scenes
         public NPCAccessoryLevelDialog NPCAccessoryLevelBox;
         public NPCAccessoryResetDialog NPCAccessoryResetBox;
         public NPCMasterRefineDialog NPCMasterRefineBox;
+        private DXTabControl ChatTabControl;
+        private DXButton HideChat;
+        private DXButton ShowChat;
+        private DXButton BigPatch;
+        private DXButton Ranking;
         public MiniMapDialog MiniMapBox { get; set; }
         public BigMapDialog BigMapBox;
         public MagicDialog MagicBox;
@@ -456,6 +462,7 @@ namespace Client.Scenes
 
             ChatTextBox = new ChatTextBox
             {
+                Visible = true,
                 Parent = this,
             };
             ChatOptionsBox = new ChatOptionsDialog
@@ -681,6 +688,76 @@ namespace Client.Scenes
                 Visible = false,
                 Parent = this,
             };
+
+            HideChat = new DXButton()
+            {
+                Visible = true,
+                ButtonType = ButtonType.Default,
+                Label = { Text = "隐藏" },
+                Parent = this,
+                Size = new Size(50, SmallButtonHeight),
+                //Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 150),
+            };
+
+            HideChat.MouseClick += (a, b) =>
+            {
+                if (ChatTabControl == null) return;
+                ChatTabControl.Visible = false;
+                Game.ChatTextBox.Visible = false;
+                ShowChat.Visible = true;
+                HideChat.Visible = false;
+                BigPatch.Visible = true;
+                Ranking.Visible = true;
+            };
+
+            ShowChat = new DXButton()
+            {
+                Visible = false,
+                ButtonType = ButtonType.Default,
+                Label = { Text = "显示聊天" },
+                Parent = this,
+                Size = new Size(80, SmallButtonHeight),
+                //Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height),
+            };
+            ShowChat.MouseClick += (a, b) =>
+            {
+                if (ChatTabControl == null) return;
+                ChatTabControl.Visible = true;
+                Game.ChatTextBox.Visible = true;
+                ShowChat.Visible = false;
+                HideChat.Visible = true;
+                BigPatch.Visible = false;
+                Ranking.Visible = false;
+            };
+            BigPatch = new DXButton()
+            {
+                Visible = false,
+                ButtonType = ButtonType.Default,
+                Label = { Text = "辅助工具" },
+                Parent = this,
+                Size = new Size(80, SmallButtonHeight),
+                //Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height),
+            };
+            BigPatch.MouseClick += (a, b) =>
+            {
+                BigPatchBox.Visible = !BigPatchBox.Visible;
+
+            };
+
+            Ranking = new DXButton()
+            {
+                Visible = false,
+                ButtonType = ButtonType.Default,
+                Label = { Text = "排行榜" },
+                Parent = this,
+                Size = new Size(70, SmallButtonHeight),
+                //Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height),
+            };
+            Ranking.MouseClick += (a, b) =>
+            {
+                RankingBox.Visible = !RankingBox.Visible;
+
+            };
             #endregion
 
             SetDefaultLocations();
@@ -694,6 +771,8 @@ namespace Client.Scenes
 
             CEnvir.IsQuickGame = false;
             CEnvir.Target.Location = new Point(0, 0);
+
+            ChatTextBox.Visible = true;
         }
 
         #region Methods
@@ -778,6 +857,12 @@ namespace Client.Scenes
             FortuneCheckerBox.Location = new Point((Size.Width - FortuneCheckerBox.Size.Width) / 2, (Size.Height - FortuneCheckerBox.Size.Height) / 2);
 
             NPCWeaponCraftBox.Location = new Point((Size.Width - NPCWeaponCraftBox.Size.Width) / 2, (Size.Height - NPCWeaponCraftBox.Size.Height) / 2);
+
+            HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 148);
+            ShowChat.Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height);
+            BigPatch.Location = new Point(Game.ShowChat.Location.X + Game.ShowChat.Size.Width + 3, Game.ShowChat.Location.Y);
+            Ranking.Location = new Point(Game.BigPatch.Location.X + Game.BigPatch.Size.Width + 3, Game.BigPatch.Location.Y);
+
         }
 
         public void SaveChatTabs()
@@ -879,7 +964,7 @@ namespace Client.Scenes
                 Name = "队伍",
                 Transparent = false,
 
-                LocalChat = true,
+                LocalChat = false,
                 Alert = false,
                 GlobalChat = false,
                 GroupChat = true,
@@ -898,12 +983,12 @@ namespace Client.Scenes
                 Name = "行会",
                 Transparent = false,
 
-                LocalChat = true,
+                LocalChat = false,
                 Alert = false,
                 GlobalChat = false,
                 GroupChat = false,
                 GuildChat = true,
-                ObserverChat = true,
+                ObserverChat = false,
                 WhisperChat = true,
                 ShoutChat = false,
                 HintChat = false,
@@ -918,11 +1003,11 @@ namespace Client.Scenes
                 Transparent = false,
 
                 LocalChat = true,
-                Alert = true,
+                Alert = false,
                 GlobalChat = true,
                 GroupChat = false,
                 GuildChat = false,
-                ObserverChat = false,
+                ObserverChat = true,
                 WhisperChat = false,
                 ShoutChat = true,
                 HintChat = false,
@@ -947,7 +1032,7 @@ namespace Client.Scenes
                 HintChat = false,
                 SystemChat = true,
                 GainsChat = false,
-                AnnouncementChat = true
+                AnnouncementChat = false
             });
 
             settings.Add(new ChatTabPageSetting
@@ -964,7 +1049,7 @@ namespace Client.Scenes
                 WhisperChat = false,
                 ShoutChat = false,
                 HintChat = true,
-                SystemChat = true,
+                SystemChat = false,
                 GainsChat = true,
                 AnnouncementChat = false,
             });
@@ -978,12 +1063,12 @@ namespace Client.Scenes
         }
         private void _LoadChatTabs(List<ChatTabPageSetting> controlSettings)
         {
-            if (ConfigBox == null) return;
+            if (ConfigBox == null || ChatTabControl != null) return;
 
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
-            
-            DXTabControl tabControl = new DXTabControl
+
+            ChatTabControl = new DXTabControl
             {
                 Location = new Point(Game.ChatTextBox.Location.X, Game.ChatTextBox.Location.Y - 150),
                 Size = new Size(Game.ChatTextBox.Size.Width, 150),
@@ -992,13 +1077,13 @@ namespace Client.Scenes
                 AllowResize = false,
             };
 
-            tabControl.SelectedTabChanged += OnChatTabChanged;
+            ChatTabControl.SelectedTabChanged += OnChatTabChanged;
             ChatTab selected = null;
             foreach (ChatTabPageSetting pSetting in controlSettings)
             {
                 ChatTab tab = ChatOptionsBox.AddNewTab();
 
-                tab.Parent = tabControl;
+                tab.Parent = ChatTabControl;
                 tab.AllowDragOut = false;
                 tab.AllowResize = false;
                 
@@ -1023,7 +1108,7 @@ namespace Client.Scenes
                     selected = tab;
             }
 
-            tabControl.SelectedTab = selected;
+            ChatTabControl.SelectedTab = selected;
         }
         private void OnChatTabChanged(object sender, EventArgs e)
         {
@@ -1181,6 +1266,9 @@ namespace Client.Scenes
 
             if (Config.开始挂机)
             {
+                var pick = MapControl.FindNearstItem();
+
+
                 if (TargetObject == null || TargetObject.Dead)
                 {
                     if (Game.User.XunzhaoGuaiwuMoshi01)
@@ -1196,6 +1284,7 @@ namespace Client.Scenes
                 }
                 else
                     mob = TargetObject as MonsterObject;
+
                 MouseObject = TargetObject;
             }
 
@@ -2998,6 +3087,9 @@ namespace Client.Scenes
         public MagicHelper TakeAmulet(ClientUserMagic magic)
         {
             MagicHelper magicHelper = null;
+            if (!CEnvir.NeedAmulet(magic.Info)) return magicHelper;
+
+
             for (int index = 0; index < Config.magics.Count; ++index)
             {
                 if (Config.magics[index].TypeID == magic.Info.Magic)
@@ -3013,14 +3105,15 @@ namespace Client.Scenes
             int amulet = magicHelper.Amulet;
             if (amulet == -1)
                 return magicHelper;
-            ClientUserItem clientUserItem1 = CharacterBox.Grid[11].Item;
-            int num = clientUserItem1 != null ? 1 : -1;
-            if (amulet == num)
+            ClientUserItem clientUserItem1 = CharacterBox?.Grid[11]?.Item;
+
+            if ((clientUserItem1?.Info?.Index ?? -1) == magicHelper.Amulet)
                 return magicHelper;
+
             for (int index = 0; index < Inventory.Length; ++index)
             {
                 ClientUserItem clientUserItem2 = Inventory[index];
-                if ((clientUserItem2?.Info?.ItemType ?? ItemType.Nothing)==  ItemType.Amulet)
+                if ((clientUserItem2?.Info.Index ?? -1) == magicHelper.Amulet)
                 {
                     if (clientUserItem2.Count > 0)
                     {
@@ -3029,8 +3122,9 @@ namespace Client.Scenes
                     }
                 }
             }
-           
+
             ReceiveChat("你的符用完了，释放失败", MessageType.Hint);
+
             return magicHelper;
         }
    
@@ -3679,6 +3773,31 @@ namespace Client.Scenes
                             direction = MirDirection.Down;
                             goto case MagicType.MassBeckon;
                         case MagicType.SwiftBlade:
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
+                            {
+                                if (CEnvir.Now < OutputTime)
+                                    return;
+                                OutputTime = CEnvir.Now.AddSeconds(1.0);
+                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                                return;
+                            }
+                            if (mapObject != null && mapObject != User)
+                                direction = Functions.DirectionFromPoint(User.CurrentLocation, mapObject.CurrentLocation);
+
+                            uint num2 = mapObject != null ? mapObject.ObjectID : 0U;
+                            Point point = mapObject != null ? mapObject.CurrentLocation : MapControl.MapLocation;
+
+                            if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
+                                FocusObject = MouseObject;
+
+                            User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
+                            {
+                                 magic.Info.Magic,
+                                 new List<uint>() { num2 },
+                                 new List<Point>() { point },
+                                 false
+                            });
+                            return;
                         case MagicType.FireWall:
                         case MagicType.GeoManipulation:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -3720,7 +3839,6 @@ namespace Client.Scenes
                         case MagicType.TheNewBeginning:
                         case MagicType.DarkConversion:
                         case MagicType.DragonRepulse:
-                        case MagicType.FlashOfLight:
                         case MagicType.Evasion:
                         case MagicType.RagingWind:
                             if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
@@ -3733,24 +3851,71 @@ namespace Client.Scenes
                             }
                             if (mapObject != null && mapObject != User)
                                 direction = Functions.DirectionFromPoint(User.CurrentLocation, mapObject.CurrentLocation);
-                            uint num2 = mapObject != null ? mapObject.ObjectID : 0U;
-                            Point point;
-                            switch (magic.Info.Magic)
-                            {
-                                //case MagicType.PoisonDust:
-                                //case MagicType.ExplosiveTalisman:
-                                //case MagicType.EvilSlayer:
-                                //case MagicType.GreaterEvilSlayer:
-                                //case MagicType.Purification:
-                                //case MagicType.ImprovedExplosiveTalisman:
-                                //    point = MapControl.MapLocation;
-                                //    break;
-                                default:
-                                    point = mapObject != null ? mapObject.CurrentLocation : MapControl.MapLocation;
-                                    break;
-                            }
+
+                            num2 = mapObject != null ? mapObject.ObjectID : 0U;
+                            point = mapObject != null ? mapObject.CurrentLocation : MapControl.MapLocation;
+
                             if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
                                 FocusObject = MouseObject;
+
+                            User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
+                            {
+                                 magic.Info.Magic,
+                                 new List<uint>() { num2 },
+                                 new List<Point>() { point },
+                                 false
+                            });
+                            return;
+                        case MagicType.FlashOfLight:
+                            if (mapObject != null && mapObject != User)
+                                direction = Functions.DirectionFromPoint(User.CurrentLocation, mapObject.CurrentLocation);
+
+                            int dis = magic.Level >= 5 ? 3 : 2;
+                            bool valid = false;
+
+                            for(int i = 0; i < dis; i++)
+                            {
+                                var dst = Functions.Move(User.CurrentLocation, direction, i);
+                                if (!MapControl.CanMove(direction, i)) continue;
+                                if (MapControl.Cells[dst.X, dst.Y]?.Objects == null) continue;
+
+                                foreach(var ob in MapControl.Cells[dst.X, dst.Y].Objects)
+                                    if (ob is MonsterObject mon && CanAttackTarget(mon))
+                                    {
+                                        valid = true;
+                                        break;
+                                    }
+
+                                if (valid) break;
+                            }
+
+                            if (!valid && TargetObject != null)
+                            {
+                                direction = Functions.DirectionFromPoint(User.CurrentLocation, TargetObject.CurrentLocation);
+                                for (int i = 0; i < dis; i++)
+                                {
+                                    var dst = Functions.Move(User.CurrentLocation, direction, 1);
+                                    if (!MapControl.CanMove(direction, 1)) continue;
+                                    if (MapControl.Cells[dst.X, dst.Y]?.Objects == null) continue;
+
+                                    foreach (var ob in MapControl.Cells[dst.X, dst.Y].Objects)
+                                        if (ob is MonsterObject mon && CanAttackTarget(mon))
+                                        {
+                                            valid = true;
+                                            mapObject = ob;
+                                            break;
+                                        }
+
+                                    if (valid) break;
+                                }
+                            }
+
+                            num2 = mapObject != null ? mapObject.ObjectID : 0U;
+                            point = mapObject != null ? mapObject.CurrentLocation : MapControl.MapLocation;
+
+                            if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
+                                FocusObject = MouseObject;
+
                             User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
                             {
                                  magic.Info.Magic,
@@ -3804,30 +3969,7 @@ namespace Client.Scenes
                         case MagicType.EvilSlayer:
                         case MagicType.GreaterEvilSlayer:
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
-                            {
-                                ClientUserItem clientUserItem1 = CharacterBox.Grid[10].Item;
-                                int num3 = clientUserItem1 != null ? clientUserItem1.Info.Shape : -1;
-                                for (int index = 0; index < Inventory.Length; ++index)
-                                {
-                                    ClientUserItem clientUserItem2 = Inventory[index];
-                                    int num4;
-                                    if ((clientUserItem2 != null ? (int)clientUserItem2.Info.ItemType : 0) == 10)
-                                    {
-                                        ClientUserItem clientUserItem3 = Inventory[index];
-                                        num4 = (clientUserItem3 != null ? clientUserItem3.Info.Shape : -1) != num3 ? 1 : 0;
-                                    }
-                                    else
-                                        num4 = 0;
-                                    if (num4 != 0)
-                                    {
-                                        CharacterBox.Grid[10].ToEquipment(InventoryBox.Grid.Grid[index]);
-                                        break;
-                                    }
-                                }
-                                ClientUserItem clientUserItem4 = CharacterBox.Grid[10].Item;
-                                if ((clientUserItem4 != null ? clientUserItem4.Info.Shape : -1) == -1)
-                                    ReceiveChat("你的毒用完了，释放失败", MessageType.Hint);
-                            }
+                                AutoPoison(magic);
 
                             if (CanAttackTarget(MagicObject))
                             {
@@ -5588,6 +5730,44 @@ namespace Client.Scenes
             }
         }
 
-        
+        private void AutoPoison(ClientUserMagic magic)
+        {
+            MagicHelper magicHelper = null;
+
+            for (int index = 0; index < Config.magics.Count; ++index)
+            {
+                if (Config.magics[index].TypeID == magic.Info.Magic)
+                {
+                    magicHelper = Config.magics[index];
+                    break;
+                }
+            }
+
+            if (magicHelper == null) return;
+
+            ClientUserItem clientUserItem1 = CharacterBox?.Grid[10]?.Item;
+
+            if (magicHelper.Amulet > 0 && (clientUserItem1?.Info?.Index ?? -1) == magicHelper.Amulet)
+                return;
+
+            for (int index = 0; index < Inventory.Length; ++index)
+            {
+                ClientUserItem clientUserItem2 = Inventory[index];
+                if (magicHelper.Amulet > 0 && (clientUserItem2?.Info?.Index ?? -1) == magicHelper.Amulet)
+                {
+                    CharacterBox.Grid[10].ToEquipment(InventoryBox.Grid.Grid[index]);
+                    return;
+                }
+                else if(magicHelper.Amulet == 0 
+                    && (clientUserItem2?.Info?.ItemType ?? ItemType.Nothing) == ItemType.Poison
+                    && (clientUserItem2?.Info?.Index ?? magicHelper.Amulet) != magicHelper.Amulet)
+                {
+                    CharacterBox.Grid[10].ToEquipment(InventoryBox.Grid.Grid[index]);
+                    return;
+                }
+            }
+
+            ReceiveChat("你的毒用完了，释放失败", MessageType.Hint);
+        }
     }
 } 

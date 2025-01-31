@@ -1034,5 +1034,37 @@ namespace Client.Envir
         {
             return WeaponRefineLevelLimit - (Rarity.Elite - r) * WeaponRefineRarityStep;
         }
+        public static bool NeedAmulet(MagicInfo info)
+        {
+            switch (info.Magic)
+            {
+                case MagicType.ExplosiveTalisman:
+                case MagicType.EvilSlayer:
+                case MagicType.Invisibility:
+                case MagicType.MagicResistance:
+                case MagicType.MassInvisibility:
+                case MagicType.Resilience:
+                case MagicType.GreaterEvilSlayer:
+                case MagicType.TrapOctagon:
+                case MagicType.ElementalSuperiority:
+                case MagicType.BloodLust:
+                case MagicType.Resurrection:
+                case MagicType.Purification:
+                case MagicType.Transparency:
+                case MagicType.CelestialLight:
+                case MagicType.ImprovedExplosiveTalisman:
+                case MagicType.SummonSkeleton:
+                case MagicType.SummonShinsu:
+                case MagicType.SummonJinSkeleton:
+                case MagicType.StrengthOfFaith:
+                case MagicType.SummonDemonicCreature:
+                case MagicType.DemonExplosion:
+                case MagicType.SummonPuppet:
+                    return true;
+
+            }
+
+            return false;
+        }
     }
 }

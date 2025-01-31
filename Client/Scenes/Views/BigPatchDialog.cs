@@ -34,7 +34,7 @@ namespace Client.Scenes.Views
         public DXSystemMsgRecordTab MsgRecord;
         public DXAutoPickItemTab AutoPick;
         public DXViewRangeObjectTab ViewRange;
-        public DXMagicHelperTab Magic;
+        public DXMagicHelperTab Magic { get; set; }
         public DateTime _ProtectTime;
 
         private ClientUserMagic FlamingSword = null;
@@ -414,7 +414,13 @@ namespace Client.Scenes.Views
                 });
             }
         }
+        public bool NeedPick(ItemInfo item)
+        {
+            if (AutoPick.ItemFilter.dictItems.TryGetValue(item.Index, out var info))
+                return info.pick || info.picks;
 
+            return false;
+        }
         public bool PickupItems()
         {
             AutoPick?.SycFilters(false);
@@ -3503,6 +3509,31 @@ namespace Client.Scenes.Views
 
         public class DXMagicHelperTab : DXTab
         {
+            private static List<ItemInfo> Amulets = null;
+            private static List<ItemInfo> Poisons = null;
+            private static void FillAmulets()
+            {
+                if (Amulets != null) return;
+
+                Amulets = new List<ItemInfo>();
+                foreach (var item in Globals.ItemInfoList.Binding)
+                {
+                    if (item.ItemType != ItemType.Amulet || item.BlockMonsterDrop) continue;
+                    Amulets.Add(item);
+                }
+            }
+            private static void FillPoison()
+            {
+                if (Poisons != null) return;
+
+                Poisons = new List<ItemInfo>();
+                foreach (var item in Globals.ItemInfoList.Binding)
+                {
+                    if (item.ItemType != ItemType.Poison || item.BlockMonsterDrop) continue;
+                    Poisons.Add(item);
+                }
+            }
+
             public DXListView MagicView;
 
             public DXMagicHelperTab()
@@ -3673,174 +3704,149 @@ namespace Client.Scenes.Views
             public void UpdateMagic()
             {
                 if (GameScene.Game.User == null) return;
+
+                FillAmulets();
+                FillPoison();
+
                 uint nItem = 0;
                 MagicView.RemoveAll();
-                string[] strArray = new string[9]
-                {
-                   "灵魂护身符(小)",
-                   "狂风护身符(小)",
-                   "霹雷护身符(小)",
-                   "幻影护身符(小)",
-                   "寒冰护身符(小)",
-                   "神圣护身符(小)",
-                   "火焰护身符(小)",
-                   "暗黑护身符(小)",
-                   "护身符(小)"
-                };
                 Type type = typeof(SpellKey);
                 foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in GameScene.Game.User.Magics)
                 {
-                    if (magic.Value.Info.School == MagicSchool.Passive || magic.Value.Info.School == MagicSchool.None) continue;
+                    if (magic.Value.Info.School == MagicSchool.Passive 
+                        || magic.Value.Info.School == MagicSchool.None
+                        || magic.Value.Info.Magic == MagicType.None) continue;
 
                     ClientUserMagic clientUserMagic = magic.Value;
-                    if (clientUserMagic.Info.Magic != MagicType.None)
+
+                    MagicHelper magicHelper = null;
+                    for (int index = 0; index < Config.magics.Count; ++index)
                     {
-                        MagicHelper magicHelper = null;
-                        for (int index = 0; index < Config.magics.Count; ++index)
+                        if (Config.magics[index].TypeID == clientUserMagic.Info.Magic)
                         {
-                            if (Config.magics[index].TypeID == clientUserMagic.Info.Magic)
-                            {
-                                magicHelper = Config.magics[index];
-                                break;
-                            }
+                            magicHelper = Config.magics[index];
+                            break;
                         }
-                        if (magicHelper == null)
-                        {
-                            magicHelper = new MagicHelper()
-                            {
-                                TypeID = clientUserMagic.Info.Magic,
-                                Name = clientUserMagic.Info.Name,
-                                Key = clientUserMagic.Set1Key,
-                                LockPlayer = false,
-                                LockMonster = false,
-                                Amulet = -1
-                            };
-                            Config.magics.Add(magicHelper);
-                        }
-
-                        magicHelper.obj = (object)clientUserMagic;
-                        magicHelper.Name = clientUserMagic.Info.Name;
-                        nItem = MagicView.InsertItem(nItem, clientUserMagic.Info.Name);
-                        DXControl control = MagicView.Items.Controls[(int)nItem];
-                        control.Tag = (object)magicHelper;
-                        MagicView.SetItem(nItem, 1U, clientUserMagic.Level.ToString() ?? "");
-
-                        string text1 = "";
-                        if ((uint)clientUserMagic.Set1Key > 0U)
-                            text1 = Functions.GetEnumDesc(clientUserMagic.Set1Key);// type.GetMember(clientUserMagic.Set1Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>().Description;
-
-                        text1 = text1.Replace('\n', ' ');
-
-                        (MagicView.SetItem(nItem, 2U, text1) as DXLabel).KeyUp += (EventHandler<KeyEventArgs>)((o, e) =>
-                        {
-                            DXControl dxControl = o as DXControl;
-                            if (dxControl == null)
-                                return;
-                            MagicHelper tag = dxControl.Parent.Tag as MagicHelper;
-                            if (tag == null)
-                                return;
-                            DescriptionAttribute customAttribute = typeof(SpellKey).GetMember(tag.Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>();
-                            dxControl.Text = customAttribute?.Description ?? "";
-                            SetShortcutKey(tag.obj as ClientUserMagic, e.KeyCode);
-                            e.Handled = true;
-                        });
-                        string text2 = "";
-                        MagicView.SetItem(nItem, 3U, text2);
-                        MagicView.SetItem(nItem, 4U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
-                        {
-                            DXCheckBox dxCheckBox = o as DXCheckBox;
-                            if (dxCheckBox == null)
-                                return;
-                            MagicHelper tag = dxCheckBox.Parent.Tag as MagicHelper;
-                            if (tag == null)
-                                return;
-                            tag.LockPlayer = dxCheckBox.Checked;
-                        }), magicHelper.LockPlayer));
-                        MagicView.SetItem(nItem, 5U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
-                        {
-                            DXCheckBox dxCheckBox = o as DXCheckBox;
-                            if (dxCheckBox == null)
-                                return;
-                            MagicHelper tag = dxCheckBox.Parent.Tag as MagicHelper;
-                            if (tag == null)
-                                return;
-                            tag.LockMonster = dxCheckBox.Checked;
-                        }), magicHelper.LockMonster));
-                        DXComboBox dxComboBox1 = new DXComboBox();
-                        MagicView.SetItem(nItem, 6U, (DXControl)dxComboBox1);
-                        DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                        dxListBoxItem1.Parent = (DXControl)dxComboBox1.ListBox;
-                        dxListBoxItem1.Label.Text = "未选择";
-                        dxListBoxItem1.Item = (object)-1;
-                        dxComboBox1.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
-                        {
-                            if (GameScene.Game.Observer)
-                                return;
-                            DXComboBox dxComboBox = o as DXComboBox;
-                            if (dxComboBox == null)
-                                return;
-                            DXControl parent = dxComboBox.Parent;
-                            if (parent == null)
-                                return;
-                            MagicHelper tag = parent.Tag as MagicHelper;
-                            if (tag == null)
-                                return;
-                            tag.Amulet = (int)dxComboBox.SelectedItem;
-                        });
-                        if (clientUserMagic.Info.Magic == MagicType.PoisonDust)
-                        {
-                            DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                            dxListBoxItem2.Parent = (DXControl)dxComboBox1.ListBox;
-                            dxListBoxItem2.Label.Text = "红毒";
-                            dxListBoxItem2.Item = (object)0;
-                            DXListBoxItem dxListBoxItem3 = new DXListBoxItem();
-                            dxListBoxItem3.Parent = (DXControl)dxComboBox1.ListBox;
-                            dxListBoxItem3.Label.Text = "绿毒";
-                            dxListBoxItem3.Item = (object)1;
-                            DXListBoxItem dxListBoxItem4 = new DXListBoxItem();
-                            dxListBoxItem4.Parent = (DXControl)dxComboBox1.ListBox;
-                            dxListBoxItem4.Label.Text = "红毒绿毒交换";
-                            dxListBoxItem4.Item = (object)2;
-                        }
-                        else if (clientUserMagic.Info.Class == MirClass.Taoist)
-                        { 
-                            switch (clientUserMagic.Info.Magic)
-                            {
-                                case MagicType.ExplosiveTalisman:
-                                case MagicType.EvilSlayer:
-                                case MagicType.Invisibility:
-                                case MagicType.MagicResistance:
-                                case MagicType.MassInvisibility:
-                                case MagicType.Resilience:
-                                case MagicType.GreaterEvilSlayer:
-                                case MagicType.TrapOctagon:
-                                case MagicType.ElementalSuperiority:
-                                case MagicType.BloodLust:
-                                case MagicType.Resurrection:
-                                case MagicType.Purification:
-                                case MagicType.Transparency:
-                                case MagicType.CelestialLight:
-                                case MagicType.ImprovedExplosiveTalisman:
-                                case MagicType.SummonSkeleton:
-                                case MagicType.SummonShinsu:
-                                case MagicType.SummonJinSkeleton:
-                                case MagicType.StrengthOfFaith:
-                                case MagicType.SummonDemonicCreature:
-                                case MagicType.DemonExplosion:
-                                case MagicType.SummonPuppet:
-                                    for (int index = 0; index < strArray.Length; ++index)
-                                    {
-                                        DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                                        dxListBoxItem2.Parent = (DXControl)dxComboBox1.ListBox;
-                                        dxListBoxItem2.Label.Text = strArray[index];
-                                        dxListBoxItem2.Item = (object)index;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        dxComboBox1.ListBox.SelectItem((object)magicHelper.Amulet);
                     }
+                    if (magicHelper == null)
+                    {
+                        magicHelper = new MagicHelper()
+                        {
+                            TypeID = clientUserMagic.Info.Magic,
+                            Name = clientUserMagic.Info.Name,
+                            Key = clientUserMagic.Set1Key,
+                            LockPlayer = false,
+                            LockMonster = false,
+                            Amulet = -1
+                        };
+                        Config.magics.Add(magicHelper);
+                    }
+
+                    magicHelper.obj = (object)clientUserMagic;
+                    magicHelper.Name = clientUserMagic.Info.Name;
+                    nItem = MagicView.InsertItem(nItem, clientUserMagic.Info.Name);
+                    DXControl control = MagicView.Items.Controls[(int)nItem];
+                    control.Tag = (object)magicHelper;
+                    MagicView.SetItem(nItem, 1U, clientUserMagic.Level.ToString() ?? "");
+
+                    string text1 = "";
+                    if ((uint)clientUserMagic.Set1Key > 0U)
+                        text1 = Functions.GetEnumDesc(clientUserMagic.Set1Key);// type.GetMember(clientUserMagic.Set1Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>().Description;
+
+                    text1 = text1.Replace('\n', ' ');
+
+                    (MagicView.SetItem(nItem, 2U, text1) as DXLabel).KeyUp += (EventHandler<KeyEventArgs>)((o, e) =>
+                    {
+                        DXControl dxControl = o as DXControl;
+                        if (dxControl == null)
+                            return;
+                        MagicHelper tag = dxControl.Parent.Tag as MagicHelper;
+                        if (tag == null)
+                            return;
+                        DescriptionAttribute customAttribute = typeof(SpellKey).GetMember(tag.Key.ToString())[0].GetCustomAttribute<DescriptionAttribute>();
+                        dxControl.Text = customAttribute?.Description ?? "";
+                        SetShortcutKey(tag.obj as ClientUserMagic, e.KeyCode);
+                        e.Handled = true;
+                    });
+                    string text2 = "";
+                    MagicView.SetItem(nItem, 3U, text2);
+                    MagicView.SetItem(nItem, 4U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
+                    {
+                        DXCheckBox dxCheckBox = o as DXCheckBox;
+                        if (dxCheckBox == null)
+                            return;
+                        MagicHelper tag = dxCheckBox.Parent.Tag as MagicHelper;
+                        if (tag == null)
+                            return;
+                        tag.LockPlayer = dxCheckBox.Checked;
+                    }), magicHelper.LockPlayer));
+                    MagicView.SetItem(nItem, 5U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
+                    {
+                        DXCheckBox dxCheckBox = o as DXCheckBox;
+                        if (dxCheckBox == null)
+                            return;
+                        MagicHelper tag = dxCheckBox.Parent.Tag as MagicHelper;
+                        if (tag == null)
+                            return;
+                        tag.LockMonster = dxCheckBox.Checked;
+                    }), magicHelper.LockMonster));
+                    DXComboBox dxComboBox1 = new DXComboBox();
+                    MagicView.SetItem(nItem, 6U, (DXControl)dxComboBox1);
+                    DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
+                    dxListBoxItem1.Parent = (DXControl)dxComboBox1.ListBox;
+                    dxListBoxItem1.Label.Text = "未选择";
+                    dxListBoxItem1.Item = (object)-1;
+                    dxComboBox1.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
+                    {
+                        if (GameScene.Game.Observer)
+                            return;
+                        DXComboBox dxComboBox = o as DXComboBox;
+                        if (dxComboBox == null)
+                            return;
+                        DXControl parent = dxComboBox.Parent;
+                        if (parent == null)
+                            return;
+                        MagicHelper tag = parent.Tag as MagicHelper;
+                        if (tag == null)
+                            return;
+                        tag.Amulet = (int)dxComboBox.SelectedItem;
+                    });
+                    if (clientUserMagic.Info.Magic == MagicType.PoisonDust)
+                    {
+                        DXListBoxItem listItem = new DXListBoxItem();
+                        listItem.Parent = dxComboBox1.ListBox;
+                        listItem.Label.Text = "红绿毒交替";
+                        listItem.Item = 0;
+
+                        foreach (var item in Poisons)
+                        {
+                            listItem = new DXListBoxItem();
+                            listItem.Parent = dxComboBox1.ListBox;
+                            listItem.Label.Text = item.ItemName;
+                            listItem.Item = item.Index;
+                        }
+                    }
+                    else if (clientUserMagic.Info.Class == MirClass.Taoist)
+                    { 
+                        if (CEnvir.NeedAmulet(clientUserMagic.Info))
+                        {
+                            foreach (var amulet in Amulets)
+                            {
+                                DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
+                                dxListBoxItem2.Parent = (DXControl)dxComboBox1.ListBox;
+                                dxListBoxItem2.Label.Text = amulet.ItemName;
+                                dxListBoxItem2.Item = amulet.Index;
+                            }
+                        }
+                        else
+                        {
+                            dxListBoxItem1.Label.Text = "";
+                            dxListBoxItem1.Enabled = false;
+                            dxComboBox1.Enabled = false;
+                        }
+                    }
+
+                    dxComboBox1.ListBox.SelectItem((object)magicHelper.Amulet);
                 }
                 MagicView.UpdateItems();
             }

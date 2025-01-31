@@ -1023,7 +1023,7 @@ namespace Client.Scenes.Views
 
             CEnvir.Enqueue(new C.MailSend { Links = links, Recipient = RecipientBox.TextBox.Text, Subject = SubjectBox.TextBox.Text, Message = MessageBox.TextBox.Text, Gold = GoldBox.Value });
 
-            RecipientBox.TextBox.Text = string.Empty;
+            //RecipientBox.TextBox.Text = string.Empty;
             MessageBox.TextBox.Text = string.Empty;
             SubjectBox.TextBox.Text = string.Empty;
 

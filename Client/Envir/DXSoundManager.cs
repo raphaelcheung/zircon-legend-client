@@ -839,7 +839,7 @@ namespace Client.Envir
             [SoundIndex.EscortCommanderAttack] = new DXSound(SoundPath + @"381-2.wav", SoundType.Monster),
             [SoundIndex.EscortCommanderStruck] = new DXSound(SoundPath + @"381-4.wav", SoundType.Monster),
             [SoundIndex.EscortCommanderDie] = new DXSound(SoundPath + @"381-5.wav", SoundType.Monster),
-            
+
             [SoundIndex.FieryDancerAttack] = new DXSound(SoundPath + @"383-2.wav", SoundType.Monster),
             [SoundIndex.FieryDancerStruck] = new DXSound(SoundPath + @"383-4.wav", SoundType.Monster),
             [SoundIndex.FieryDancerDie] = new DXSound(SoundPath + @"383-5.wav", SoundType.Monster),
@@ -896,7 +896,7 @@ namespace Client.Envir
             [SoundIndex.SamaFireGuardianAttack] = new DXSound(SoundPath + @"400-2.wav", SoundType.Monster),
             [SoundIndex.SamaFireGuardianStruck] = new DXSound(SoundPath + @"400-4.wav", SoundType.Monster),
             [SoundIndex.SamaFireGuardianDie] = new DXSound(SoundPath + @"400-5.wav", SoundType.Monster),
-            
+
             [SoundIndex.SamaIceGuardianAttack] = new DXSound(SoundPath + @"398-2.wav", SoundType.Monster),
             [SoundIndex.SamaIceGuardianStruck] = new DXSound(SoundPath + @"398-4.wav", SoundType.Monster),
             [SoundIndex.SamaIceGuardianDie] = new DXSound(SoundPath + @"398-5.wav", SoundType.Monster),
@@ -921,8 +921,23 @@ namespace Client.Envir
             [SoundIndex.BlueDragonStruck] = new DXSound(SoundPath + @"403-4.wav", SoundType.Monster),
             [SoundIndex.BlueDragonDie] = new DXSound(SoundPath + @"403-5.wav", SoundType.Monster),
 
+
+            [SoundIndex.WolongbianfuAttack] = new DXSound(SoundPath + "3869.wav", SoundType.Monster),
+            [SoundIndex.WolongbianfuAttack2] = new DXSound(SoundPath + "3864.wav", SoundType.Monster),
+            [SoundIndex.WolongbianfuStruck] = new DXSound(SoundPath + "3865.wav", SoundType.Monster),
+            [SoundIndex.WolongbianfuDie] = new DXSound(SoundPath + "3872.wav", SoundType.Monster),
+            [SoundIndex.OmaKingAttack] = new DXSound(SoundPath + "3874.wav", SoundType.Monster),
+            [SoundIndex.OmaKingAttack2] = new DXSound(SoundPath + "3875.wav", SoundType.Monster),
+            [SoundIndex.OmaKingStruck] = new DXSound(SoundPath + "3892.wav", SoundType.Monster),
+            [SoundIndex.OmaKingDie] = new DXSound(SoundPath + "3898.wav", SoundType.Monster),
+            [SoundIndex.WuguiAttack] = new DXSound(SoundPath + "3894.wav", SoundType.Monster),
+            [SoundIndex.WuguiAttack2] = new DXSound(SoundPath + "3895.wav", SoundType.Monster),
+            [SoundIndex.WuguiStruck] = new DXSound(SoundPath + "3882.wav", SoundType.Monster),
+            [SoundIndex.WuguiDie] = new DXSound(SoundPath + "3888.wav", SoundType.Monster),
+
             #endregion
         };
+
 
         #endregion
 

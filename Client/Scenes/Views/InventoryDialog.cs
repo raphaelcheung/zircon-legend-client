@@ -316,7 +316,7 @@ namespace Client.Scenes.Views
                 if (GameScene.Game.Observer) return;
                 if (SortItemTime < CEnvir.Now)
                 {
-                    SortItemTime = CEnvir.Now.AddMinutes(1);
+                    SortItemTime = CEnvir.Now.AddSeconds(10);
                     nowcansortItem = false;
                     OnSortItemChanged();
                     CEnvir.Enqueue(new C.SortBagItem { });
