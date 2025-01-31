@@ -2,6 +2,15 @@
 
 本开源项目仅供学习游戏技术，禁止商用以及非法用途。
 
+**本项目主站为 [Gitee-晧石传奇三](https://gitee.com/raphaelcheung/zircon-legend-server.git)，其他平台均为镜像。
+版本发布只放在主站上！**
+
+本项目从吉米 2019 年流传出来的 Zircon 版本发展而来，修复了上百个Bug。
+为降低部署成本，将服务器做成了跨平台可docker的版本，
+由于原版服务器依赖商业组件 **DevExpress** 并且不支持跨平台，
+因此连同界面一同剥离出去，仅数据库保持与原版工具兼容可编辑。
+（LOMCN上 2025 年发布的新版工具由于重构了数据库，无法兼容，只能和老版本工具兼容）
+
 觉得本项目对你有帮助的别忘了 **点个星** ，祝你年年发大财！
 
 技术交流以及体验公益服请加 【[QQ群：915941142](https://qm.qq.com/q/JeoJOJ4z4e)】
@@ -56,7 +65,7 @@
 
 包含了海量地图和道具资源，压缩后仍有 3GB 大小，只能通过百度网盘来分享。
 
-【[百度网盘 2024-8-14](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
+【[百度网盘](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
 
 如果嫌百度网盘太慢，这份数据我也放到了 QQ 群文件中，【[QQ群：915941142](https://qm.qq.com/q/JeoJOJ4z4e)】
 
