@@ -3443,8 +3443,6 @@ namespace Client.Scenes
                                 }
                             }
                             break;
-
-
                         case MagicType.Interchange:
                             if (magic.Cost > User.CurrentMP)
                             {
@@ -3464,8 +3462,6 @@ namespace Client.Scenes
                                 }
                             }
                             break;
-
-
                         case MagicType.Beckon:
                             if (magic.Cost > User.CurrentMP)
                             {
@@ -3943,26 +3939,12 @@ namespace Client.Scenes
                         case MagicType.Infection:
                             //case MagicType.Neutralize:
 
-
                             if (magic.Info.Magic == MagicType.Purification)
                                 mapObject = MouseObject ?? (MapObject)User;
-                            if (CanAttackTarget(MagicObject))
-                            {
-                                mapObject = MagicObject;
-                                MapObject.MagicObject = mapObject;
-                            }
-                            if (CanAttackTarget(MouseObject))
-                            {
-                                mapObject = MouseObject;
-                                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0) 
-                                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : mapObject)) 
-                                    : mapObject;
-
-                                goto case MagicType.MassBeckon;
-                            }
                             else
-                                goto case MagicType.MassBeckon;
-
+                                mapObject = AutoRemoteTarget(mapObject, amulet);
+                            
+                            goto case MagicType.MassBeckon;
                         case MagicType.PoisonDust:
                         case MagicType.ImprovedExplosiveTalisman:
                         case MagicType.ExplosiveTalisman:
@@ -3971,25 +3953,7 @@ namespace Client.Scenes
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
                                 AutoPoison(magic);
 
-                            if (CanAttackTarget(MagicObject))
-                            {
-                                mapObject = MagicObject;
-                                MapObject.MagicObject = mapObject;
-                            }
-
-                            if (CanAttackTarget(MouseObject))
-                            {
-                                mapObject = MouseObject;
-                                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0)
-                                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : mapObject))
-                                    : mapObject;
-                            }
-                            else if (CanAttackTarget(MonsterBox.Monster))
-                            {
-                                mapObject = MonsterBox.Monster;
-                                MapObject.MagicObject = mapObject;
-                            }
-
+                            mapObject = AutoRemoteTarget(mapObject, amulet);
                             goto case MagicType.MassBeckon;
                         case MagicType.MagicShield:
                             if (User.Buffs.Any(x => x.Type == BuffType.MagicShield))
@@ -5729,7 +5693,30 @@ namespace Client.Scenes
                 StorageBox.Grid.Grid[item.Slot].Item = item;
             }
         }
+        private MapObject AutoRemoteTarget(MapObject mp, MagicHelper amulet)
+        {
+            MapObject result = mp;
 
+            if (CanAttackTarget(MagicObject))
+            {
+                result = MagicObject;
+                MapObject.MagicObject = result;
+            }
+            else if (CanAttackTarget(MouseObject))
+            {
+                result = MouseObject;
+                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0)
+                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : result))
+                    : result;
+            }
+            else if (CanAttackTarget(MonsterBox.Monster))
+            {
+                result = MonsterBox.Monster;
+                MapObject.MagicObject = result;
+            }
+
+            return result;
+        }
         private void AutoPoison(ClientUserMagic magic)
         {
             MagicHelper magicHelper = null;

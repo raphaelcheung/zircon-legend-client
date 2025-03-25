@@ -335,7 +335,7 @@ namespace Client.Scenes.Views
                 float num = (float)Config.血量剩下百分之多少时自动随机 / 100f;
                 if ((double)GameScene.Game.User.CurrentHP < (double)GameScene.Game.User.Stats[Stat.Health] * (double)num && CEnvir.Now > _ProtectTime)
                 {
-                    DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(x => x?.Item?.Info.ItemName == "随机传送卷");
+                    DXItemCell dxItemCell = GameScene.Game.InventoryBox.Grid.Grid.FirstOrDefault(x => x?.Item?.Info.ItemName == "随机传送卷");
                     if (dxItemCell != null && dxItemCell.UseItem())
                         _ProtectTime = CEnvir.Now.AddSeconds(5.0);
                 }
@@ -361,11 +361,11 @@ namespace Client.Scenes.Views
                 return;
 
             if (GameScene.Game.User.Dead && Config.死亡回城)
-                CEnvir.Enqueue((Packet)new TownRevive());
+                CEnvir.Enqueue(new TownRevive());
 
             if (Config.是否开启每间隔自动随机 && CEnvir.Now > _ProtectTime)
             {
-                DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault<DXItemCell>((Func<DXItemCell, bool>)(x => x?.Item?.Info.ItemName == "随机传送卷"));
+                DXItemCell dxItemCell = GameScene.Game.InventoryBox.Grid.Grid.FirstOrDefault(x => x?.Item?.Info.ItemName == "随机传送卷");
                 if (dxItemCell != null && dxItemCell.UseItem())
                     _ProtectTime = CEnvir.Now.AddSeconds((double)Config.隔多少秒自动随机一次);
             }
@@ -1800,7 +1800,7 @@ namespace Client.Scenes.Views
                 dxListBoxItem1.Parent = (DXControl)CombCmdBox.ListBox;
                 dxListBoxItem1.Label.Text = "空";
                 dxListBoxItem1.Item = (object)null;
-                string[] strArray = new string[12]
+                string[] strArray = new string[]
                 {
                    "@允许召唤",
                    "@队伍召唤",
@@ -1814,6 +1814,7 @@ namespace Client.Scenes.Views
                    "@允许交易",
                    "@允许加入行会",
                    "@退出行会",
+                   "@属性提取",
                 };
                 int dijihang = 0;
                 foreach (string str in strArray)

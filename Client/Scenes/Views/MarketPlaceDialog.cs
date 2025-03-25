@@ -910,7 +910,7 @@ namespace Client.Scenes.Views
                     ClientMarketPlaceInfo info = ConsignRows[index].MarketInfo;
                     if (info == null) return;
 
-                    DXItemAmountWindow window = new DXItemAmountWindow("Cancel Listing", info.Item);
+                    DXItemAmountWindow window = new DXItemAmountWindow("取消列表", info.Item);
 
                     window.ConfirmButton.MouseClick += (o1, e1) =>
                     {
@@ -1189,7 +1189,7 @@ namespace Client.Scenes.Views
                 Label = { Text = "游戏币购买" },
                 ButtonType = ButtonType.SmallButton,
                 Parent = AddGameGoldPanel,
-                Enabled = !CEnvir.TestServer
+                Enabled = false
             };
             RechargeButton.MouseClick += (o, e) =>
             {
@@ -1300,11 +1300,11 @@ namespace Client.Scenes.Views
             {
                 AutoSize = true,
                 Parent = StoreBuyPanel,
-                Text = "使用猎币:",
+                Text = "使用猎币",
             };
             UseHuntGoldBox.Location = new Point(158 - UseHuntGoldBox.Size.Width, 101);
             UseHuntGoldBox.CheckedChanged += UpdateStoreBuyTotal;
-
+            UseHuntGoldBox.Checked = true;
 
             StoreBuyButton = new DXButton
             {
@@ -1546,8 +1546,6 @@ namespace Client.Scenes.Views
         {
             StoreInfo info = SelectedStoreRow?.StoreInfo;
 
-
-
             if (UseHuntGoldBox.Checked)
             {
                 if (info != null)
@@ -1564,6 +1562,8 @@ namespace Client.Scenes.Views
             }
 
             StoreBuyTotalBox.TextBox.Text = (StoreBuyCountBox.Value * StoreBuyPriceBox.Value).ToString("#,##0");
+            StoreBuyPriceLabel.Location = new Point(50 - StoreBuyPriceLabel.Size.Width, 40);
+
         }
         private void ConsignScrollBar_ValueChanged(object sender, EventArgs e)
         {

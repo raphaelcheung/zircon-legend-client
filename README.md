@@ -61,11 +61,11 @@
 
 - 如果需要客户端自动更新，则必须通过 [启动器](https://gitee.com/raphaelcheung/zircon-legend-launcher) 来启动。
 
-### 下载依赖数据
+### 下载运行文件
 
 包含了海量地图和道具资源，压缩后仍有 3GB 大小，只能通过百度网盘来分享。
 
-【[百度网盘](https://pan.baidu.com/s/1OMkb834cOtxF8KIrlJMKRQ?pwd=h1bv)】
+【[百度网盘](https://pan.baidu.com/s/1dKrpu6G4p4klMVOIMuhOdA?pwd=j1rm)】
 
 如果嫌百度网盘太慢，这份数据我也放到了 QQ 群文件中，【[QQ群：915941142](https://qm.qq.com/q/JeoJOJ4z4e)】
 

@@ -663,7 +663,7 @@ namespace Client.Models
                         case MagicType.FireBall:
                             foreach (Point point in MagicLocations)
                             {
-                                Effects.Add(spell = new MirProjectile(420, 5, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
+                                Effects.Add(spell = new MirProjectile(420, 5, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
                                 {
                                     Blend = true,
                                     MapTarget = point,
@@ -673,7 +673,7 @@ namespace Client.Models
 
                             foreach (MapObject attackTarget in AttackTargets)
                             {
-                                Effects.Add(spell = new MirProjectile(420, 5, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
+                                Effects.Add(spell = new MirProjectile(420, 5, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
                                 {
                                     Blend = true,
                                     Target = attackTarget,
@@ -681,7 +681,7 @@ namespace Client.Models
 
                                 spell.CompleteAction = () =>
                                 {
-                                    attackTarget.Effects.Add(spell = new MirEffect(580, 10, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 10, 35, Globals.FireColour)
+                                    attackTarget.Effects.Add(spell = new MirEffect(580, 10, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 10, 35, Globals.FireColour)
                                     {
                                         Blend = true,
                                         Target = attackTarget,
@@ -901,7 +901,7 @@ namespace Client.Models
                                  DXSoundManager.Play(SoundIndex.GreaterFireBallTravel);*/
                             foreach (Point point in MagicLocations)
                             {
-                                Effects.Add(spell = new MirProjectile(1640, 6, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
+                                Effects.Add(spell = new MirProjectile(1640, 6, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
                                 {
                                     Blend = true,
                                     MapTarget = point,
@@ -911,7 +911,7 @@ namespace Client.Models
 
                             foreach (MapObject attackTarget in AttackTargets)
                             {
-                                Effects.Add(spell = new MirProjectile(1640, 6, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
+                                Effects.Add(spell = new MirProjectile(1640, 6, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 35, 35, Globals.FireColour, CurrentLocation)
                                 {
                                     Blend = true,
                                     Target = attackTarget,
@@ -921,7 +921,7 @@ namespace Client.Models
 
                                 spell.CompleteAction = () =>
                                 {
-                                    attackTarget.Effects.Add(spell = new MirEffect(1800, 10, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 10, 35, Globals.FireColour)
+                                    attackTarget.Effects.Add(spell = new MirEffect(1800, 10, TimeSpan.FromMilliseconds(66), LibraryFile.Magic, 10, 35, Globals.FireColour)
                                     {
                                         Blend = true,
                                         Target = attackTarget,
@@ -1067,13 +1067,13 @@ namespace Client.Models
                         #region Scortched Earth
 
                         case MagicType.ScortchedEarth:
-                            if (Config.DrawEffects && Race != ObjectType.Monster)
+                            if (Config.DrawEffects)
                                 foreach (Point point in MagicLocations)
                             {
-                                Effects.Add(new MirEffect(220, 1, TimeSpan.FromMilliseconds(2500), LibraryFile.ProgUse, 0, 0, Globals.NoneColour)
+                                Effects.Add(new MirEffect(220, 1, TimeSpan.FromMilliseconds(4500), LibraryFile.ProgUse, 0, 0, Globals.NoneColour)
                                 {
                                     MapTarget = point,
-                                    StartTime = CEnvir.Now.AddMilliseconds(500 + Functions.Distance(point, CurrentLocation) * 50),
+                                    StartTime = CEnvir.Now.AddMilliseconds((500 + Functions.Distance(point, CurrentLocation) * 50) * 2 / 3),
                                     Opacity = 0.8F,
                                     DrawType = DrawType.Floor,
                                 });
@@ -1082,15 +1082,15 @@ namespace Client.Models
                                 {
                                     Blend = true,
                                     MapTarget = point,
-                                    StartTime = CEnvir.Now.AddMilliseconds(500 + Functions.Distance(point, CurrentLocation) * 50),
+                                    StartTime = CEnvir.Now.AddMilliseconds((500 + Functions.Distance(point, CurrentLocation) * 50) * 2 / 3),
                                     DrawType = DrawType.Floor,
                                 });
 
-                                Effects.Add(new MirEffect(1900, 30, TimeSpan.FromMilliseconds(50), LibraryFile.Magic, 20, 70, Globals.FireColour)
+                                Effects.Add(new MirEffect(1900, 30, TimeSpan.FromMilliseconds(50 * 2 / 3), LibraryFile.Magic, 20, 70, Globals.FireColour)
                                 {
                                     Blend = true,
                                     MapTarget = point,
-                                    StartTime = CEnvir.Now.AddMilliseconds(Functions.Distance(point, CurrentLocation) * 50),
+                                    StartTime = CEnvir.Now.AddMilliseconds(Functions.Distance(point, CurrentLocation) * 50 * 2 / 3),
                                     BlendRate = 1F,
                                 });
 
@@ -1105,7 +1105,7 @@ namespace Client.Models
                             if (Config.DrawEffects && Race != ObjectType.Monster)
                                 foreach (Point point in MagicLocations)
                             {
-                                Effects.Add(spell = new MirEffect(1180, 4, TimeSpan.FromMilliseconds(100), LibraryFile.MagicEx, 150, 150, Globals.LightningColour)
+                                Effects.Add(spell = new MirEffect(1180, 4, TimeSpan.FromMilliseconds(100), LibraryFile.MagicEx, 150, 150, Color.White)
                                 {
                                     Blend = true,
                                     Target = this,
@@ -1122,7 +1122,7 @@ namespace Client.Models
                         #region Frozen Earth
 
                         case MagicType.FrozenEarth:
-                            if (Config.DrawEffects && Race != ObjectType.Monster)
+                            if (Config.DrawEffects)
                                 foreach (Point point in MagicLocations)
                             {
                                 Effects.Add(spell = new MirEffect(90, 20, TimeSpan.FromMilliseconds(50), LibraryFile.MagicEx, 20, 70, Globals.IceColour)
@@ -1214,7 +1214,7 @@ namespace Client.Models
                         case MagicType.FireStorm:
                             foreach (Point point in MagicLocations)
                             {
-                                spell = new MirEffect(950, 7, TimeSpan.FromMilliseconds(100), LibraryFile.Magic, 10, 35, Globals.FireColour)
+                                spell = new MirEffect(950, 7, TimeSpan.FromMilliseconds(100 * 2 / 3), LibraryFile.Magic, 10, 35, Globals.FireColour)
                                 {
                                     Blend = true,
                                     MapTarget = point,
@@ -1336,7 +1336,7 @@ namespace Client.Models
                             {
                                 MirProjectile eff;
                                 Point p = new Point(point.X + 4, point.Y - 10);
-                                Effects.Add(eff = new MirProjectile(1300, 10, TimeSpan.FromMilliseconds(100), LibraryFile.MagicEx5, 50, 80, Globals.FireColour, p)
+                                Effects.Add(eff = new MirProjectile(1300, 10, TimeSpan.FromMilliseconds(100 * 2 / 3), LibraryFile.MagicEx5, 50, 80, Globals.FireColour, p)
                                 {
                                     MapTarget = point,
                                     Skip = 0,
@@ -1346,7 +1346,7 @@ namespace Client.Models
 
                                 eff.CompleteAction = () =>
                                 {
-                                    Effects.Add(new MirEffect(1320, 8, TimeSpan.FromMilliseconds(100), LibraryFile.MagicEx5, 100, 100, Globals.NoneColour)
+                                    Effects.Add(new MirEffect(1320, 8, TimeSpan.FromMilliseconds(100 * 2 / 3), LibraryFile.MagicEx5, 100, 100, Globals.NoneColour)
                                     {
                                         MapTarget = eff.MapTarget,
                                         Blend = true,

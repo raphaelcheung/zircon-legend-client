@@ -610,7 +610,7 @@ namespace Client.Models
                     GameScene.Game.CanRun = true;
                     break;
                 case MirAction.Attack:
-                    attackDelay = Globals.AttackDelay - Stats[Stat.AttackSpeed]*Globals.ASpeedRate;
+                    attackDelay = Globals.AttackDelay - Stats[Stat.AttackSpeed] * Globals.ASpeedRate;
                     attackDelay = Math.Max(800, attackDelay);
 
                     if (MagicType == MagicType.Thrusting)
@@ -662,7 +662,27 @@ namespace Client.Models
                     GameScene.Game.CanRun = false;
                     break;
                 case MirAction.Spell:
-                    NextMagicTime = CEnvir.Now + Globals.MagicDelay;
+                    if (action.Extra[0] is MagicType magicType)
+                    {
+                        switch(magicType)
+                        {
+                            case MagicType.FireBall:
+                            case MagicType.AdamantineFireBall:
+                            case MagicType.ScortchedEarth:
+                            case MagicType.FireWall:
+                            case MagicType.FireStorm:
+                            case MagicType.MeteorShower:
+                            case MagicType.Asteroid:
+                                NextMagicTime = CEnvir.Now + Globals.FireMagicDelay;
+                                break;
+                            default:
+                                NextMagicTime = CEnvir.Now + Globals.MagicDelay;
+                                break;
+                        }
+                    }
+                    else
+                        NextMagicTime = CEnvir.Now + Globals.MagicDelay;
+
                     if (BagWeight > Stats[Stat.BagWeight])
                         NextMagicTime += Globals.MagicDelay;
 
