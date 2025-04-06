@@ -116,6 +116,9 @@ namespace Client.Scenes
         public DXControl ItemLabel, MagicLabel;
         private DateTime skillTime1 { get; set; }
         private DateTime skillTime2 { get; set; }
+
+        public MagicInfo LastMagic { get; private set; } = null;
+        public MapObject LastTarget { get; private set; } = null;
         #region MouseItem
 
         public ClientUserItem MouseItem
@@ -3133,7 +3136,7 @@ namespace Client.Scenes
             if (magic == null || User.Level < magic.Info.NeedLevel1)
                 return;
             MapObject mapObject = null;
-            MagicHelper amulet = TakeAmulet(magic);
+            MagicHelper helpper = TakeAmulet(magic);
             switch (magic.Info.Magic)
             {
                 case MagicType.Swordsmanship:
@@ -3854,6 +3857,8 @@ namespace Client.Scenes
                             if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
                                 FocusObject = MouseObject;
 
+                            LastTarget = mapObject ?? MouseObject;
+
                             User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
                             {
                                  magic.Info.Magic,
@@ -3942,7 +3947,7 @@ namespace Client.Scenes
                             if (magic.Info.Magic == MagicType.Purification)
                                 mapObject = MouseObject ?? (MapObject)User;
                             else
-                                mapObject = AutoRemoteTarget(mapObject, amulet);
+                                mapObject = AutoRemoteTarget(mapObject, helpper);
                             
                             goto case MagicType.MassBeckon;
                         case MagicType.PoisonDust:
@@ -3953,7 +3958,7 @@ namespace Client.Scenes
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
                                 AutoPoison(magic);
 
-                            mapObject = AutoRemoteTarget(mapObject, amulet);
+                            mapObject = AutoRemoteTarget(mapObject, helpper);
                             goto case MagicType.MassBeckon;
                         case MagicType.MagicShield:
                             if (User.Buffs.Any(x => x.Type == BuffType.MagicShield))
@@ -3973,6 +3978,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper);
+
                             goto case MagicType.MassBeckon;
                         case MagicType.Asteroid:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -3983,6 +3991,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper);
+
                             goto case MagicType.MassBeckon;
                         case MagicType.RayOfLight:
                             return;
@@ -4003,7 +4014,7 @@ namespace Client.Scenes
                                 return;
                             goto case MagicType.MassBeckon;
                         case MagicType.Heal:
-                            mapObject = MouseObject ?? (MapObject)User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
                             goto case MagicType.MassBeckon;
                         case MagicType.SpiritSword:
                             return;
@@ -4017,6 +4028,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+
                             goto case MagicType.MassBeckon;
                         case MagicType.MassInvisibility:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -4037,6 +4051,8 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper);
                             goto case MagicType.MassBeckon;
                         case MagicType.TaoistCombatKick:
                         case MagicType.ThunderKick:
@@ -4059,6 +4075,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+
                             goto case MagicType.MassBeckon;
                         case MagicType.MassHeal:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -4069,6 +4088,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+
                             goto case MagicType.MassBeckon;
                         case MagicType.BloodLust:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -4079,6 +4101,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+
                             goto case MagicType.MassBeckon;
                         case MagicType.Resurrection:
                             if (MouseObject == null || !MouseObject.Dead || MouseObject.Race != ObjectType.Player)
@@ -4110,6 +4135,9 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
+
+                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+
                             goto case MagicType.MassBeckon;
                         case MagicType.GreaterPoisonDust:
                             return;
@@ -4243,8 +4271,9 @@ namespace Client.Scenes
             }
 
             UseMagic(magic);
+            LastMagic = magic.Info;
         }
-        private bool CanAttackTarget(MapObject ob)
+        public bool CanAttackTarget(MapObject ob)
         {
             if (ob == null || ob.Dead) return false;
 
@@ -5693,21 +5722,21 @@ namespace Client.Scenes
                 StorageBox.Grid.Grid[item.Slot].Item = item;
             }
         }
-        private MapObject AutoRemoteTarget(MapObject mp, MagicHelper amulet)
+        private MapObject AutoRemoteTarget(MapObject mp, MagicHelper helpper)
         {
             MapObject result = mp;
 
-            if (CanAttackTarget(MagicObject))
+            if (CanAttackTarget(MouseObject))
+            {
+                result = MouseObject;
+                MapObject.MagicObject = helpper == null || !helpper.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0)
+                    ? (helpper == null || !helpper.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : result))
+                    : result;
+            }
+            else if (CanAttackTarget(MagicObject))
             {
                 result = MagicObject;
                 MapObject.MagicObject = result;
-            }
-            else if (CanAttackTarget(MouseObject))
-            {
-                result = MouseObject;
-                MapObject.MagicObject = amulet == null || !amulet.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0)
-                    ? (amulet == null || !amulet.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : result))
-                    : result;
             }
             else if (CanAttackTarget(MonsterBox.Monster))
             {

@@ -296,15 +296,71 @@ namespace Client.Scenes.Views
             if (Config.自动风之闪避 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Evasion))
                 GameScene.Game.UseMagic(MagicType.Evasion);
 
-            if (MapObject.User.Class == MirClass.Warrior)
+            switch(MapObject.User.Class)
             {
-                if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
-                    GameScene.Game.UseMagic(MagicType.BladeStorm);
-                else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
-                    GameScene.Game.UseMagic(MagicType.FlamingSword);
-                else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
-                    GameScene.Game.UseMagic(MagicType.DragonRise);
-
+                case MirClass.Warrior:
+                    if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
+                        GameScene.Game.UseMagic(MagicType.BladeStorm);
+                    else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
+                        GameScene.Game.UseMagic(MagicType.FlamingSword);
+                    else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
+                        GameScene.Game.UseMagic(MagicType.DragonRise);
+                    break;
+                case MirClass.Wizard:
+                    if (Config.自动法师连续技能 
+                        && GameScene.Game.LastMagic != null
+                        && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
+                        || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    {
+                        switch(GameScene.Game.LastMagic.Magic)
+                        {
+                            case MagicType.FireBall:
+                            case MagicType.LightningBall:
+                            case MagicType.IceBolt:
+                            case MagicType.GustBlast:
+                            case MagicType.ElectricShock:
+                            case MagicType.AdamantineFireBall:
+                            case MagicType.ThunderBolt:
+                            case MagicType.IceBlades:
+                            case MagicType.Cyclone:
+                            case MagicType.ScortchedEarth:
+                            case MagicType.LightningBeam:
+                            case MagicType.FrozenEarth:
+                            case MagicType.BlowEarth:
+                            case MagicType.ExpelUndead:
+                            case MagicType.FireStorm:
+                            case MagicType.LightningWave:
+                            case MagicType.IceStorm:
+                            case MagicType.DragonTornado:
+                            case MagicType.GreaterFrozenEarth:
+                            case MagicType.ChainLightning:
+                            case MagicType.MeteorShower:
+                            case MagicType.Asteroid:
+                                GameScene.Game.UseMagic(GameScene.Game.LastMagic.Magic);
+                                break;
+                        }
+                    }
+                    break;
+                case MirClass.Taoist:
+                    if (Config.自动道士连续技能 
+                        && GameScene.Game.LastMagic != null
+                        && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
+                        || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    {
+                        switch(GameScene.Game.LastMagic.Magic)
+                        {
+                            case MagicType.Heal:
+                            case MagicType.ExplosiveTalisman:
+                            case MagicType.EvilSlayer:
+                            case MagicType.GreaterEvilSlayer:
+                            case MagicType.MassHeal:
+                            case MagicType.ImprovedExplosiveTalisman:
+                            case MagicType.GreaterHolyStrike:
+                                GameScene.Game.UseMagic(GameScene.Game.LastMagic.Magic);
+                                break;
+                        }
+                    }
+                    break;
             }
 
             if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.RagingWind)))
@@ -1492,11 +1548,14 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoMagicShield;
             public DXCheckBox AutoRenounce;
             public DXCheckBox AutoThunder;
-            public DXCheckBox AutoSuperiorMagicShield;
+            //public DXCheckBox AutoSuperiorMagicShield;
+            public DXCheckBox AutoWizardSkill;
             public BigPatchDialog.DXGroupBox Taoist;
             public DXCheckBox AutoPoisonDust;
             public DXCheckBox AutoAmulet;
             public DXCheckBox AutoCelestial;
+            public DXCheckBox AutoTaoistSkill;
+
             public BigPatchDialog.DXGroupBox Assassin;
             public DXCheckBox AutoFourFlowers;
             public DXCheckBox AutoEvasion;
@@ -1642,18 +1701,20 @@ namespace Client.Scenes.Views
                 int num3 = 5;
                 int num4;
                 AutoMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔法盾", x1, num4 = num3 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);
-                AutoMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
-                {
-                    AutoMagicShield_CheckedChanged();
-                });
+                //AutoMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                //{
+                //    AutoMagicShield_CheckedChanged();
+                //});
                 int num5;
                 AutoRenounce = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动凝血", x1, num5 = num4 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动凝血 = AutoRenounce.Checked), Config.自动凝血);
                 AutoThunder = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动天打雷劈", x1, num2 = num5 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动天打雷劈 = AutoThunder.Checked), Config.自动天打雷劈);
-                AutoSuperiorMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔光盾", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔光盾 = AutoSuperiorMagicShield.Checked), Config.自动魔光盾);
-                AutoSuperiorMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
-                {
-                    AutoSuperiorMagicShield_CheckedChanged();
-                });
+                //AutoSuperiorMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔光盾", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔光盾 = AutoSuperiorMagicShield.Checked), Config.自动魔光盾);
+                //AutoSuperiorMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                //{
+                //    AutoSuperiorMagicShield_CheckedChanged();
+                //});
+
+                AutoWizardSkill = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动法师连续技能 = AutoWizardSkill.Checked), Config.自动法师连续技能);
 
 
                 int num6 = 5;
@@ -1662,6 +1723,8 @@ namespace Client.Scenes.Views
                 int num8;
                 AutoAmulet = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动换符", x1, num8 = num7 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
                 AutoCelestial = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动阴阳盾", x1, num2 = num8 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
+                AutoTaoistSkill = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
+
                 int num9 = 5;
                 int num10;
                 AutoFourFlowers = BigPatchDialog.CreateCheckBox((DXControl)Assassin, "自动四花", x1, num10 = num9 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动四花 = AutoFourFlowers.Checked), Config.自动四花);
@@ -2211,20 +2274,20 @@ namespace Client.Scenes.Views
                     ChkAutoRandom.Checked = false;
                 }
             }
-            private void AutoMagicShield_CheckedChanged()
-            {
-                if (AutoMagicShield.Checked)
-                {
-                    AutoSuperiorMagicShield.Checked = false;
-                }
-            }
-            private void AutoSuperiorMagicShield_CheckedChanged()
-            {
-                if (AutoSuperiorMagicShield.Checked)
-                {
-                    AutoMagicShield.Checked = false;
-                }
-            }
+            //private void AutoMagicShield_CheckedChanged()
+            //{
+            //    if (AutoMagicShield.Checked)
+            //    {
+            //        AutoSuperiorMagicShield.Checked = false;
+            //    }
+            //}
+            //private void AutoSuperiorMagicShield_CheckedChanged()
+            //{
+            //    if (AutoSuperiorMagicShield.Checked)
+            //    {
+            //        AutoMagicShield.Checked = false;
+            //    }
+            //}
 
             public void Zhixingmingling()
             {

@@ -98,7 +98,8 @@ namespace Client.Envir
 
         public static bool 自动天打雷劈 { get; set; } = false;
         public static bool 自动魔光盾 { get; set; } = false;
-
+        public static bool 自动法师连续技能 { get; set; } = true;
+        public static bool 自动道士连续技能 { get; set; } = true;
         public static bool 自动换毒 { get; set; } = false;
 
         public static bool 自动换符 { get; set; } = false;

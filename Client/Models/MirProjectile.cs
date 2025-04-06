@@ -19,12 +19,12 @@ namespace Client.Models
         public int Direction16 { get; set; }
         public bool Has16Directions { get; set; }
 
-        public MirProjectile(int startIndex, int frameCount, TimeSpan frameDelay, LibraryFile file, int startlight, int endlight, Color lightColour, Point origin) : base(startIndex, frameCount, frameDelay, file, startlight, endlight, lightColour)
+        public MirProjectile(int startIndex, int frameCount, TimeSpan frameDelay, LibraryFile file, int startlight, int endlight, Color lightColour, Point origin, int speed = 50) : base(startIndex, frameCount, frameDelay, file, startlight, endlight, lightColour)
         {
             Has16Directions = true;
 
             Origin = origin;
-            Speed = 50;
+            Speed = speed;
             Explode = false;
         }
 
@@ -47,7 +47,7 @@ namespace Client.Models
             int y1 = (location.Y - MapObject.User.CurrentLocation.Y + MapObject.OffSetY) * MapObject.CellHeight - MapObject.User.MovingOffSet.Y;
 
             Direction16 = Functions.Direction16(new Point(x, y / 32 * 48), new Point(x1, y1 / 32 * 48));
-            long duration = Functions.Distance(new Point(x, y / 32 * 48), new Point(x1, y1 / 32 * 48)) * TimeSpan.TicksPerMillisecond;
+            long duration = Functions.Distance(new Point(x, y / 32 * 48), new Point(x1, y1 / 32 * 48)) * TimeSpan.TicksPerMillisecond * 50 / Speed;
 
             if (!Has16Directions)
                 Direction16 /= 2;

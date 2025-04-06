@@ -53,6 +53,7 @@ namespace Client.Scenes.Views
             if (Monster == null) return;
 
             NameLabel.Text = Monster.MonsterInfo.MonsterName;
+            RaceLabel.Text = Monster.MonsterInfo.CanTame ? "生" : (Monster.MonsterInfo.Undead ? "死" : "魔");
             LevelLabel.Text = Monster.MonsterInfo.Level.ToString();
 
             RefreshStats();
@@ -93,7 +94,8 @@ namespace Client.Scenes.Views
         
         public DXImageControl AttackIcon;
 
-        public DXLabel LevelLabel, NameLabel, HealthLabel, ACLabel, MRLabel, DCLabel;
+        public DXLabel LevelLabel, HealthLabel, ACLabel, MRLabel, DCLabel, RaceLabel;
+        public DXLabel NameLabel { get; set; }
         public DXLabel FireResistLabel, IceResistLabel, LightningResistLabel, WindResistLabel, HolyResistLabel, DarkResistLabel, PhantomResistLabel, PhysicalResistLabel;
         public DXButton ExpandButton;
 
@@ -157,11 +159,23 @@ namespace Client.Scenes.Views
                 IsControl = false
             };
 
+            RaceLabel = new DXLabel
+            {
+                AutoSize = false,
+                Size = new Size(24, 18),
+                BorderSize = 1,
+                Location = new Point(0, 0),
+                Border = true,
+                Parent = panel,
+                DrawFormat = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter,
+                IsControl = false
+            };
+
             NameLabel = new DXLabel
             {
                 AutoSize = false,
-                Size = new Size(139, 18),
-                Location = new Point(0, 0),
+                Size = new Size(115, 18),
+                Location = new Point(24, 0),
                 Border = true,
                 Parent = panel,
                 ForeColour = Color.White,
