@@ -268,37 +268,21 @@ namespace Client.Scenes.Views
 
         public void AutoSkills()
         {
-
-            if (Config.自动铁布衫 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Defiance))
-                GameScene.Game.UseMagic(MagicType.Defiance);
-
-            if (Config.自动破血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Might))
-                GameScene.Game.UseMagic(MagicType.Might);
-
-
-            if (Config.自动魔法盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.MagicShield))
-                GameScene.Game.UseMagic(MagicType.MagicShield);
-
-            if (Config.自动凝血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Renounce))
-                GameScene.Game.UseMagic(MagicType.Renounce);
-
-            if (Config.自动天打雷劈 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.JudgementOfHeaven))
-                GameScene.Game.UseMagic(MagicType.JudgementOfHeaven);
-
-            //if (Config.自动魔光盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ShieldOfPreservation))
-            //    GameScene.Game.UseMagic(MagicType.ShieldOfPreservation);
-
-
-            if (Config.自动阴阳盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.CelestialLight))
-                GameScene.Game.UseMagic(MagicType.CelestialLight);
-
-
-            if (Config.自动风之闪避 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Evasion))
-                GameScene.Game.UseMagic(MagicType.Evasion);
-
-            switch(MapObject.User.Class)
+            switch(GameScene.Game.User.Class)
             {
                 case MirClass.Warrior:
+                    if (Config.自动铁布衫 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Defiance))
+                    {
+                        GameScene.Game.UseMagic(MagicType.Defiance);
+                        return;
+                    }
+
+                    if (Config.自动破血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Might))
+                    {
+                        GameScene.Game.UseMagic(MagicType.Might);
+                        return;
+                    }
+
                     if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
                         GameScene.Game.UseMagic(MagicType.BladeStorm);
                     else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
@@ -307,12 +291,41 @@ namespace Client.Scenes.Views
                         GameScene.Game.UseMagic(MagicType.DragonRise);
                     break;
                 case MirClass.Wizard:
-                    if (Config.自动法师连续技能 
-                        && GameScene.Game.LastMagic != null
-                        && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
-                        || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    if (Config.自动魔法盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.MagicShield))
                     {
-                        switch(GameScene.Game.LastMagic.Magic)
+                        GameScene.Game.UseMagic(MagicType.MagicShield);
+                        return;
+                    }
+
+                    if (Config.自动凝血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Renounce))
+                    {
+                        GameScene.Game.UseMagic(MagicType.Renounce);
+                        return;
+                    }
+
+                    if (Config.自动天打雷劈 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.JudgementOfHeaven))
+                    {
+                        GameScene.Game.UseMagic(MagicType.JudgementOfHeaven);
+                        return;
+                    }
+
+                    //if (Config.自动魔光盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ShieldOfPreservation))
+                    //    GameScene.Game.UseMagic(MagicType.ShieldOfPreservation);
+
+                    if (Config.自动法师连续技能
+                    && GameScene.Game.LastMagic != null
+                    && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
+                    || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    {
+                        var target = GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget) ? GameScene.Game.LastTarget : GameScene.Game.MouseObject;
+                        var helpper = GameScene.Game.GetMagicHelpper(GameScene.Game.LastMagic.Magic);
+
+                        if (helpper == null) break;
+
+                        if (!helpper.LockMonster && target.Race == ObjectType.Monster) break;
+                        if (!helpper.LockPlayer && target.Race == ObjectType.Player) break;
+
+                        switch (GameScene.Game.LastMagic.Magic)
                         {
                             case MagicType.FireBall:
                             case MagicType.LightningBall:
@@ -341,19 +354,34 @@ namespace Client.Scenes.Views
                         }
                     }
                     break;
+
                 case MirClass.Taoist:
-                    if (Config.自动道士连续技能 
-                        && GameScene.Game.LastMagic != null
-                        && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
-                        || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    if (Config.自动阴阳盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.CelestialLight))
                     {
-                        switch(GameScene.Game.LastMagic.Magic)
+    					GameScene.Game.UseMagic(MagicType.CelestialLight);
+						return;
+					}
+
+                    if (Config.自动道士连续技能
+                    && GameScene.Game.LastMagic != null
+                    && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
+                    || GameScene.Game.CanAttackTarget(GameScene.Game.MouseObject)))
+                    {
+                        var target = GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget) ? GameScene.Game.LastTarget : GameScene.Game.MouseObject;
+                        var helpper = GameScene.Game.GetMagicHelpper(GameScene.Game.LastMagic.Magic);
+
+                        if (helpper == null) break;
+
+                        if (!helpper.LockMonster && target.Race == ObjectType.Monster) break;
+                        if (!helpper.LockPlayer && target.Race == ObjectType.Player) break;
+
+                        switch (GameScene.Game.LastMagic.Magic)
                         {
                             case MagicType.Heal:
                             case MagicType.ExplosiveTalisman:
                             case MagicType.EvilSlayer:
                             case MagicType.GreaterEvilSlayer:
-                            case MagicType.MassHeal:
+                            //case MagicType.MassHeal:
                             case MagicType.ImprovedExplosiveTalisman:
                             case MagicType.GreaterHolyStrike:
                                 GameScene.Game.UseMagic(GameScene.Game.LastMagic.Magic);
@@ -361,11 +389,17 @@ namespace Client.Scenes.Views
                         }
                     }
                     break;
-            }
 
-            if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.RagingWind)))
-                return;
-            GameScene.Game.UseMagic(MagicType.RagingWind);
+                case MirClass.Assassin:
+                    if (Config.自动风之闪避 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Evasion))
+                        GameScene.Game.UseMagic(MagicType.Evasion);
+
+                    if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.RagingWind)))
+                        return;
+
+                    GameScene.Game.UseMagic(MagicType.RagingWind);
+                    break;
+            }
         }
 
         public void UpdateAutoAssist()

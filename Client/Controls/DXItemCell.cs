@@ -1456,9 +1456,7 @@ namespace Client.Controls
 
                     if ((CEnvir.Now < GameScene.Game.UseItemTime && Item.Info.Effect != ItemEffect.ElixirOfPurification) || MapObject.User.Horse != HorseType.None) return false;
 
-
-                    GameScene.Game.UseItemTime = CEnvir.Now.AddMilliseconds(Math.Max(250, Item.Info.Durability));
-                    
+                    GameScene.Game.UseItemTime = CEnvir.Now.AddMilliseconds(Math.Max(250, Item.Info.Shape == 29 ? 0 : Item.Info.Durability));
 
                     Locked = true;
 

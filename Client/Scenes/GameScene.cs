@@ -1266,8 +1266,12 @@ namespace Client.Scenes
 
 
             MonsterObject mob = MouseObject as MonsterObject;
+            bool isWizardOrTaoist = User.Class == MirClass.Wizard || User.Class == MirClass.Taoist;
 
-            if (Config.开始挂机)
+
+            if (Config.开始挂机 
+                && ((Config.是否开启挂机自动技能 && isWizardOrTaoist)
+                || !isWizardOrTaoist))
             {
                 var pick = MapControl.FindNearstItem();
 
@@ -1322,6 +1326,8 @@ namespace Client.Scenes
             {
                 case Keys.Escape:
                     MonsterBox.Monster = null;
+                    LastTarget = null;
+                    LastMagic = null;
                     e.Handled = true;
                     break;
             }
@@ -3087,20 +3093,23 @@ namespace Client.Scenes
             }
             UseMagic(clientUserMagic);
         }
+        public MagicHelper GetMagicHelpper(MagicType magic)
+        {
+            for (int index = 0; index < Config.magics.Count; ++index)
+            {
+                if (Config.magics[index].TypeID == magic)
+                    return Config.magics[index];
+            }
+
+            return null;
+        }
         public MagicHelper TakeAmulet(ClientUserMagic magic)
         {
             MagicHelper magicHelper = null;
             if (!CEnvir.NeedAmulet(magic.Info)) return magicHelper;
 
 
-            for (int index = 0; index < Config.magics.Count; ++index)
-            {
-                if (Config.magics[index].TypeID == magic.Info.Magic)
-                {
-                    magicHelper = Config.magics[index];
-                    break;
-                }
-            }
+            magicHelper = GetMagicHelpper(magic.Info.Magic);
             if (!Config.自动换符)
                 return magicHelper;
             if (magicHelper == null)
@@ -3857,7 +3866,41 @@ namespace Client.Scenes
                             if (MouseObject != null && MouseObject.Race == ObjectType.Monster)
                                 FocusObject = MouseObject;
 
-                            LastTarget = mapObject ?? MouseObject;
+                            //Console.WriteLine($"触发 {magic.Info.Name}");
+
+                            if (magic != null)
+                            {
+                                switch (magic.Info.Magic)
+                                {
+                                    case MagicType.FireBall:
+                                    case MagicType.LightningBall:
+                                    case MagicType.IceBolt:
+                                    case MagicType.GustBlast:
+                                    case MagicType.ElectricShock:
+                                    case MagicType.AdamantineFireBall:
+                                    case MagicType.ThunderBolt:
+                                    case MagicType.IceBlades:
+                                    case MagicType.Cyclone:
+                                    case MagicType.ScortchedEarth:
+                                    case MagicType.LightningBeam:
+                                    case MagicType.FrozenEarth:
+                                    case MagicType.BlowEarth:
+                                    case MagicType.ExpelUndead:
+                                    case MagicType.FireStorm:
+                                    case MagicType.LightningWave:
+                                    case MagicType.IceStorm:
+                                    case MagicType.DragonTornado:
+                                    case MagicType.ChainLightning:
+                                    case MagicType.MeteorShower:
+                                    case MagicType.Heal:
+                                    case MagicType.BloodLust:
+                                    case MagicType.ImprovedExplosiveTalisman:
+                                    case MagicType.PoisonDust:
+                                    case MagicType.Asteroid:
+                                        LastTarget = mapObject ?? MouseObject;
+                                        break;
+                                }
+                            }
 
                             User.MagicAction = new ObjectAction(MirAction.Spell, direction, MapObject.User.CurrentLocation, new object[4]
                             {
@@ -3947,7 +3990,7 @@ namespace Client.Scenes
                             if (magic.Info.Magic == MagicType.Purification)
                                 mapObject = MouseObject ?? (MapObject)User;
                             else
-                                mapObject = AutoRemoteTarget(mapObject, helpper);
+                                mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             
                             goto case MagicType.MassBeckon;
                         case MagicType.PoisonDust:
@@ -3958,7 +4001,7 @@ namespace Client.Scenes
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
                                 AutoPoison(magic);
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper);
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             goto case MagicType.MassBeckon;
                         case MagicType.MagicShield:
                             if (User.Buffs.Any(x => x.Type == BuffType.MagicShield))
@@ -3979,7 +4022,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper);
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
 
                             goto case MagicType.MassBeckon;
                         case MagicType.Asteroid:
@@ -3992,7 +4035,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper);
+                            //mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
 
                             goto case MagicType.MassBeckon;
                         case MagicType.RayOfLight:
@@ -4014,7 +4057,7 @@ namespace Client.Scenes
                                 return;
                             goto case MagicType.MassBeckon;
                         case MagicType.Heal:
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
                             goto case MagicType.MassBeckon;
                         case MagicType.SpiritSword:
                             return;
@@ -4029,7 +4072,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.MassInvisibility:
@@ -4052,7 +4095,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper);
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             goto case MagicType.MassBeckon;
                         case MagicType.TaoistCombatKick:
                         case MagicType.ThunderKick:
@@ -4076,7 +4119,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.MassHeal:
@@ -4089,7 +4132,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            //mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.BloodLust:
@@ -4102,7 +4145,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.Resurrection:
@@ -4136,7 +4179,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper) ?? User;
+                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.GreaterPoisonDust:
@@ -4271,7 +4314,40 @@ namespace Client.Scenes
             }
 
             UseMagic(magic);
-            LastMagic = magic.Info;
+
+            if (magic != null)
+            {
+                switch(magic.Info.Magic)
+                {
+                    case MagicType.FireBall:
+                    case MagicType.LightningBall:
+                    case MagicType.IceBolt:
+                    case MagicType.GustBlast:
+                    case MagicType.ElectricShock:
+                    case MagicType.AdamantineFireBall:
+                    case MagicType.ThunderBolt:
+                    case MagicType.IceBlades:
+                    case MagicType.Cyclone:
+                    case MagicType.ScortchedEarth:
+                    case MagicType.LightningBeam:
+                    case MagicType.FrozenEarth:
+                    case MagicType.BlowEarth:
+                    case MagicType.ExpelUndead:
+                    case MagicType.FireStorm:
+                    case MagicType.LightningWave:
+                    case MagicType.IceStorm:
+                    case MagicType.DragonTornado:
+                    case MagicType.ChainLightning:
+                    case MagicType.MeteorShower:
+                    case MagicType.Heal:
+                    case MagicType.BloodLust:
+                    case MagicType.ImprovedExplosiveTalisman:
+                    case MagicType.PoisonDust:
+                    case MagicType.Asteroid:
+                        LastMagic = magic.Info;
+                        break;
+                }
+            }
         }
         public bool CanAttackTarget(MapObject ob)
         {
@@ -4280,6 +4356,37 @@ namespace Client.Scenes
             switch (ob.Race)
             {
                 case ObjectType.Player:
+                    switch (User.AttackMode)
+                    {
+                        case AttackMode.Peace: return false;
+                        case AttackMode.Group:
+                            if (ob.Name == User.Name) return false;
+                            else
+                            {
+                                foreach (var mem in GroupBox.Members)
+                                    if (mem.Name == ob.Name)
+                                        return false;
+                            }
+                            break;
+                        case AttackMode.Guild:
+                            if (ob.Name == User.Name) return false;
+                            else if (ob.Title == User.Title) return false;
+                            break;
+                        case AttackMode.WarRedBrown:
+                            if (ob.Name == User.Name) return false;
+                            else
+                            {
+                                if (ob.NameColour == Globals.RedNameColour
+                                    || ob.NameColour == Globals.BrownNameColour
+                                    || ob.NameColour != Color.Yellow)
+                                    return true;
+
+                                if (string.IsNullOrEmpty(ob.Title)) return false;
+
+                                return GuildWars.Contains(ob.Title);       
+                            }
+                    }
+
                     return true;
                 case ObjectType.Monster:
                     MonsterObject mob = (MonsterObject) ob;
@@ -4287,8 +4394,6 @@ namespace Client.Scenes
                     if (mob.MonsterInfo.AI < 0) return false;
 
                     return true;
-
-
                 default:
                     return false;
             }
@@ -5709,7 +5814,7 @@ namespace Client.Scenes
                 InventoryBox.Grid.Grid[item.Slot].Item = item;
             }
         }
-
+         
         public void SortFillStorageItems(List<ClientUserItem> items)
         {
             for (int i = 0; i < Globals.StorageSize; i++)
@@ -5722,7 +5827,7 @@ namespace Client.Scenes
                 StorageBox.Grid.Grid[item.Slot].Item = item;
             }
         }
-        private MapObject AutoRemoteTarget(MapObject mp, MagicHelper helpper)
+        private MapObject AutoRemoteTarget(MapObject mp, MagicHelper helpper, MagicType magic)
         {
             MapObject result = mp;
 
@@ -5730,7 +5835,7 @@ namespace Client.Scenes
             {
                 result = MouseObject;
                 MapObject.MagicObject = helpper == null || !helpper.LockMonster || (MouseObject.Race != ObjectType.Monster || ((MonsterObject)MouseObject).MonsterInfo.AI < 0)
-                    ? (helpper == null || !helpper.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User ? MagicObject : result))
+                    ? (helpper == null || !helpper.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User && magic == MagicType.Heal ? MagicObject : result))
                     : result;
             }
             else if (CanAttackTarget(MagicObject))

@@ -865,7 +865,8 @@ namespace Client.Scenes.Views
                                 if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
                                     return;
 
-                                GameScene.Game.UseMagic(Config.挂机自动技能);
+                                if (Config.是否开启挂机自动技能)
+                                    GameScene.Game.UseMagic(Config.挂机自动技能);
                                 return;
                             }
                             mirDirection1 = mirDirection2;
@@ -890,7 +891,8 @@ namespace Client.Scenes.Views
 
                     if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
                     {
-                        GameScene.Game.UseMagic(Config.挂机自动技能);
+                        if (Config.是否开启挂机自动技能)
+                            GameScene.Game.UseMagic(Config.挂机自动技能);
                         return;
                     }
                 }
