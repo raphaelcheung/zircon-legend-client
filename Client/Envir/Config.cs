@@ -105,6 +105,8 @@ namespace Client.Envir
         public static bool 自动换符 { get; set; } = false;
 
         public static bool 自动阴阳盾 { get; set; } = false;
+        public static bool 有宠物时自动移花接玉 { get; set; } = true;
+        public static bool 自动吸星大法 { get; set; } = false;
 
         public static bool 自动四花 { get; set; } = false;
 

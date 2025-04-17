@@ -294,7 +294,7 @@ namespace Client.Scenes.Views
                     text = $"反射伤害\n";
                     break;
                 case BuffType.Renounce:
-                    text = $"放弃\n";
+                    text = $"凝血\n";
                     break;
                 case BuffType.MagicShield:
                     text = $"魔法盾\n";

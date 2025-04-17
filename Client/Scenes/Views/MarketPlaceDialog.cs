@@ -121,7 +121,7 @@ namespace Client.Scenes.Views
                 BuyPanel.Enabled = !GameScene.Game.Observer;
 
                 BuyCountBox.MinValue = 1;
-                BuyCountBox.MaxValue = nValue.MarketInfo.Item.Count;
+                BuyCountBox.MaxValue = nValue.MarketInfo.Item?.Count ?? 1;
                 BuyCountBox.Value = 1;
 
                 BuyPriceBox.MinValue = nValue.MarketInfo.Price;
@@ -393,7 +393,7 @@ namespace Client.Scenes.Views
             DXButton ClearButton = new DXButton
             {
                 Size = new Size(50, SmallButtonHeight),
-                Location = new Point(SearchButton.Location.X + SearchButton.Size.Width + 40, label.Location.Y - 1),
+                Location = new Point(SearchButton.Location.X + SearchButton.Size.Width + 10, label.Location.Y - 1),
                 Parent = filterPanel,
                 ButtonType = ButtonType.SmallButton,
                 Label = { Text = "清除" }
@@ -1067,7 +1067,7 @@ namespace Client.Scenes.Views
             ClearButton = new DXButton
             {
                 Size = new Size(50, SmallButtonHeight),
-                Location = new Point(SearchButton.Location.X + SearchButton.Size.Width + 40, label.Location.Y - 1),
+                Location = new Point(SearchButton.Location.X + SearchButton.Size.Width + 10, label.Location.Y - 1),
                 Parent = filterPanel,
                 ButtonType = ButtonType.SmallButton,
                 Label = { Text = "清除" }

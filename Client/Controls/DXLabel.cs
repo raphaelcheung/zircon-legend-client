@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Client.Envir;
 using SlimDX;
 using SlimDX.Direct3D9;
+using static Client.Scenes.Views.MapControl;
 using Font = System.Drawing.Font;
 
 //Cleaned
@@ -14,17 +15,17 @@ namespace Client.Controls
     public class DXLabel : DXControl
     {
         #region Static
-        public static Size GetSize(string text, Font font, bool outline)
+        public static Size GetSize(string text, Font font, byte outlineWeight = 0)
         {
             if (string.IsNullOrEmpty(text))
                 return Size.Empty;
             
             Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, text, font);
 
-            if (outline && tempSize.Width > 0 && tempSize.Height > 0)
+            if (tempSize.Width > 0 && tempSize.Height > 0)
             {
-                tempSize.Width += 2;
-                tempSize.Height += 2;
+                tempSize.Width += outlineWeight * 2;
+                tempSize.Height += outlineWeight * 2;
             }
 
             return tempSize;
@@ -39,8 +40,8 @@ namespace Client.Controls
 
             if (Outline && tempSize.Width > 0 && tempSize.Height > 0)
             {
-                tempSize.Width += 2;
-                tempSize.Height += 2;
+                tempSize.Width += OutlineWeight * 2;
+                tempSize.Height += OutlineWeight * 2;
             }
 
             return tempSize;
@@ -51,8 +52,8 @@ namespace Client.Controls
 
             if (label.Outline && tempSize.Width > 0 && tempSize.Height > 0)
             {
-                tempSize.Width += 2;
-                tempSize.Height += 2;
+                tempSize.Width += label.OutlineWeight * 2;
+                tempSize.Height += label.OutlineWeight * 2;
             }
 
             return tempSize;
@@ -144,6 +145,24 @@ namespace Client.Controls
         #endregion
 
         #region Outline
+        public byte OutlineWeight
+        {
+            get => _OutlineWeight;
+            set
+            {
+                if (_OutlineWeight == value) return;
+
+                byte old = _OutlineWeight;
+                _OutlineWeight = value;
+                OnOutlineWeightChanged(old, value);
+            }
+        }
+        private byte _OutlineWeight = 1;
+        public virtual void OnOutlineWeightChanged(byte oValue, byte nValue)
+        {
+            TextureValid = false;
+            CreateSize();
+        }
 
         public bool Outline
         {
@@ -240,7 +259,7 @@ namespace Client.Controls
             
             Outline = true;
             ForeColour = Color.FromArgb(198, 166, 99);
-            OutlineColour = Color.Black;
+            OutlineColour = Color.FromArgb(255, 10, 10, 10);
         }
 
         #region Methods
@@ -248,7 +267,7 @@ namespace Client.Controls
         {
             if (!AutoSize) return;
 
-            Size = GetSize(Text, Font, Outline);
+            Size = GetSize(Text, Font, Outline ? OutlineWeight : (byte)0);
         }
 
         protected override void CreateTexture()
@@ -281,13 +300,7 @@ namespace Client.Controls
                 graphics.Clear(BackColour);
 
                 if (Outline)
-                {
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.X, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X, start.Y + 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 2, start.Y + 1, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 2, width, height), OutlineColour, DrawFormat);
-                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 1, width, height), ForeColour, DrawFormat);
-                }
+                    DrawOutline(graphics, start.X, start.Y, width, height, OutlineWeight);
                 else
                     TextRenderer.DrawText(graphics, Text, Font, new Rectangle(start.X + 1, start.Y + 0, width, height), ForeColour, DrawFormat);
             }
@@ -297,6 +310,25 @@ namespace Client.Controls
             
             TextureValid = true;
             ExpireTime = CEnvir.Now + Config.CacheDuration;
+        }
+        private void DrawOutline(Graphics graphics, int x, int y, int w, int h, byte weight)
+        {
+            if (weight <= 0) return;
+
+
+            for(int i = 1; i <= weight; i++)
+            {
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x - i + weight, y + weight, w, h), OutlineColour, DrawFormat);
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + i + weight, y + weight, w, h), OutlineColour, DrawFormat);
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y + i + weight, w, h), OutlineColour, DrawFormat);
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + i + weight, y + i + weight, w, h), OutlineColour, DrawFormat);
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x - i + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
+
+            }
+
+            TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y + weight, w, h), ForeColour, DrawFormat);
+
         }
         protected override void DrawControl()
         {

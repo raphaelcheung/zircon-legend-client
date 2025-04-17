@@ -366,7 +366,7 @@ namespace Client.Controls
             };
             TabButton.Label.TextChanged += (o, e) =>
             {
-                TabButton.Size = new Size(Math.Max(60, DXLabel.GetSize(TabButton.Label.Text, TabButton.Label.Font, TabButton.Label.Outline).Width), TabHeight);
+                TabButton.Size = new Size(Math.Max(60, DXLabel.GetSize(TabButton.Label.Text, TabButton.Label.Font, TabButton.Label.Outline ? TabButton.Label.OutlineWeight : (byte)0).Width), TabHeight);
 
             };
             TabButton.MouseClick += (o, e) =>

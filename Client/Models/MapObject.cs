@@ -1089,7 +1089,9 @@ namespace Client.Models
                                 {
                                     Blend = true,
                                     Target = this,
-                                    Direction = Functions.DirectionFromPoint(CurrentLocation, point)
+                                    Direction = Functions.DirectionFromPoint(CurrentLocation, point),
+                                    BlendRate = 1F,
+
                                 });
                                 spell.Process();
                             }
@@ -1297,10 +1299,18 @@ namespace Client.Models
                         case MagicType.ChainLightning:
                             foreach (Point point in MagicLocations)
                             {
-                                spell = new MirEffect(470, 10, TimeSpan.FromMilliseconds(100), LibraryFile.MagicEx2, 50, 80, Globals.LightningColour)
+                                spell = new MirEffect(651, 4, TimeSpan.FromMilliseconds(100), LibraryFile.MonMagicEx5, 50, 80, Globals.LightningColour)
                                 {
                                     Blend = true,
-                                    MapTarget = point,
+                                    MapTarget = Functions.Move(point, MirDirection.Up, 1),
+                                    CompleteAction = () => {
+                                        spell = new MirEffect(651, 5, TimeSpan.FromMilliseconds(100), LibraryFile.MonMagicEx5, 40, 180, Globals.LightningColour)
+                                        {
+                                            Blend = true,
+                                            MapTarget = Functions.Move(point, MirDirection.Up, 1),
+                                        };
+                                        spell.Process();
+                                    },
                                 };
                                 spell.Process();
                             }
@@ -4121,9 +4131,7 @@ namespace Client.Models
         public virtual void NameChanged()
         {
             if (string.IsNullOrEmpty(Name))
-            {
                 NameLabel = null;
-            }
             else
             {
                 if (!NameLabels.TryGetValue(Name, out List<DXLabel> names))
@@ -4138,7 +4146,8 @@ namespace Client.Models
                         BackColour = Color.Empty,
                         ForeColour = NameColour,
                         Outline = true,
-                        OutlineColour = Color.Black,
+                        OutlineColour = Color.FromArgb(100, 0, 0, 0),
+                        OutlineWeight = 2,
                         Text = Name,
                         IsControl = false,
                         IsVisible = true,
@@ -4172,21 +4181,23 @@ namespace Client.Models
 
                 TitleNameLabel = titles.FirstOrDefault(x => x.ForeColour == NameColour && x.BackColour == Color.Empty);
 
-                if (TitleNameLabel != null) return;
-
-                TitleNameLabel = new DXLabel
+                if (TitleNameLabel == null)
                 {
-                    BackColour = Color.Empty,
-                    ForeColour = Race != ObjectType.Player ? Color.Orange : NameColour,
-                    Outline = true,
-                    OutlineColour = Color.Black,
-                    Text = title,
-                    IsControl = false,
-                    IsVisible = true,
-                };
+                    TitleNameLabel = new DXLabel
+                    {
+                        BackColour = Color.Empty,
+                        ForeColour = Race != ObjectType.Player ? Color.Orange : NameColour,
+                        Outline = true,
+                        OutlineColour = Color.Black,
+                        OutlineWeight = 2,
+                        Text = title,
+                        IsControl = false,
+                        IsVisible = true,
+                    };
 
-                TitleNameLabel.Disposing += (o, e) => titles.Remove(TitleNameLabel);
-                titles.Add(TitleNameLabel);
+                    TitleNameLabel.Disposing += (o, e) => titles.Remove(TitleNameLabel);
+                    titles.Add(TitleNameLabel);
+                }
             }
         }
         public virtual void DrawName()
@@ -4202,7 +4213,7 @@ namespace Client.Models
                     y -= 6;
 
                 if (TitleNameLabel != null)
-                    y -= 13;
+                    y -= TitleNameLabel.Size.Height;
 
                 NameLabel.Location = new Point(x, y);
                 NameLabel.Draw();
@@ -4216,7 +4227,7 @@ namespace Client.Models
                 if (Dead)
                     y += 21;
                 else
-                    y -= 6;
+                    y -= TitleNameLabel.Size.Height / 2 - 2;
 
                 TitleNameLabel.Location = new Point(x, y);
                 TitleNameLabel.Draw();

@@ -41,6 +41,7 @@ namespace Client.Scenes.Views
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
 
+        private DateTime AutoSkillsTime = DateTime.MinValue;
 
         public override WindowType Type
         {
@@ -268,7 +269,10 @@ namespace Client.Scenes.Views
 
         public void AutoSkills()
         {
-            switch(GameScene.Game.User.Class)
+            if (CEnvir.Now < AutoSkillsTime) return;
+            AutoSkillsTime = CEnvir.Now.AddMilliseconds(300);
+
+            switch (GameScene.Game.User.Class)
             {
                 case MirClass.Warrior:
                     if (Config.自动铁布衫 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Defiance))
@@ -362,6 +366,24 @@ namespace Client.Scenes.Views
 						return;
 					}
 
+                    if (Config.有宠物时自动移花接玉 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.StrengthOfFaith))
+                    {
+                        foreach (MapObject ob in GameScene.Game.MapControl.Objects)
+                        {
+                            if (!(ob is MonsterObject mon) || mon.Dead || mon.PetOwner != GameScene.Game.User.Name) continue;
+                            if (mon.CompanionObject != null) continue;
+
+                            GameScene.Game.UseMagic(MagicType.StrengthOfFaith);
+                            return;
+                        }
+                    }
+
+                    if (Config.自动吸星大法 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.LifeSteal))
+                    {
+                        GameScene.Game.UseMagic(MagicType.LifeSteal);
+                        return;
+                    }
+
                     if (Config.自动道士连续技能
                     && GameScene.Game.LastMagic != null
                     && (GameScene.Game.CanAttackTarget(GameScene.Game.LastTarget)
@@ -394,7 +416,7 @@ namespace Client.Scenes.Views
                     if (Config.自动风之闪避 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Evasion))
                         GameScene.Game.UseMagic(MagicType.Evasion);
 
-                    if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type != BuffType.RagingWind)))
+                    if (!Config.自动风之守护 || !GameScene.Game.User.Buffs.All<ClientBuffInfo>(x => x.Type != BuffType.RagingWind))
                         return;
 
                     GameScene.Game.UseMagic(MagicType.RagingWind);
@@ -1589,6 +1611,8 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoAmulet;
             public DXCheckBox AutoCelestial;
             public DXCheckBox AutoTaoistSkill;
+            public DXCheckBox AutoStrengthOfFaith;
+            public DXCheckBox AutoLifeSteal;
 
             public BigPatchDialog.DXGroupBox Assassin;
             public DXCheckBox AutoFourFlowers;
@@ -1748,23 +1772,25 @@ namespace Client.Scenes.Views
                 //    AutoSuperiorMagicShield_CheckedChanged();
                 //});
 
-                AutoWizardSkill = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动法师连续技能 = AutoWizardSkill.Checked), Config.自动法师连续技能);
+                AutoWizardSkill = CreateCheckBox((DXControl)Wizard, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动法师连续技能 = AutoWizardSkill.Checked), Config.自动法师连续技能);
 
 
                 int num6 = 5;
                 int num7;
-                AutoPoisonDust = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动换毒", x1, num7 = num6 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
+                AutoPoisonDust = CreateCheckBox((DXControl)Taoist, "自动换毒", x1, num7 = num6 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
                 int num8;
-                AutoAmulet = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动换符", x1, num8 = num7 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
-                AutoCelestial = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动阴阳盾", x1, num2 = num8 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
-                AutoTaoistSkill = BigPatchDialog.CreateCheckBox((DXControl)Taoist, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
+                AutoAmulet = CreateCheckBox((DXControl)Taoist, "自动换符", x1, num8 = num7 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
+                AutoCelestial = CreateCheckBox((DXControl)Taoist, "自动阴阳盾", x1, num2 = num8 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
+                AutoTaoistSkill = CreateCheckBox((DXControl)Taoist, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
+                AutoStrengthOfFaith = CreateCheckBox((DXControl)Taoist, "有宠物时自动移花接玉", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
+                AutoLifeSteal = CreateCheckBox((DXControl)Taoist, "自动吸星大法", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动吸星大法 = AutoLifeSteal.Checked), Config.自动吸星大法);
 
                 int num9 = 5;
                 int num10;
-                AutoFourFlowers = BigPatchDialog.CreateCheckBox((DXControl)Assassin, "自动四花", x1, num10 = num9 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动四花 = AutoFourFlowers.Checked), Config.自动四花);
+                AutoFourFlowers = CreateCheckBox((DXControl)Assassin, "自动四花", x1, num10 = num9 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动四花 = AutoFourFlowers.Checked), Config.自动四花);
                 int num11;
-                AutoEvasion = BigPatchDialog.CreateCheckBox((DXControl)Assassin, "自动风之闪避", x1, num11 = num10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之闪避 = AutoEvasion.Checked), Config.自动风之闪避);
-                AutoRagingWind = BigPatchDialog.CreateCheckBox((DXControl)Assassin, "自动风之守护", x1, num2 = num11 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之守护 = AutoRagingWind.Checked), Config.自动风之守护);
+                AutoEvasion = CreateCheckBox((DXControl)Assassin, "自动风之闪避", x1, num11 = num10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之闪避 = AutoEvasion.Checked), Config.自动风之闪避);
+                AutoRagingWind = CreateCheckBox((DXControl)Assassin, "自动风之守护", x1, num2 = num11 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之守护 = AutoRagingWind.Checked), Config.自动风之守护);
                 int y3 = 35;
                 DXLabel dxLabel1 = new DXLabel();
                 dxLabel1.AutoSize = true;
@@ -1969,12 +1995,12 @@ namespace Client.Scenes.Views
                     }
                 });
                 int y11;
-                AndroidPoisonDust = BigPatchDialog.CreateCheckBox((DXControl)Android, "自动上毒", x7, y11 = y10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动上毒 = AndroidPoisonDust.Checked), Config.自动上毒);
-                AndroidEluded = BigPatchDialog.CreateCheckBox((DXControl)Android, "自动躲避", x7 + 85, y11, (EventHandler<EventArgs>)((o, e) => Config.自动躲避 = AndroidEluded.Checked), Config.自动躲避);
+                AndroidPoisonDust = CreateCheckBox((DXControl)Android, "自动上毒", x7, y11 = y10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动上毒 = AndroidPoisonDust.Checked), Config.自动上毒);
+                AndroidEluded = CreateCheckBox((DXControl)Android, "自动躲避", x7 + 85, y11, (EventHandler<EventArgs>)((o, e) => Config.自动躲避 = AndroidEluded.Checked), Config.自动躲避);
                 int num13;
-                AndroidBackCastle = BigPatchDialog.CreateCheckBox((DXControl)Android, "死亡回城", x7 + 170, num13 = y11, (EventHandler<EventArgs>)((o, e) => Config.死亡回城 = AndroidBackCastle.Checked), Config.死亡回城);
+                AndroidBackCastle = CreateCheckBox((DXControl)Android, "死亡回城", x7 + 170, num13 = y11, (EventHandler<EventArgs>)((o, e) => Config.死亡回城 = AndroidBackCastle.Checked), Config.死亡回城);
                 int y12;
-                AndroidSingleSkill = BigPatchDialog.CreateCheckBox((DXControl)Android, "法道自动技能", x7, y12 = num13 + 25, (EventHandler<EventArgs>)((o, e) => Config.是否开启挂机自动技能 = AndroidSingleSkill.Checked), Config.是否开启挂机自动技能);
+                AndroidSingleSkill = CreateCheckBox((DXControl)Android, "法道自动技能", x7, y12 = num13 + 25, (EventHandler<EventArgs>)((o, e) => Config.是否开启挂机自动技能 = AndroidSingleSkill.Checked), Config.是否开启挂机自动技能);
                 DXComboBox dxComboBox4 = new DXComboBox();
                 dxComboBox4.Parent = (DXControl)Android;
                 dxComboBox4.Size = new Size(120, 18);
@@ -2071,7 +2097,7 @@ namespace Client.Scenes.Views
                 dxNumberBox6.Location = new Point(num17 + width6, y15);
                 AndroidBackCastleMinPHValue = dxNumberBox6;
                 AndroidBackCastleMinPHValue.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.血量剩下百分之多少时自动回城 = AndroidBackCastleMinPHValue.Value);
-                AndroidMinPHBackCastle = BigPatchDialog.CreateCheckBox((DXControl)Android, "回城保护", x7 + 170, y15, (EventHandler<EventArgs>)((o, e) => Config.是否开启回城保护 = AndroidMinPHBackCastle.Checked), Config.是否开启回城保护);
+                AndroidMinPHBackCastle = CreateCheckBox((DXControl)Android, "回城保护", x7 + 170, y15, (EventHandler<EventArgs>)((o, e) => Config.是否开启回城保护 = AndroidMinPHBackCastle.Checked), Config.是否开启回城保护);
                 DXLabel dxLabel17 = new DXLabel();
                 dxLabel17.Parent = (DXControl)Android;
                 dxLabel17.Text = "血量低于 % :";
@@ -2094,11 +2120,11 @@ namespace Client.Scenes.Views
                 dxNumberBox7.Location = new Point(num18 + width7, y16);
                 AndroidRandomMinPHValue = dxNumberBox7;
                 AndroidRandomMinPHValue.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.血量剩下百分之多少时自动随机 = AndroidRandomMinPHValue.Value);
-                AndroidMinPHRandom = BigPatchDialog.CreateCheckBox((DXControl)Android, "随机保护", x7 + 170, y16, (EventHandler<EventArgs>)((o, e) => Config.是否开启随机保护 = AndroidMinPHRandom.Checked), Config.是否开启随机保护);
+                AndroidMinPHRandom = CreateCheckBox((DXControl)Android, "随机保护", x7 + 170, y16, (EventHandler<EventArgs>)((o, e) => Config.是否开启随机保护 = AndroidMinPHRandom.Checked), Config.是否开启随机保护);
 
                 DXLabel dxLabel19 = new DXLabel();
                 dxLabel19.Parent = (DXControl)Android;
-                dxLabel19.Text = "每间隔  (秒) :";
+                dxLabel19.Text = "每间隔(秒) :";
                 dxLabel19.Outline = true;
                 int y17;
                 dxLabel19.Location = new Point(x7, y17 = y16 + 20);
@@ -2117,7 +2143,7 @@ namespace Client.Scenes.Views
                 dxNumberBox8.Location = new Point(num19 + width8, y17);
                 TimeBoxRandom = dxNumberBox8;
                 TimeBoxRandom.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.隔多少秒自动随机一次 = TimeBoxRandom.Value);
-                ChkAutoRandom = BigPatchDialog.CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y17, (EventHandler<EventArgs>)((o, e) => Config.是否开启每间隔自动随机 = ChkAutoRandom.Checked), Config.是否开启每间隔自动随机);
+                ChkAutoRandom = CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y17, (EventHandler<EventArgs>)((o, e) => Config.是否开启每间隔自动随机 = ChkAutoRandom.Checked), Config.是否开启每间隔自动随机);
                 ChkAutoRandom.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                 {
                     CheckBox1_CheckedChanged();
@@ -2125,7 +2151,7 @@ namespace Client.Scenes.Views
 
                 DXLabel dxLabel21 = new DXLabel();
                 dxLabel21.Parent = (DXControl)Android;
-                dxLabel21.Text = "无经验  (秒) :";
+                dxLabel21.Text = "无经验(秒) :";
                 dxLabel21.Outline = true;
                 int y18;
                 dxLabel21.Location = new Point(x7, y18 = y17 + 20);
@@ -2144,7 +2170,7 @@ namespace Client.Scenes.Views
                 dxNumberBox9.Location = new Point(num20 + width9, y18);
                 ExpTimeBoxRandom = dxNumberBox9;
                 ExpTimeBoxRandom.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.多少秒无经验或者未杀死目标自动随机 = ExpTimeBoxRandom.Value);
-                ExpAutoRandom = BigPatchDialog.CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y18, (EventHandler<EventArgs>)((o, e) => Config.是否开启指定时间无经验或者未杀死目标自动随机 = ExpAutoRandom.Checked), Config.是否开启指定时间无经验或者未杀死目标自动随机);
+                ExpAutoRandom = CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y18, (EventHandler<EventArgs>)((o, e) => Config.是否开启指定时间无经验或者未杀死目标自动随机 = ExpAutoRandom.Checked), Config.是否开启指定时间无经验或者未杀死目标自动随机);
                 ExpAutoRandom.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
                 {
                     CheckBox2_CheckedChanged();

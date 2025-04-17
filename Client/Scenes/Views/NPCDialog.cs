@@ -4161,7 +4161,7 @@ namespace Client.Scenes.Views
                 Location = new Point(85, 60),
                 Size = new Size(80, SmallButtonHeight),
                 ButtonType = ButtonType.SmallButton,
-                Label = { Text = "商店" },
+                Label = { Text = "寄存" },
                 Visible = false
             };
             StoreButton.MouseClick += StoreButton_MouseClick;

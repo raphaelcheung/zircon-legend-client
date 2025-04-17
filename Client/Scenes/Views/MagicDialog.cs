@@ -572,23 +572,23 @@ namespace Client.Scenes.Views
             int y = (ExperienceBar.Size.Height - image.Height) / 2;
 
             float percent = 1F;
+
             switch (magic.Level)
             {
                 case 0:
                     if (magic.Info.Experience1 == 0) return;
-                    percent = (float) Math.Min(1, Math.Max(0, magic.Experience/(decimal) magic.Info.Experience1));
+                    percent = Math.Min(1F, Math.Max(0F, magic.Experience / (float)magic.Info.Experience1));
                     break;
                 case 1:
                     if (magic.Info.Experience2 == 0) return;
-                    percent = (float) Math.Min(1, Math.Max(0, magic.Experience/(decimal) magic.Info.Experience2));
+                    percent = Math.Min(1F, Math.Max(0F, magic.Experience / (float)magic.Info.Experience2));
                     break;
                 case 2:
                     if (magic.Info.Experience3 == 0) return;
-                    percent = (float) Math.Min(1, Math.Max(0, magic.Experience/(decimal) magic.Info.Experience3));
+                    percent = Math.Min(1F, Math.Max(0F, magic.Experience / (float)magic.Info.Experience3));
                     break;
                 default:
-                    if (magic.Info.Experience3 == 0) return;
-                    percent = (float)Math.Min(1, Math.Max(0, magic.Experience / (decimal)((magic.Level - 2) * 500)));
+                    percent = Math.Min(1F, Math.Max(0F, magic.Experience / (float)(Math.Pow(2, magic.Level - 3) * 500)));
                     break;
             }
             

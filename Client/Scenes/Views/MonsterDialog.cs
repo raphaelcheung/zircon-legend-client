@@ -556,7 +556,7 @@ namespace Client.Scenes.Views
                 else
                 {
                     x = 10;
-                    panel_height += DXLabel.GetSize(label.Text, label.Font, false).Height + 5;
+                    panel_height += DXLabel.GetSize(label.Text, label.Font).Height + 5;
                 }
 
                 label = new DXLabel
@@ -567,14 +567,14 @@ namespace Client.Scenes.Views
                     ForeColour = drop.Item.Rarity == Rarity.Common ? Color.Beige : (drop.Item.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
                     Location = new Point(x, panel_height),
                     DrawFormat = TextFormatFlags.WordEllipsis,
-                    Size = new Size(85, DXLabel.GetSize(label.Text, label.Font, true).Height),
+                    Size = new Size(85, DXLabel.GetSize(label.Text, label.Font, label.OutlineWeight).Height),
                     Text = drop.Item.ItemName
                 };
 
                 DropsList.Add(label);
             }
 
-            panel_height += DXLabel.GetSize(label.Text, label.Font, false).Height + 10;
+            panel_height += DXLabel.GetSize(label.Text, label.Font).Height + 10;
             ExpandPanel.Size = new Size(ExpandPanel.Size.Width, panel_height);
             Size = new Size(Size.Width, ExpandPanel.Location.Y + ExpandPanel.Size.Height + 4);
         }

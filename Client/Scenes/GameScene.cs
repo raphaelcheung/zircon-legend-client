@@ -3894,6 +3894,12 @@ namespace Client.Scenes
                                     case MagicType.MeteorShower:
                                     case MagicType.Heal:
                                     case MagicType.BloodLust:
+                                    case MagicType.MagicResistance:
+                                    case MagicType.Resilience:
+                                    case MagicType.ElementalSuperiority:
+                                    case MagicType.ExplosiveTalisman:
+                                    case MagicType.EvilSlayer:
+                                    case MagicType.GreaterEvilSlayer:
                                     case MagicType.ImprovedExplosiveTalisman:
                                     case MagicType.PoisonDust:
                                     case MagicType.Asteroid:
@@ -4341,6 +4347,13 @@ namespace Client.Scenes
                     case MagicType.MeteorShower:
                     case MagicType.Heal:
                     case MagicType.BloodLust:
+                    case MagicType.MagicResistance:
+                    case MagicType.Resilience:
+                    case MagicType.ElementalSuperiority:
+                    case MagicType.ExplosiveTalisman:
+                    case MagicType.EvilSlayer:
+                    case MagicType.GreaterEvilSlayer:
+
                     case MagicType.ImprovedExplosiveTalisman:
                     case MagicType.PoisonDust:
                     case MagicType.Asteroid:
@@ -5831,6 +5844,9 @@ namespace Client.Scenes
         {
             MapObject result = mp;
 
+            if (helpper == null) 
+                helpper = GetMagicHelpper(magic);
+
             if (CanAttackTarget(MouseObject))
             {
                 result = MouseObject;
@@ -5838,12 +5854,16 @@ namespace Client.Scenes
                     ? (helpper == null || !helpper.LockPlayer || MouseObject.Race != ObjectType.Player ? null : (MouseObject == User && magic == MagicType.Heal ? MagicObject : result))
                     : result;
             }
-            else if (CanAttackTarget(MagicObject))
+            else if (CanAttackTarget(MagicObject) 
+                && ((helpper.LockMonster && MagicObject.Race == ObjectType.Monster)
+                || (helpper.LockPlayer && MagicObject.Race == ObjectType.Player)))
             {
                 result = MagicObject;
                 MapObject.MagicObject = result;
             }
-            else if (CanAttackTarget(MonsterBox.Monster))
+            else if (CanAttackTarget(MonsterBox.Monster)
+                && (((helpper?.LockMonster ?? false) && MonsterBox.Monster.Race == ObjectType.Monster)
+                || ((helpper?.LockPlayer ?? false) && MonsterBox.Monster.Race == ObjectType.Player)))
             {
                 result = MonsterBox.Monster;
                 MapObject.MagicObject = result;

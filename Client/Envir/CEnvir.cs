@@ -97,7 +97,7 @@ namespace Client.Envir
 
         private static bool LoadingDb = false;
 
-        public static bool DbVersionChecked { get; set; } = false;
+        public static bool DbVersionChecked { get; set; } = true;
         public static bool DbVersionChecking { get; set; } = false;
 
         public static StringMessages Language { get; set; }
