@@ -313,6 +313,7 @@ namespace Client.Models
         private bool _CanFlameSplash;
 
 
+
         public UserObject(StartInformation info)
         {
             CharacterIndex = info.Index;
@@ -325,7 +326,7 @@ namespace Client.Models
             Class = info.Class;
             Gender = info.Gender;
 
-            Title = info.GuildName;
+            Title = $"[{info.GuildName}]";
             GuildRank = info.GuildRank;
 
             CurrentLocation = info.Location;

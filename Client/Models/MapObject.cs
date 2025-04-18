@@ -4186,10 +4186,10 @@ namespace Client.Models
                     TitleNameLabel = new DXLabel
                     {
                         BackColour = Color.Empty,
-                        ForeColour = Race != ObjectType.Player ? Color.Orange : NameColour,
+                        ForeColour = Race != ObjectType.Player ? Color.Orange : Color.Wheat,
                         Outline = true,
                         OutlineColour = Color.Black,
-                        OutlineWeight = 2,
+                        OutlineWeight = 1,
                         Text = title,
                         IsControl = false,
                         IsVisible = true,
@@ -4227,7 +4227,7 @@ namespace Client.Models
                 if (Dead)
                     y += 21;
                 else
-                    y -= TitleNameLabel.Size.Height / 2 - 2;
+                    y -= TitleNameLabel.Size.Height / 2 - 3;
 
                 TitleNameLabel.Location = new Point(x, y);
                 TitleNameLabel.Draw();

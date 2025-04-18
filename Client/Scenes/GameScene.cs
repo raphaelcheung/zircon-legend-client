@@ -3078,19 +3078,22 @@ namespace Client.Scenes
             ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
         }
 
+        public ClientUserMagic GetMagic(MagicType type)
+        {
+            foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in User.Magics)
+            {
+                if (magic.Value.Info.Magic == type)
+                    return magic.Value;
+            }
+
+            return null;
+        }
+
         public void UseMagic(MagicType type)
         {
             if (Game.Observer || User == null || User.Horse != HorseType.None || MagicBarBox == null)
                 return;
-            ClientUserMagic clientUserMagic = null;
-            foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in User.Magics)
-            {
-                if (magic.Value.Info.Magic == type)
-                {
-                    clientUserMagic = magic.Value;
-                    break;
-                }
-            }
+            ClientUserMagic clientUserMagic = GetMagic(type);
             UseMagic(clientUserMagic);
         }
         public MagicHelper GetMagicHelpper(MagicType magic)

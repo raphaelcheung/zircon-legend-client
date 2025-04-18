@@ -90,7 +90,7 @@ namespace Client.Scenes.Views
             HasFooter = false;
             SetClientSize(new Size(550, 428));
             DXTabControl dxTabControl = new DXTabControl();
-            dxTabControl.Parent = (DXControl)this;
+            dxTabControl.Parent = this;
             dxTabControl.Location = ClientArea.Location;
             dxTabControl.Size = ClientArea.Size;
             TabControl = dxTabControl;
@@ -101,49 +101,49 @@ namespace Client.Scenes.Views
             dxCommonlyTab.TabButton.Label.Hint = "一些常用的功能设置";
             Commonly = dxCommonlyTab;
             DXPlayerHelperTab dxPlayerHelperTab = new DXPlayerHelperTab();
-            dxPlayerHelperTab.Parent = (DXControl)TabControl;
+            dxPlayerHelperTab.Parent = TabControl;
             dxPlayerHelperTab.Border = true;
             dxPlayerHelperTab.TabButton.Label.Text = "辅助";
             dxPlayerHelperTab.TabButton.Label.Hint = "游戏相关的一些自定义调整";
             Helper = dxPlayerHelperTab;
             DXProtectionTab dxProtectionTab = new DXProtectionTab();
-            dxProtectionTab.Parent = (DXControl)TabControl;
+            dxProtectionTab.Parent = TabControl;
             dxProtectionTab.Border = true;
             dxProtectionTab.TabButton.Label.Text = "保护";
             dxProtectionTab.TabButton.Label.Hint = "自动使用物品，以及遇到特殊情况的自动应对方案";
             Protect = dxProtectionTab;
             DXAnsweringTab dxAnsweringTab = new DXAnsweringTab();
-            dxAnsweringTab.Parent = (DXControl)TabControl;
+            dxAnsweringTab.Parent = TabControl;
             dxAnsweringTab.Border = true;
             dxAnsweringTab.TabButton.Label.Text = "聊天";
             dxAnsweringTab.TabButton.Label.Hint = "自动回复以及自动喊话";
             Answering = dxAnsweringTab;
             DXUserNoteBookTab dxUserNoteBookTab = new DXUserNoteBookTab();
-            dxUserNoteBookTab.Parent = (DXControl)TabControl;
+            dxUserNoteBookTab.Parent = TabControl;
             dxUserNoteBookTab.Border = true;
             dxUserNoteBookTab.TabButton.Label.Text = "便签";
             dxUserNoteBookTab.TabButton.Label.Hint = "方便用户记录一些文本";
             NoteBook = dxUserNoteBookTab;
             DXSystemMsgRecordTab systemMsgRecordTab = new DXSystemMsgRecordTab();
-            systemMsgRecordTab.Parent = (DXControl)TabControl;
+            systemMsgRecordTab.Parent = TabControl;
             systemMsgRecordTab.Border = true;
             systemMsgRecordTab.TabButton.Label.Text = "记录";
             systemMsgRecordTab.TabButton.Label.Hint = "系统消息记录";
             MsgRecord = systemMsgRecordTab;
             DXAutoPickItemTab dxAutoPickItemTab = new DXAutoPickItemTab();
-            dxAutoPickItemTab.Parent = (DXControl)TabControl;
+            dxAutoPickItemTab.Parent = TabControl;
             dxAutoPickItemTab.Border = true;
             dxAutoPickItemTab.TabButton.Label.Text = "拾取";
             dxAutoPickItemTab.TabButton.Label.Hint = "自动拾取的设置";
             AutoPick = dxAutoPickItemTab;
             DXMagicHelperTab dxMagicHelperTab = new DXMagicHelperTab();
-            dxMagicHelperTab.Parent = (DXControl)TabControl;
+            dxMagicHelperTab.Parent = TabControl;
             dxMagicHelperTab.Border = true;
             dxMagicHelperTab.TabButton.Label.Text = "魔法";
             dxMagicHelperTab.TabButton.Label.Hint = "内容会自动刷新";
             Magic = dxMagicHelperTab;
             DXViewRangeObjectTab viewRangeObjectTab = new DXViewRangeObjectTab();
-            viewRangeObjectTab.Parent = (DXControl)TabControl;
+            viewRangeObjectTab.Parent = TabControl;
             viewRangeObjectTab.Border = true;
             viewRangeObjectTab.TabButton.Label.Text = "帮助";
             viewRangeObjectTab.TabButton.Label.Hint = "关于辅助的解释说明";
@@ -285,6 +285,16 @@ namespace Client.Scenes.Views
                     {
                         GameScene.Game.UseMagic(MagicType.Might);
                         return;
+                    }
+
+                    if (Config.自动移花接木 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ReflectDamage))
+                    {
+                        var clientMagic = GameScene.Game.GetMagic(MagicType.ReflectDamage);
+                        if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
+                        {
+                            GameScene.Game.UseMagic(clientMagic);
+                            return;
+                        }
                     }
 
                     if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
@@ -686,7 +696,7 @@ namespace Client.Scenes.Views
             public DXGroupBox()
             {
                 DXLabel dxLabel = new DXLabel();
-                dxLabel.Parent = (DXControl)this;
+                dxLabel.Parent = this;
                 dxLabel.Outline = true;
                 dxLabel.ForeColour = Color.FromArgb(70, 58, 35);
                 dxLabel.Location = new Point(5, 10);
@@ -761,7 +771,7 @@ namespace Client.Scenes.Views
                 contents = new List<string>();
                 view = new DXControl()
                 {
-                    Parent = (DXControl)this
+                    Parent = this
                 };
             }
 
@@ -911,25 +921,25 @@ namespace Client.Scenes.Views
                 int num1 = 30;
                 int num2 = 25;
                 BigPatchDialog.DXGroupBox dxGroupBox1 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox1.Parent = (DXControl)this;
+                dxGroupBox1.Parent = this;
                 dxGroupBox1.Size = new Size(120, 405);
                 dxGroupBox1.Location = new Point(10, 0);
                 dxGroupBox1.Name.Text = "常用";
                 GroupNormal = dxGroupBox1;
                 BigPatchDialog.DXGroupBox dxGroupBox2 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox2.Parent = (DXControl)this;
+                dxGroupBox2.Parent = this;
                 dxGroupBox2.Size = new Size(120, 405);
                 dxGroupBox2.Location = new Point(10, 0);
                 dxGroupBox2.Name.Text = "战斗";
                 GroupWar = dxGroupBox2;
                 BigPatchDialog.DXGroupBox dxGroupBox3 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox3.Parent = (DXControl)this;
+                dxGroupBox3.Parent = this;
                 dxGroupBox3.Size = new Size(120, 405);
                 dxGroupBox3.Location = new Point(10, 0);
                 dxGroupBox3.Name.Text = "物品";
                 GroupItem = dxGroupBox3;
                 BigPatchDialog.DXGroupBox dxGroupBox4 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox4.Parent = (DXControl)this;
+                dxGroupBox4.Parent = this;
                 dxGroupBox4.Size = new Size(120, 32);
                 dxGroupBox4.Location = new Point(10, 0);
                 dxGroupBox4.Name.Text = "天气";
@@ -937,13 +947,13 @@ namespace Client.Scenes.Views
 
                 GroupWeather = dxGroupBox4;
                 //BigPatchDialog.DXGroupBox dxGroupBox5 = new BigPatchDialog.DXGroupBox();
-                //dxGroupBox5.Parent = (DXControl)this;
+                //dxGroupBox5.Parent = this;
                 //dxGroupBox5.Size = new Size(120, 60);
                 //dxGroupBox5.Location = new Point(10, 0);
                 //dxGroupBox5.Name.Text = "自动练技能";
                 //GroupAutoAttack = dxGroupBox5;
                 BigPatchDialog.DXGroupBox dxGroupBox6 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox6.Parent = (DXControl)this;
+                dxGroupBox6.Parent = this;
                 dxGroupBox6.Size = new Size(120, 132);
                 dxGroupBox6.Location = new Point(10, 0);
                 dxGroupBox6.Name.Text = "鼠标中键";
@@ -955,7 +965,7 @@ namespace Client.Scenes.Views
                 //chkItemSet1.name = "数字显血";
                 ////chkItemSet1.
                 //chkItemSet1.state = Config.数字显血;
-                //chkItemSet1.method = (EventHandler<EventArgs>)((o, e) =>
+                //chkItemSet1.method = ((o, e) =>
                 //{
                 //    DXCheckBox dxCheckBox = o as DXCheckBox;
                 //    Config.数字显血 = dxCheckBox != null && dxCheckBox.Checked;
@@ -966,7 +976,7 @@ namespace Client.Scenes.Views
                 //CHK_ITEM_SET Mianzhupao = new CHK_ITEM_SET();
                 //Mianzhupao.name = "免助跑";
                 //Mianzhupao.state = true;
-                //Mianzhupao.method = (EventHandler<EventArgs>)((o, e) =>
+                //Mianzhupao.method = ((o, e) =>
                 //{
                 //    DXCheckBox dxCheckBox = o as DXCheckBox;
                 //    Config.免助跑 = dxCheckBox != null && dxCheckBox.Checked;
@@ -976,7 +986,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Mianlazhu = new CHK_ITEM_SET();
                 Mianlazhu.name = "免蜡烛";
                 Mianlazhu.state = Config.免蜡烛;
-                Mianlazhu.method = (EventHandler<EventArgs>)((o, e) =>
+                Mianlazhu.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.免蜡烛 = dxCheckBox != null && dxCheckBox.Checked;
@@ -988,7 +998,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Mingzixianshi = new CHK_ITEM_SET();
                 Mingzixianshi.name = "名字显示";
                 Mingzixianshi.state = Config.ShowPlayerNames;
-                Mingzixianshi.method = (EventHandler<EventArgs>)((o, e) =>
+                Mingzixianshi.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.ShowPlayerNames = dxCheckBox != null && dxCheckBox.Checked;
@@ -999,7 +1009,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Qinglishiti = new CHK_ITEM_SET();
                 Qinglishiti.name = "清理尸体";
                 Qinglishiti.state = Config.清理尸体;
-                Qinglishiti.method = (EventHandler<EventArgs>)((o, e) =>
+                Qinglishiti.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.清理尸体 = dxCheckBox != null && dxCheckBox.Checked;
@@ -1010,7 +1020,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Zaianquanchuyouxiao = new CHK_ITEM_SET();
                 Zaianquanchuyouxiao.name = "在安全处有效";
                 Zaianquanchuyouxiao.state = Config.在安全处有效;
-                Zaianquanchuyouxiao.method = (EventHandler<EventArgs>)((o, e) =>
+                Zaianquanchuyouxiao.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.在安全处有效 = dxCheckBox != null && dxCheckBox.Checked;
@@ -1021,7 +1031,7 @@ namespace Client.Scenes.Views
                 //CHK_ITEM_SET Zuduishuzuxianxue = new CHK_ITEM_SET();
                 //Zuduishuzuxianxue.name = "组队数字显血";
                 //Zuduishuzuxianxue.state = Config.组队数字显血;
-                //Zuduishuzuxianxue.method = (EventHandler<EventArgs>)((o, e) =>
+                //Zuduishuzuxianxue.method = ((o, e) =>
                 //{
                 //    DXCheckBox dxCheckBox = o as DXCheckBox;
                 //    Config.组队数字显血 = dxCheckBox != null && dxCheckBox.Checked;
@@ -1032,7 +1042,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Bosstishi = new CHK_ITEM_SET();
                 Bosstishi.name = "Boss提示";
                 Bosstishi.state = Config.Boss提示;
-                Bosstishi.method = (EventHandler<EventArgs>)((o, e) =>
+                Bosstishi.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.Boss提示 = dxCheckBox != null && dxCheckBox.Checked;
@@ -1043,7 +1053,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Zidongtexiu = new CHK_ITEM_SET();
                 Zidongtexiu.name = "自动特修物品";
                 Zidongtexiu.state = Config.SpecialRepair;
-                Zidongtexiu.method = (EventHandler<EventArgs>)((o, e) =>
+                Zidongtexiu.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.SpecialRepair = dxCheckBox != null && dxCheckBox.Checked;
@@ -1054,7 +1064,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Paobuting = new CHK_ITEM_SET();
                 Paobuting.name = "跑不停";
                 Paobuting.state = Config.跑不停;
-                Paobuting.method = (EventHandler<EventArgs>)((o, e) =>
+                Paobuting.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.跑不停 = dxCheckBox != null && dxCheckBox.Checked;
@@ -1067,7 +1077,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Guaiwuxinxi = new CHK_ITEM_SET();
                 Guaiwuxinxi.name = "怪物信息";
                 Guaiwuxinxi.state = Config.MonsterBoxVisible;
-                Guaiwuxinxi.method = (EventHandler<EventArgs>)((o, e) =>
+                Guaiwuxinxi.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.MonsterBoxVisible = dxCheckBox != null && dxCheckBox.Checked;
@@ -1089,7 +1099,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET Guaimingzixianshi = new CHK_ITEM_SET();
                 Guaimingzixianshi.name = "怪物名字显示";
                 Guaimingzixianshi.state = Config.ShowMonsterNames;
-                Guaimingzixianshi.method = (EventHandler<EventArgs>)((o, e) =>
+                Guaimingzixianshi.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.ShowMonsterNames = dxCheckBox != null && dxCheckBox.Checked;
@@ -1101,7 +1111,7 @@ namespace Client.Scenes.Views
                 CHK_ITEM_SET[] chkItemSetArray2 = chkItemSetArray1;
                 for (int index2 = 0; index2 < chkItemSetArray2.Length; ++index2)
                 {
-                    BigPatchDialog.CreateCheckBox((DXControl)GroupNormal, chkItemSetArray2[index2].name, x1, num1, chkItemSetArray2[index2].method, chkItemSetArray2[index2].state);
+                    BigPatchDialog.CreateCheckBox(GroupNormal, chkItemSetArray2[index2].name, x1, num1, chkItemSetArray2[index2].method, chkItemSetArray2[index2].state);
                     num1 += 24;
                 }
                 BigPatchDialog.DXGroupBox groupNormal = GroupNormal;
@@ -1115,7 +1125,7 @@ namespace Client.Scenes.Views
                 chkItemSet1 = new CHK_ITEM_SET();
                 chkItemSet1.name = "免SHIFT";
                 chkItemSet1.state = Config.免SHIFT;
-                chkItemSet1.method = (EventHandler<EventArgs>)((o, e) =>
+                chkItemSet1.method = ((o, e) =>
                 {
                     DXCheckBox dxCheckBox = o as DXCheckBox;
                     Config.免SHIFT = dxCheckBox != null && dxCheckBox.Checked;
@@ -1220,24 +1230,24 @@ namespace Client.Scenes.Views
                 Size size3 = new Size(size1.Width, num3);
                 groupWar.Size = size3;
                 int y1 = 30;
-                ShowItemNames = CreateCheckBox((DXControl)GroupItem, "物品名称显示", x1, y1, (EventHandler<EventArgs>)((o, e) => Config.ShowItemNames = ShowItemNames.Checked), Config.ShowItemNames);
+                ShowItemNames = CreateCheckBox(GroupItem, "物品名称显示", x1, y1, ((o, e) => Config.ShowItemNames = ShowItemNames.Checked), Config.ShowItemNames);
                 int y2 = y1 + num2;
-                ChkAutoPick = CreateCheckBox((DXControl)GroupItem, "快速自动捡取", x1, y2, (EventHandler<EventArgs>)((o, e) => Config.快速自动拾取 = ChkAutoPick.Checked), Config.快速自动拾取);
-                ChkAutoPick.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ChkAutoPick = CreateCheckBox(GroupItem, "快速自动捡取", x1, y2, ((o, e) => Config.快速自动拾取 = ChkAutoPick.Checked), Config.快速自动拾取);
+                ChkAutoPick.CheckedChanged += ((o, e) =>
                 {
                     ChkAutoPick_CheckedChanged();
                 });
 
                 int y4 = y2 + num2;
-                ChkTabPick = BigPatchDialog.CreateCheckBox((DXControl)GroupItem, "Tab捡取", x1, y4, (EventHandler<EventArgs>)((o, e) => Config.Tab捡取 = ChkTabPick.Checked), Config.Tab捡取);
-                ChkTabPick.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ChkTabPick = BigPatchDialog.CreateCheckBox(GroupItem, "Tab捡取", x1, y4, ((o, e) => Config.Tab捡取 = ChkTabPick.Checked), Config.Tab捡取);
+                ChkTabPick.CheckedChanged += ((o, e) =>
                 {
                     ChkTabPick_CheckedChanged();
                 });
 
                 int y5 = y4 + num2;
-                ChkAutoBook = BigPatchDialog.CreateCheckBox((DXControl)GroupItem, "自动学习技能书", x1, y5, (EventHandler<EventArgs>)((o, e) => Config.自动学习技能书 = ChkAutoBook.Checked), Config.自动学习技能书);
-                ChkAutoBook.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ChkAutoBook = BigPatchDialog.CreateCheckBox(GroupItem, "自动学习技能书", x1, y5, ((o, e) => Config.自动学习技能书 = ChkAutoBook.Checked), Config.自动学习技能书);
+                ChkAutoBook.CheckedChanged += ((o, e) =>
                 {
                     ChkTabPick_CheckedChanged();
                 });
@@ -1249,7 +1259,7 @@ namespace Client.Scenes.Views
                 GroupWeather.Location = new Point(GroupWar.Location.X, y4 + num2 + 12);
                 int num4 = 30;
                 DXComboBox dxComboBox1 = new DXComboBox();
-                dxComboBox1.Parent = (DXControl)GroupWeather;
+                dxComboBox1.Parent = GroupWeather;
                 CombWeather = dxComboBox1;
                 CombWeather.Location = new Point(35, 45);
                 int num5 = num4;
@@ -1257,35 +1267,35 @@ namespace Client.Scenes.Views
                 int num6 = size1.Height + num2;
                 int num7 = num5 + num6;
                 //DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                //dxListBoxItem1.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem1.Parent = CombWeather.ListBox;
                 //dxListBoxItem1.Label.Text = "未选择";
                 //dxListBoxItem1.Item = (object)WeatherSetting.None;
                 //DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                //dxListBoxItem2.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem2.Parent = CombWeather.ListBox;
                 //dxListBoxItem2.Label.Text = "晴";
                 //dxListBoxItem2.Item = (object)WeatherSetting.Default;
                 //DXListBoxItem dxListBoxItem3 = new DXListBoxItem();
-                //dxListBoxItem3.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem3.Parent = CombWeather.ListBox;
                 //dxListBoxItem3.Label.Text = "雾";
                 //dxListBoxItem3.Item = (object)WeatherSetting.Fog;
                 //DXListBoxItem dxListBoxItem4 = new DXListBoxItem();
-                //dxListBoxItem4.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem4.Parent = CombWeather.ListBox;
                 //dxListBoxItem4.Label.Text = "燃烧的雾";
                 //dxListBoxItem4.Item = (object)WeatherSetting.BurningFog;
                 //DXListBoxItem dxListBoxItem5 = new DXListBoxItem();
-                //dxListBoxItem5.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem5.Parent = CombWeather.ListBox;
                 //dxListBoxItem5.Label.Text = "雪";
                 //dxListBoxItem5.Item = (object)WeatherSetting.Snow;
                 //DXListBoxItem dxListBoxItem6 = new DXListBoxItem();
-                //dxListBoxItem6.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem6.Parent = CombWeather.ListBox;
                 //dxListBoxItem6.Label.Text = "花瓣雨";
                 //dxListBoxItem6.Item = (object)WeatherSetting.Everfall;
                 //DXListBoxItem dxListBoxItem7 = new DXListBoxItem();
-                //dxListBoxItem7.Parent = (DXControl)CombWeather.ListBox;
+                //dxListBoxItem7.Parent = CombWeather.ListBox;
                 //dxListBoxItem7.Label.Text = "雨";
                 //dxListBoxItem7.Item = (object)WeatherSetting.Rain;
                 //CombWeather.ListBox.SelectItem((object)Config.天气效果);
-                //CombWeather.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
+                //CombWeather.SelectedItemChanged += ((o, e) =>
                 //{
                 //    Config.天气效果 = (int)(WeatherSetting)(o as DXComboBox).ListBox.SelectedItem.Item;
                 //    GameScene.Game.MapControl.UpdateWeather();
@@ -1304,19 +1314,19 @@ namespace Client.Scenes.Views
                 //Point point1 = new Point(x2, y5);
                 //groupAutoAttack1.Location = point1;
                 //int y6 = 30;
-                //ChkAutoFire = CreateCheckBox(GroupAutoAttack, "自动练技能", x1, y6, (EventHandler<EventArgs>)((o, e) => Config.是否开启自动练技能 = ChkAutoFire.Checked), Config.是否开启自动练技能);
+                //ChkAutoFire = CreateCheckBox(GroupAutoAttack, "自动练技能", x1, y6, ((o, e) => Config.是否开启自动练技能 = ChkAutoFire.Checked), Config.是否开启自动练技能);
                 //DXComboBox dxComboBox2 = new DXComboBox();
-                //dxComboBox2.Parent = (DXControl)GroupAutoAttack;
+                //dxComboBox2.Parent = GroupAutoAttack;
                 //CombAutoFire = dxComboBox2;
                 //DXListBoxItem dxListBoxItem8 = new DXListBoxItem();
-                //dxListBoxItem8.Parent = (DXControl)CombAutoFire.ListBox;
+                //dxListBoxItem8.Parent = CombAutoFire.ListBox;
                 //dxListBoxItem8.Label.Text = "空";
                 //dxListBoxItem8.Item = (object)0;
                 int num8;
                 for (int index2 = 0; index2 <= 11; ++index2)
                 {
                     //DXListBoxItem dxListBoxItem9 = new DXListBoxItem();
-                    //dxListBoxItem9.Parent = (DXControl)CombAutoFire.ListBox;
+                    //dxListBoxItem9.Parent = CombAutoFire.ListBox;
                     //DXLabel label = dxListBoxItem9.Label;
                     string str1 = "F";
                     num8 = index2 + 1;
@@ -1325,7 +1335,7 @@ namespace Client.Scenes.Views
                     //label.Text = str3;
                     //dxListBoxItem9.Item = (object)(index2 + 1);
                 }
-                //CombAutoFire.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.自动练F几技能 = (int)CombAutoFire.ListBox.SelectedItem.Item);
+                //CombAutoFire.SelectedItemChanged += ((o, e) => Config.自动练F几技能 = (int)CombAutoFire.ListBox.SelectedItem.Item);
                 //CombAutoFire.ListBox.SelectItem((object)Config.自动练F几技能);
                 //CombAutoFire.Size = new Size(50, 18);
                 //DXComboBox combAutoFire = CombAutoFire;
@@ -1336,12 +1346,12 @@ namespace Client.Scenes.Views
                 //combAutoFire.Location = point2;
                 //int y7 = y6 + num2;
                 //DXLabel dxLabel = new DXLabel();
-                //dxLabel.Parent = (DXControl)GroupAutoAttack;
+                //dxLabel.Parent = GroupAutoAttack;
                 //dxLabel.Text = "间隔:";
                 //dxLabel.Location = new Point(x1, y7);
                 //LabAutoFire = dxLabel;
                 //DXNumberBox dxNumberBox = new DXNumberBox();
-                //dxNumberBox.Parent = (DXControl)GroupAutoAttack;
+                //dxNumberBox.Parent = GroupAutoAttack;
                 //int num9 = x1;
                 //size1 = LabAutoFire.Size;
                 //int width2 = size1.Width;
@@ -1353,14 +1363,14 @@ namespace Client.Scenes.Views
                 //dxNumberBox.Value = Config.隔多少秒自动练技能;
                 //dxNumberBox.UpButton.Location = new Point(63, 1);
                 //NumberAutoFireInterval = dxNumberBox;
-                //NumberAutoFireInterval.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.隔多少秒自动练技能 = NumberAutoFireInterval.Value);
+                //NumberAutoFireInterval.ValueTextBox.ValueChanged += ((o, e) => Config.隔多少秒自动练技能 = NumberAutoFireInterval.Value);
                 //int num10 = y7 + num2;
                 //BigPatchDialog.DXGroupBox groupAutoAttack2 = GroupAutoAttack;
                 //size1 = GroupItem.Size;
                 //Size size6 = new Size(size1.Width, num10 + 10);
                 //groupAutoAttack2.Size = size6;
                 int y8 = 30;
-                ChkCallMounts = CreateCheckBox((DXControl)GroupMouseMiddle, "骑马", x1, y8, (EventHandler<EventArgs>)((o, e) =>
+                ChkCallMounts = CreateCheckBox(GroupMouseMiddle, "骑马", x1, y8, ((o, e) =>
                 {
                     if (ChkCallMounts.Checked)
                         ChkCastingMagic.Checked = !ChkCallMounts.Checked;
@@ -1368,23 +1378,23 @@ namespace Client.Scenes.Views
                 }), Config.是否开启鼠标中间按钮自动使用坐骑);
 
                 int y9 = y8 + num2;
-                ChkCastingMagic = BigPatchDialog.CreateCheckBox((DXControl)GroupMouseMiddle, "魔法", x1, y9, (EventHandler<EventArgs>)((o, e) =>
+                ChkCastingMagic = BigPatchDialog.CreateCheckBox(GroupMouseMiddle, "魔法", x1, y9, ((o, e) =>
                 {
                     if (ChkCastingMagic.Checked)
                         ChkCallMounts.Checked = !ChkCastingMagic.Checked;
                     Config.是否开启鼠标中间按钮自动使用技能 = ChkCastingMagic.Checked;
                 }), Config.是否开启鼠标中间按钮自动使用技能);
                 DXComboBox dxComboBox3 = new DXComboBox();
-                dxComboBox3.Parent = (DXControl)GroupMouseMiddle;
+                dxComboBox3.Parent = GroupMouseMiddle;
                 CombMiddleMouse = dxComboBox3;
                 DXListBoxItem dxListBoxItem10 = new DXListBoxItem();
-                dxListBoxItem10.Parent = (DXControl)CombMiddleMouse.ListBox;
+                dxListBoxItem10.Parent = CombMiddleMouse.ListBox;
                 dxListBoxItem10.Label.Text = "空";
                 dxListBoxItem10.Item = (object)0;
                 for (int index2 = 0; index2 <= 11; ++index2)
                 {
                     DXListBoxItem dxListBoxItem9 = new DXListBoxItem();
-                    dxListBoxItem9.Parent = (DXControl)CombMiddleMouse.ListBox;
+                    dxListBoxItem9.Parent = CombMiddleMouse.ListBox;
                     DXLabel label = dxListBoxItem9.Label;
                     string str1 = "F";
                     num8 = index2 + 1;
@@ -1393,7 +1403,7 @@ namespace Client.Scenes.Views
                     label.Text = str3;
                     dxListBoxItem9.Item = (object)(index2 + 1);
                 }
-                CombMiddleMouse.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.鼠标中间按钮使用F几的技能 = (int)CombMiddleMouse.ListBox.SelectedItem.Item);
+                CombMiddleMouse.SelectedItemChanged += ((o, e) => Config.鼠标中间按钮使用F几的技能 = (int)CombMiddleMouse.ListBox.SelectedItem.Item);
                 CombMiddleMouse.ListBox.SelectItem((object)Config.鼠标中间按钮使用F几的技能);
                 CombMiddleMouse.Size = new Size(50, 18);
                 CombMiddleMouse.Location = new Point(x1 + ChkCastingMagic.DisplayArea.Right, y9);
@@ -1415,7 +1425,7 @@ namespace Client.Scenes.Views
                 int x5 = GroupMouseMiddle.Location.X;
                 int y13 = num11 + 5;
                 DXButton dxButton1 = new DXButton();
-                dxButton1.Parent = (DXControl)this;
+                dxButton1.Parent = this;
                 dxButton1.Size = new Size(70, 18);
                 dxButton1.Location = new Point(x5, y13);
                 dxButton1.ButtonType = ButtonType.SmallButton;
@@ -1429,7 +1439,7 @@ namespace Client.Scenes.Views
                 });
                 int y14 = y13 + num2;
                 DXButton dxButton2 = new DXButton();
-                dxButton2.Parent = (DXControl)this;
+                dxButton2.Parent = this;
                 dxButton2.Size = new Size(70, 18);
                 dxButton2.Location = new Point(x5, y14);
                 dxButton2.ButtonType = ButtonType.SmallButton;
@@ -1594,6 +1604,8 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoBladeStorm;
             public DXCheckBox AutoDefiance;
             public DXCheckBox AutoMight;
+            public DXCheckBox AutoReflectDamage;
+
             public DXCheckBox AutoThreeAct;
             public DXComboBox ThreeAct;
             public DXCheckBox AutoFourAct;
@@ -1663,42 +1675,42 @@ namespace Client.Scenes.Views
 
             public DXPlayerHelperTab()
             {
-                BigPatchDialog.DXGroupBox dxGroupBox1 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox1.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox1 = new DXGroupBox();
+                dxGroupBox1.Parent = this;
                 dxGroupBox1.Size = new Size(120, 32);
                 dxGroupBox1.Location = new Point(10, 0);
                 dxGroupBox1.Name.Text = "战士";
                 dxGroupBox1.Visible = false;
                 Warrior = dxGroupBox1;
-                BigPatchDialog.DXGroupBox dxGroupBox2 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox2.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox2 = new DXGroupBox();
+                dxGroupBox2.Parent = this;
                 dxGroupBox2.Size = new Size(120, 32);
                 dxGroupBox2.Location = new Point(10, 0);
                 dxGroupBox2.Name.Text = "法师";
                 dxGroupBox2.Visible = false;
                 Wizard = dxGroupBox2;
-                BigPatchDialog.DXGroupBox dxGroupBox3 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox3.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox3 = new DXGroupBox();
+                dxGroupBox3.Parent = this;
                 dxGroupBox3.Size = new Size(120, 32);
                 dxGroupBox3.Location = new Point(10, 0);
                 dxGroupBox3.Name.Text = "道士";
                 dxGroupBox3.Visible = false;
                 Taoist = dxGroupBox3;
-                BigPatchDialog.DXGroupBox dxGroupBox4 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox4.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox4 = new DXGroupBox();
+                dxGroupBox4.Parent = this;
                 dxGroupBox4.Size = new Size(120, 32);
                 dxGroupBox4.Location = new Point(10, 0);
                 dxGroupBox4.Name.Text = "刺客";
                 dxGroupBox4.Visible = false;
                 Assassin = dxGroupBox4;
-                BigPatchDialog.DXGroupBox dxGroupBox5 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox5.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox5 = new DXGroupBox();
+                dxGroupBox5.Parent = this;
                 dxGroupBox5.Size = new Size(120, 32);
                 dxGroupBox5.Location = new Point(10, 0);
                 dxGroupBox5.Name.Text = "自动技能";
                 AutoSkill = dxGroupBox5;
-                BigPatchDialog.DXGroupBox dxGroupBox6 = new BigPatchDialog.DXGroupBox();
-                dxGroupBox6.Parent = (DXControl)this;
+                DXGroupBox dxGroupBox6 = new DXGroupBox();
+                dxGroupBox6.Parent = this;
                 dxGroupBox6.Size = new Size(120, 32);
                 dxGroupBox6.Location = new Point(130, 0);
                 dxGroupBox6.Name.Text = "挂机";
@@ -1708,8 +1720,8 @@ namespace Client.Scenes.Views
    
                 int x1 = 15;
                 int num1 = 5;
-                int y1;
-                AutoFlamingSword = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动烈火", x1, y1 = num1 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动烈火 = AutoFlamingSword.Checked), Config.自动烈火);
+                int y1; 
+                AutoFlamingSword = CreateCheckBox(Warrior, "自动烈火", x1, y1 = num1 + 25, ((o, e) => Config.自动烈火 = AutoFlamingSword.Checked), Config.自动烈火);
                 AutoFlamingSword.CheckedChanged += ((o, e) =>
                 {
                     if (GameScene.Game.Observer)
@@ -1720,8 +1732,8 @@ namespace Client.Scenes.Views
                         Slot = AutoSetConf.SetFlamingSwordBox
                     });
                 });
-                AutoDragobRise = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动翔空", x1 + 120, y1, (EventHandler<EventArgs>)((o, e) => Config.自动翔空 = AutoDragobRise.Checked), Config.自动翔空);
-                AutoDragobRise.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                AutoDragobRise = CreateCheckBox(Warrior, "自动翔空", x1 + 120, y1, ((o, e) => Config.自动翔空 = AutoDragobRise.Checked), Config.自动翔空);
+                AutoDragobRise.CheckedChanged += ((o, e) =>
                 {
                     if (GameScene.Game.Observer)
                         return;
@@ -1732,8 +1744,8 @@ namespace Client.Scenes.Views
                     });
                 });
                 int y2;
-                AutoBladeStorm = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动莲月", x1, y2 = y1 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动莲月 = AutoBladeStorm.Checked), Config.自动莲月);
-                AutoBladeStorm.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                AutoBladeStorm = CreateCheckBox(Warrior, "自动莲月", x1, y2 = y1 + 25, ((o, e) => Config.自动莲月 = AutoBladeStorm.Checked), Config.自动莲月);
+                AutoBladeStorm.CheckedChanged += ((o, e) =>
                 {
                     if (GameScene.Game.Observer)
                         return;
@@ -1743,68 +1755,73 @@ namespace Client.Scenes.Views
                         Slot = AutoSetConf.SetBladeStormBox
                     });
                 });
-                AutoDefiance = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动铁布衫", x1 + 120, y2, (EventHandler<EventArgs>)((o, e) => {
+                AutoDefiance = CreateCheckBox(Warrior, "自动铁布衫", x1 + 120, y2, ((o, e) => {
                     Config.自动铁布衫 = AutoDefiance.Checked;
                     if (Config.自动铁布衫)
                         AutoMight.Checked = false;
 
                 }), Config.自动铁布衫);
                 int num2;
-                AutoMight = BigPatchDialog.CreateCheckBox((DXControl)Warrior, "自动破血", x1, num2 = y2 + 25, (EventHandler<EventArgs>)((o, e) => {
+                AutoMight = CreateCheckBox(Warrior, "自动破血", x1, num2 = y2 + 25, ((o, e) => {
                     
                     Config.自动破血 = AutoMight.Checked;
                     if (Config.自动破血)
                         AutoDefiance.Checked = false;
                 }), Config.自动破血);
+
+                AutoReflectDamage = CreateCheckBox(Warrior, "自动移花接木", x1 + 120, num2, ((o, e) => {
+
+                    Config.自动移花接木 = AutoReflectDamage.Checked;
+                }), Config.自动移花接木);
                 int num3 = 5;
                 int num4;
-                AutoMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔法盾", x1, num4 = num3 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);
-                //AutoMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                AutoMagicShield = CreateCheckBox(Wizard, "自动魔法盾", x1, num4 = num3 + 25, ((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);
+                //AutoMagicShield.CheckedChanged += ((o, e) =>
                 //{
                 //    AutoMagicShield_CheckedChanged();
                 //});
                 int num5;
-                AutoRenounce = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动凝血", x1, num5 = num4 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动凝血 = AutoRenounce.Checked), Config.自动凝血);
-                AutoThunder = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动天打雷劈", x1, num2 = num5 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动天打雷劈 = AutoThunder.Checked), Config.自动天打雷劈);
-                //AutoSuperiorMagicShield = BigPatchDialog.CreateCheckBox((DXControl)Wizard, "自动魔光盾", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动魔光盾 = AutoSuperiorMagicShield.Checked), Config.自动魔光盾);
-                //AutoSuperiorMagicShield.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                AutoRenounce = CreateCheckBox(Wizard, "自动凝血", x1, num5 = num4 + 25, ((o, e) => Config.自动凝血 = AutoRenounce.Checked), Config.自动凝血);
+                AutoThunder = CreateCheckBox(Wizard, "自动天打雷劈", x1, num2 = num5 + 25, ((o, e) => Config.自动天打雷劈 = AutoThunder.Checked), Config.自动天打雷劈);
+                //AutoSuperiorMagicShield = BigPatchDialog.CreateCheckBox(Wizard, "自动魔光盾", x1, num2 = num2 + 25, ((o, e) => Config.自动魔光盾 = AutoSuperiorMagicShield.Checked), Config.自动魔光盾);
+                //AutoSuperiorMagicShield.CheckedChanged += ((o, e) =>
                 //{
                 //    AutoSuperiorMagicShield_CheckedChanged();
                 //});
 
-                AutoWizardSkill = CreateCheckBox((DXControl)Wizard, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动法师连续技能 = AutoWizardSkill.Checked), Config.自动法师连续技能);
+                AutoWizardSkill = CreateCheckBox(Wizard, "自动连续技能", x1, num2 = num2 + 25, ((o, e) => Config.自动法师连续技能 = AutoWizardSkill.Checked), Config.自动法师连续技能);
 
 
                 int num6 = 5;
                 int num7;
-                AutoPoisonDust = CreateCheckBox((DXControl)Taoist, "自动换毒", x1, num7 = num6 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
+                AutoPoisonDust = CreateCheckBox(Taoist, "自动换毒", x1, num7 = num6 + 25, ((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
                 int num8;
-                AutoAmulet = CreateCheckBox((DXControl)Taoist, "自动换符", x1, num8 = num7 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
-                AutoCelestial = CreateCheckBox((DXControl)Taoist, "自动阴阳盾", x1, num2 = num8 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
-                AutoTaoistSkill = CreateCheckBox((DXControl)Taoist, "自动连续技能", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
-                AutoStrengthOfFaith = CreateCheckBox((DXControl)Taoist, "有宠物时自动移花接玉", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
-                AutoLifeSteal = CreateCheckBox((DXControl)Taoist, "自动吸星大法", x1, num2 = num2 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动吸星大法 = AutoLifeSteal.Checked), Config.自动吸星大法);
+                AutoAmulet = CreateCheckBox(Taoist, "自动换符", x1, num8 = num7 + 25, ((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
+                AutoCelestial = CreateCheckBox(Taoist, "自动阴阳盾", x1, num2 = num8 + 25, ((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
+                AutoTaoistSkill = CreateCheckBox(Taoist, "自动连续技能", x1, num2 = num2 + 25, ((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
+                AutoStrengthOfFaith = CreateCheckBox(Taoist, "有宠物时自动移花接玉", x1, num2 = num2 + 25, ((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
+                AutoLifeSteal = CreateCheckBox(Taoist, "自动吸星大法", x1, num2 = num2 + 25, ((o, e) => Config.自动吸星大法 = AutoLifeSteal.Checked), Config.自动吸星大法);
 
                 int num9 = 5;
                 int num10;
-                AutoFourFlowers = CreateCheckBox((DXControl)Assassin, "自动四花", x1, num10 = num9 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动四花 = AutoFourFlowers.Checked), Config.自动四花);
+                AutoFourFlowers = CreateCheckBox(Assassin, "自动四花", x1, num10 = num9 + 25, ((o, e) => Config.自动四花 = AutoFourFlowers.Checked), Config.自动四花);
                 int num11;
-                AutoEvasion = CreateCheckBox((DXControl)Assassin, "自动风之闪避", x1, num11 = num10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之闪避 = AutoEvasion.Checked), Config.自动风之闪避);
-                AutoRagingWind = CreateCheckBox((DXControl)Assassin, "自动风之守护", x1, num2 = num11 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动风之守护 = AutoRagingWind.Checked), Config.自动风之守护);
+                AutoEvasion = CreateCheckBox(Assassin, "自动风之闪避", x1, num11 = num10 + 25, ((o, e) => Config.自动风之闪避 = AutoEvasion.Checked), Config.自动风之闪避);
+                AutoRagingWind = CreateCheckBox(Assassin, "自动风之守护", x1, num2 = num11 + 25, ((o, e) => Config.自动风之守护 = AutoRagingWind.Checked), Config.自动风之守护);
                 int y3 = 35;
                 DXLabel dxLabel1 = new DXLabel();
                 dxLabel1.AutoSize = true;
-                dxLabel1.Parent = (DXControl)AutoSkill;
+                dxLabel1.Parent = AutoSkill;
                 dxLabel1.Text = "技能Ⅰ";
                 dxLabel1.Hint = "根据定义的时间间隔(秒单位)自动释放技能";
                 DXLabel dxLabel2 = dxLabel1;
                 dxLabel2.Location = new Point(x1, y3);
                 DXComboBox dxComboBox1 = new DXComboBox();
-                dxComboBox1.Parent = (DXControl)AutoSkill;
+                dxComboBox1.Parent = AutoSkill;
                 dxComboBox1.Size = new Size(90, 18);
                 CombSkill1 = dxComboBox1;
                 CombSkill1.Location = new Point(dxLabel2.Location.X + dxLabel2.Size.Width + 5, y3);
-                CombSkill1.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
+                CombSkill1.SelectedItemChanged += ((o, e) =>
                 {
                     MagicType selectedItem = (MagicType)CombSkill1.SelectedItem;
                     foreach (MagicInfo magicInfo in (IEnumerable<MagicInfo>)Globals.MagicInfoList.Binding)
@@ -1820,7 +1837,7 @@ namespace Client.Scenes.Views
                     }
                 });
                 DXNumberBox dxNumberBox1 = new DXNumberBox();
-                dxNumberBox1.Parent = (DXControl)AutoSkill;
+                dxNumberBox1.Parent = AutoSkill;
                 dxNumberBox1.Size = new Size(80, 20);
                 dxNumberBox1.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox1.MaxValue = 50000L;
@@ -1828,7 +1845,7 @@ namespace Client.Scenes.Views
                 dxNumberBox1.Value = Config.自动技能1多长时间使用一次;
                 dxNumberBox1.UpButton.Location = new Point(63, 1);
                 NumbSkill1 = dxNumberBox1;
-                NumbSkill1.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.自动技能1多长时间使用一次 = NumbSkill1.Value);
+                NumbSkill1.ValueTextBox.ValueChanged += ((o, e) => Config.自动技能1多长时间使用一次 = NumbSkill1.Value);
                 DXNumberBox numbSkill1 = NumbSkill1;
                 Point location1 = CombSkill1.Location;
                 int x2 = location1.X + CombSkill1.Size.Width + 5;
@@ -1838,7 +1855,7 @@ namespace Client.Scenes.Views
                 numbSkill1.Location = point1;
                 DXCheckBox dxCheckBox1 = new DXCheckBox();
                 dxCheckBox1.AutoSize = true;
-                dxCheckBox1.Parent = (DXControl)AutoSkill;
+                dxCheckBox1.Parent = AutoSkill;
                 dxCheckBox1.Checked = Config.是否开启自动技能1;
                 dxCheckBox1.Hint = "自动技能\x2460";
                 Point location2 = NumbSkill1.Location;
@@ -1847,16 +1864,16 @@ namespace Client.Scenes.Views
                 int y5 = location2.Y + 2;
                 dxCheckBox1.Location = new Point(x3, y5);
                 AutoSkill_1 = dxCheckBox1;
-                AutoSkill_1.CheckedChanged += (EventHandler<EventArgs>)((o, e) => Config.是否开启自动技能1 = AutoSkill_1.Checked);
+                AutoSkill_1.CheckedChanged += ((o, e) => Config.是否开启自动技能1 = AutoSkill_1.Checked);
                 int y6 = y3 + 25;
                 DXLabel dxLabel3 = new DXLabel();
-                dxLabel3.Parent = (DXControl)AutoSkill;
+                dxLabel3.Parent = AutoSkill;
                 dxLabel3.Text = "技能Ⅱ";
                 dxLabel3.Hint = "根据定义的时间间隔(秒单位)自动释放技能";
                 DXLabel dxLabel4 = dxLabel3;
                 dxLabel4.Location = new Point(x1, y6);
                 DXComboBox dxComboBox2 = new DXComboBox();
-                dxComboBox2.Parent = (DXControl)AutoSkill;
+                dxComboBox2.Parent = AutoSkill;
                 dxComboBox2.Size = new Size(90, 18);
                 CombSkill2 = dxComboBox2;
                 DXComboBox combSkill2 = CombSkill2;
@@ -1866,7 +1883,7 @@ namespace Client.Scenes.Views
                 int y7 = location3.Y;
                 Point point2 = new Point(x4, y7);
                 combSkill2.Location = point2;
-                CombSkill2.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
+                CombSkill2.SelectedItemChanged += ((o, e) =>
                 {
                     MagicType selectedItem = (MagicType)CombSkill2.SelectedItem;
                     foreach (MagicInfo magicInfo in (IEnumerable<MagicInfo>)Globals.MagicInfoList.Binding)
@@ -1882,7 +1899,7 @@ namespace Client.Scenes.Views
                     }
                 });
                 DXNumberBox dxNumberBox2 = new DXNumberBox();
-                dxNumberBox2.Parent = (DXControl)AutoSkill;
+                dxNumberBox2.Parent = AutoSkill;
                 dxNumberBox2.Size = new Size(80, 20);
                 dxNumberBox2.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox2.MaxValue = 50000L;
@@ -1890,7 +1907,7 @@ namespace Client.Scenes.Views
                 dxNumberBox2.Value = Config.自动技能2多长时间使用一次;
                 dxNumberBox2.UpButton.Location = new Point(63, 1);
                 NumbSkill2 = dxNumberBox2;
-                NumbSkill2.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.自动技能2多长时间使用一次 = NumbSkill2.Value);
+                NumbSkill2.ValueTextBox.ValueChanged += ((o, e) => Config.自动技能2多长时间使用一次 = NumbSkill2.Value);
                 DXNumberBox numbSkill2 = NumbSkill2;
                 Point location4 = CombSkill2.Location;
                 int x5 = location4.X + CombSkill2.Size.Width + 5;
@@ -1900,7 +1917,7 @@ namespace Client.Scenes.Views
                 numbSkill2.Location = point3;
                 DXCheckBox dxCheckBox2 = new DXCheckBox();
                 dxCheckBox2.AutoSize = true;
-                dxCheckBox2.Parent = (DXControl)AutoSkill;
+                dxCheckBox2.Parent = AutoSkill;
                 dxCheckBox2.Checked = Config.是否开启自动技能2;
                 dxCheckBox2.Hint = "自动技能\x2461";
                 Point location5 = NumbSkill2.Location;
@@ -1909,18 +1926,18 @@ namespace Client.Scenes.Views
                 int y9 = location5.Y + 2;
                 dxCheckBox2.Location = new Point(x6, y9);
                 AutoSkill_2 = dxCheckBox2;
-                AutoSkill_2.CheckedChanged += (EventHandler<EventArgs>)((o, e) => Config.是否开启自动技能2 = AutoSkill_2.Checked);
+                AutoSkill_2.CheckedChanged += ((o, e) => Config.是否开启自动技能2 = AutoSkill_2.Checked);
                 AutoSkill.Size = new Size(125, y6 + 25 + 5);
                 DXLabel dxLabel5 = new DXLabel();
-                dxLabel5.Parent = (DXControl)this;
+                dxLabel5.Parent = this;
                 dxLabel5.Text = "特殊命令:";
                 LabCommand = dxLabel5;
                 DXComboBox dxComboBox3 = new DXComboBox();
-                dxComboBox3.Parent = (DXControl)this;
+                dxComboBox3.Parent = this;
                 dxComboBox3.Size = new Size(180, 18);
                 CombCmdBox = dxComboBox3;
                 DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                dxListBoxItem1.Parent = (DXControl)CombCmdBox.ListBox;
+                dxListBoxItem1.Parent = CombCmdBox.ListBox;
                 dxListBoxItem1.Label.Text = "空";
                 dxListBoxItem1.Item = (object)null;
                 string[] strArray = new string[]
@@ -1943,13 +1960,13 @@ namespace Client.Scenes.Views
                 foreach (string str in strArray)
                 {
                     DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                    dxListBoxItem2.Parent = (DXControl)CombCmdBox.ListBox;
+                    dxListBoxItem2.Parent = CombCmdBox.ListBox;
                     dxListBoxItem2.Label.Text = str;
                     dxListBoxItem2.Item = (object)dijihang++;
                 }
                 CombCmdBox.ListBox.SelectItem((object)null);
                 DXButton dxButton = new DXButton();
-                dxButton.Parent = (DXControl)this;
+                dxButton.Parent = this;
                 dxButton.Size = new Size(60, 18);
                 dxButton.ButtonType = ButtonType.SmallButton;
                 dxButton.Label.Text = "执行";
@@ -1966,7 +1983,7 @@ namespace Client.Scenes.Views
                 DXLabel dxLabel8 = new DXLabel();
                 dxLabel8.Text = "";
                 dxLabel8.Outline = true;
-                dxLabel8.Parent = (DXControl)Android;
+                dxLabel8.Parent = Android;
                 dxLabel8.Border = false;
                 dxLabel8.BorderColour = Color.Green;
                 int x8 = dxLabel7.Location.X;
@@ -1975,8 +1992,8 @@ namespace Client.Scenes.Views
                 dxLabel8.Location = new Point(x8 + width1 - 8, y10);
                 dxLabel8.ForeColour = Color.Cyan;
                 TimeLable = dxLabel8;
-                AndroidPlayer = CreateCheckBox(Android, "开始挂机", x7 + 170, y10, (EventHandler<EventArgs>)((o, e) => Config.开始挂机 = AndroidPlayer.Checked), Config.开始挂机);
-                AndroidPlayer.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                AndroidPlayer = CreateCheckBox(Android, "开始挂机", x7 + 170, y10, ((o, e) => Config.开始挂机 = AndroidPlayer.Checked), Config.开始挂机);
+                AndroidPlayer.CheckedChanged += ((o, e) =>
                 {
                     if (GameScene.Game.Observer)
                         return;
@@ -1995,30 +2012,30 @@ namespace Client.Scenes.Views
                     }
                 });
                 int y11;
-                AndroidPoisonDust = CreateCheckBox((DXControl)Android, "自动上毒", x7, y11 = y10 + 25, (EventHandler<EventArgs>)((o, e) => Config.自动上毒 = AndroidPoisonDust.Checked), Config.自动上毒);
-                AndroidEluded = CreateCheckBox((DXControl)Android, "自动躲避", x7 + 85, y11, (EventHandler<EventArgs>)((o, e) => Config.自动躲避 = AndroidEluded.Checked), Config.自动躲避);
+                AndroidPoisonDust = CreateCheckBox(Android, "自动上毒", x7, y11 = y10 + 25, ((o, e) => Config.自动上毒 = AndroidPoisonDust.Checked), Config.自动上毒);
+                AndroidEluded = CreateCheckBox(Android, "自动躲避", x7 + 85, y11, ((o, e) => Config.自动躲避 = AndroidEluded.Checked), Config.自动躲避);
                 int num13;
-                AndroidBackCastle = CreateCheckBox((DXControl)Android, "死亡回城", x7 + 170, num13 = y11, (EventHandler<EventArgs>)((o, e) => Config.死亡回城 = AndroidBackCastle.Checked), Config.死亡回城);
+                AndroidBackCastle = CreateCheckBox(Android, "死亡回城", x7 + 170, num13 = y11, ((o, e) => Config.死亡回城 = AndroidBackCastle.Checked), Config.死亡回城);
                 int y12;
-                AndroidSingleSkill = CreateCheckBox((DXControl)Android, "法道自动技能", x7, y12 = num13 + 25, (EventHandler<EventArgs>)((o, e) => Config.是否开启挂机自动技能 = AndroidSingleSkill.Checked), Config.是否开启挂机自动技能);
+                AndroidSingleSkill = CreateCheckBox(Android, "法道自动技能", x7, y12 = num13 + 25, ((o, e) => Config.是否开启挂机自动技能 = AndroidSingleSkill.Checked), Config.是否开启挂机自动技能);
                 DXComboBox dxComboBox4 = new DXComboBox();
-                dxComboBox4.Parent = (DXControl)Android;
+                dxComboBox4.Parent = Android;
                 dxComboBox4.Size = new Size(120, 18);
                 int x9 = AndroidSingleSkill.Location.X;
                 size = AndroidSingleSkill.Size;
                 int width2 = size.Width;
                 dxComboBox4.Location = new Point(x9 + width2 + 5, y12);
                 AndroidSkills = dxComboBox4;
-                AndroidSkills.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.挂机自动技能 = (MagicType)AndroidSkills.ListBox.SelectedItem.Item);
+                AndroidSkills.SelectedItemChanged += ((o, e) => Config.挂机自动技能 = (MagicType)AndroidSkills.ListBox.SelectedItem.Item);
                 DXLabel dxLabel9 = new DXLabel();
-                dxLabel9.Parent = (DXControl)Android;
+                dxLabel9.Parent = Android;
                 dxLabel9.Text = "X坐标:";
                 dxLabel9.Outline = true;
                 int y13;
                 dxLabel9.Location = new Point(x7, y13 = y12 + 40);
                 DXLabel dxLabel10 = dxLabel9;
                 DXNumberBox dxNumberBox3 = new DXNumberBox();
-                dxNumberBox3.Parent = (DXControl)Android;
+                dxNumberBox3.Parent = Android;
                 dxNumberBox3.Size = new Size(80, 20);
                 dxNumberBox3.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox3.MaxValue = 1024L;
@@ -2030,15 +2047,15 @@ namespace Client.Scenes.Views
                 int width3 = size.Width;
                 dxNumberBox3.Location = new Point(num14 + width3, y13);
                 AndroidCoordX = dxNumberBox3;
-                AndroidCoordX.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.范围挂机坐标 = new Point((int)AndroidCoordX.Value, Config.范围挂机坐标.Y));
+                AndroidCoordX.ValueTextBox.ValueChanged += ((o, e) => Config.范围挂机坐标 = new Point((int)AndroidCoordX.Value, Config.范围挂机坐标.Y));
                 DXLabel dxLabel11 = new DXLabel();
-                dxLabel11.Parent = (DXControl)Android;
+                dxLabel11.Parent = Android;
                 dxLabel11.Text = "Y坐标:";
                 dxLabel11.Outline = true;
                 dxLabel11.Location = new Point(x7 + 120, y13);
                 DXLabel dxLabel12 = dxLabel11;
                 DXNumberBox dxNumberBox4 = new DXNumberBox();
-                dxNumberBox4.Parent = (DXControl)Android;
+                dxNumberBox4.Parent = Android;
                 dxNumberBox4.Size = new Size(80, 20);
                 dxNumberBox4.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox4.MaxValue = 1024L;
@@ -2050,16 +2067,16 @@ namespace Client.Scenes.Views
                 int width4 = size.Width;
                 dxNumberBox4.Location = new Point(num15 + width4, y13);
                 AndroidCoordY = dxNumberBox4;
-                AndroidCoordY.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.范围挂机坐标 = new Point(Config.范围挂机坐标.X, (int)AndroidCoordY.Value));
+                AndroidCoordY.ValueTextBox.ValueChanged += ((o, e) => Config.范围挂机坐标 = new Point(Config.范围挂机坐标.X, (int)AndroidCoordY.Value));
                 DXLabel dxLabel13 = new DXLabel();
-                dxLabel13.Parent = (DXControl)Android;
+                dxLabel13.Parent = Android;
                 dxLabel13.Text = "范围 :";
                 dxLabel13.Outline = true;
                 int y14;
                 dxLabel13.Location = new Point(x7, y14 = y13 + 25);
                 DXLabel dxLabel14 = dxLabel13;
                 DXNumberBox dxNumberBox5 = new DXNumberBox();
-                dxNumberBox5.Parent = (DXControl)Android;
+                dxNumberBox5.Parent = Android;
                 dxNumberBox5.Size = new Size(80, 20);
                 dxNumberBox5.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox5.MaxValue = 1024L;
@@ -2071,12 +2088,12 @@ namespace Client.Scenes.Views
                 int width5 = size.Width;
                 dxNumberBox5.Location = new Point(num16 + width5 + 5, y14);
                 AndroidCoordRange = dxNumberBox5;
-                AndroidCoordRange.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.范围距离 = AndroidCoordRange.Value);
+                AndroidCoordRange.ValueTextBox.ValueChanged += ((o, e) => Config.范围距离 = AndroidCoordRange.Value);
 
-                AndroidLockRange = CreateCheckBox(Android, "范围挂机", x7 + 170, y14, (EventHandler<EventArgs>)((o, e) => Config.范围挂机 = AndroidLockRange.Checked), Config.范围挂机);
+                AndroidLockRange = CreateCheckBox(Android, "范围挂机", x7 + 170, y14, ((o, e) => Config.范围挂机 = AndroidLockRange.Checked), Config.范围挂机);
 
                 DXLabel dxLabel15 = new DXLabel();
-                dxLabel15.Parent = (DXControl)Android;
+                dxLabel15.Parent = Android;
                 dxLabel15.Text = "血量低于 % :";
                 dxLabel15.Outline = true;
                 dxLabel15.Hint = "　　百分比值";
@@ -2084,7 +2101,7 @@ namespace Client.Scenes.Views
                 dxLabel15.Location = new Point(x7, y15 = y14 + 40);
                 DXLabel dxLabel16 = dxLabel15;
                 DXNumberBox dxNumberBox6 = new DXNumberBox();
-                dxNumberBox6.Parent = (DXControl)Android;
+                dxNumberBox6.Parent = Android;
                 dxNumberBox6.Size = new Size(80, 20);
                 dxNumberBox6.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox6.MaxValue = 100L;
@@ -2096,10 +2113,10 @@ namespace Client.Scenes.Views
                 int width6 = size.Width;
                 dxNumberBox6.Location = new Point(num17 + width6, y15);
                 AndroidBackCastleMinPHValue = dxNumberBox6;
-                AndroidBackCastleMinPHValue.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.血量剩下百分之多少时自动回城 = AndroidBackCastleMinPHValue.Value);
-                AndroidMinPHBackCastle = CreateCheckBox((DXControl)Android, "回城保护", x7 + 170, y15, (EventHandler<EventArgs>)((o, e) => Config.是否开启回城保护 = AndroidMinPHBackCastle.Checked), Config.是否开启回城保护);
+                AndroidBackCastleMinPHValue.ValueTextBox.ValueChanged += ((o, e) => Config.血量剩下百分之多少时自动回城 = AndroidBackCastleMinPHValue.Value);
+                AndroidMinPHBackCastle = CreateCheckBox(Android, "回城保护", x7 + 170, y15, ((o, e) => Config.是否开启回城保护 = AndroidMinPHBackCastle.Checked), Config.是否开启回城保护);
                 DXLabel dxLabel17 = new DXLabel();
-                dxLabel17.Parent = (DXControl)Android;
+                dxLabel17.Parent = Android;
                 dxLabel17.Text = "血量低于 % :";
                 dxLabel17.Outline = true;
                 dxLabel17.Hint = "　　百分比值";
@@ -2107,7 +2124,7 @@ namespace Client.Scenes.Views
                 dxLabel17.Location = new Point(x7, y16 = y15 + 20);
                 DXLabel dxLabel18 = dxLabel17;
                 DXNumberBox dxNumberBox7 = new DXNumberBox();
-                dxNumberBox7.Parent = (DXControl)Android;
+                dxNumberBox7.Parent = Android;
                 dxNumberBox7.Size = new Size(80, 20);
                 dxNumberBox7.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox7.MaxValue = 100L;
@@ -2119,18 +2136,18 @@ namespace Client.Scenes.Views
                 int width7 = size.Width;
                 dxNumberBox7.Location = new Point(num18 + width7, y16);
                 AndroidRandomMinPHValue = dxNumberBox7;
-                AndroidRandomMinPHValue.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.血量剩下百分之多少时自动随机 = AndroidRandomMinPHValue.Value);
-                AndroidMinPHRandom = CreateCheckBox((DXControl)Android, "随机保护", x7 + 170, y16, (EventHandler<EventArgs>)((o, e) => Config.是否开启随机保护 = AndroidMinPHRandom.Checked), Config.是否开启随机保护);
+                AndroidRandomMinPHValue.ValueTextBox.ValueChanged += ((o, e) => Config.血量剩下百分之多少时自动随机 = AndroidRandomMinPHValue.Value);
+                AndroidMinPHRandom = CreateCheckBox(Android, "随机保护", x7 + 170, y16, ((o, e) => Config.是否开启随机保护 = AndroidMinPHRandom.Checked), Config.是否开启随机保护);
 
                 DXLabel dxLabel19 = new DXLabel();
-                dxLabel19.Parent = (DXControl)Android;
+                dxLabel19.Parent = Android;
                 dxLabel19.Text = "每间隔(秒) :";
                 dxLabel19.Outline = true;
                 int y17;
                 dxLabel19.Location = new Point(x7, y17 = y16 + 20);
                 DXLabel dxLabel20 = dxLabel19;
                 DXNumberBox dxNumberBox8 = new DXNumberBox();
-                dxNumberBox8.Parent = (DXControl)Android;
+                dxNumberBox8.Parent = Android;
                 dxNumberBox8.Size = new Size(80, 20);
                 dxNumberBox8.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox8.MaxValue = 10000L;
@@ -2142,22 +2159,22 @@ namespace Client.Scenes.Views
                 int width8 = size.Width;
                 dxNumberBox8.Location = new Point(num19 + width8, y17);
                 TimeBoxRandom = dxNumberBox8;
-                TimeBoxRandom.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.隔多少秒自动随机一次 = TimeBoxRandom.Value);
-                ChkAutoRandom = CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y17, (EventHandler<EventArgs>)((o, e) => Config.是否开启每间隔自动随机 = ChkAutoRandom.Checked), Config.是否开启每间隔自动随机);
-                ChkAutoRandom.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                TimeBoxRandom.ValueTextBox.ValueChanged += ((o, e) => Config.隔多少秒自动随机一次 = TimeBoxRandom.Value);
+                ChkAutoRandom = CreateCheckBox(Android, "自动随机", x7 + 170, y17, ((o, e) => Config.是否开启每间隔自动随机 = ChkAutoRandom.Checked), Config.是否开启每间隔自动随机);
+                ChkAutoRandom.CheckedChanged += ((o, e) =>
                 {
                     CheckBox1_CheckedChanged();
                 });
 
                 DXLabel dxLabel21 = new DXLabel();
-                dxLabel21.Parent = (DXControl)Android;
+                dxLabel21.Parent = Android;
                 dxLabel21.Text = "无经验(秒) :";
                 dxLabel21.Outline = true;
                 int y18;
                 dxLabel21.Location = new Point(x7, y18 = y17 + 20);
                 DXLabel dxLabel22 = dxLabel21;
                 DXNumberBox dxNumberBox9 = new DXNumberBox();
-                dxNumberBox9.Parent = (DXControl)Android;
+                dxNumberBox9.Parent = Android;
                 dxNumberBox9.Size = new Size(80, 20);
                 dxNumberBox9.ValueTextBox.Size = new Size(40, 18);
                 dxNumberBox9.MaxValue = 10000L;
@@ -2169,9 +2186,9 @@ namespace Client.Scenes.Views
                 int width9 = size.Width;
                 dxNumberBox9.Location = new Point(num20 + width9, y18);
                 ExpTimeBoxRandom = dxNumberBox9;
-                ExpTimeBoxRandom.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => Config.多少秒无经验或者未杀死目标自动随机 = ExpTimeBoxRandom.Value);
-                ExpAutoRandom = CreateCheckBox((DXControl)Android, "自动随机", x7 + 170, y18, (EventHandler<EventArgs>)((o, e) => Config.是否开启指定时间无经验或者未杀死目标自动随机 = ExpAutoRandom.Checked), Config.是否开启指定时间无经验或者未杀死目标自动随机);
-                ExpAutoRandom.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ExpTimeBoxRandom.ValueTextBox.ValueChanged += ((o, e) => Config.多少秒无经验或者未杀死目标自动随机 = ExpTimeBoxRandom.Value);
+                ExpAutoRandom = CreateCheckBox(Android, "自动随机", x7 + 170, y18, ((o, e) => Config.是否开启指定时间无经验或者未杀死目标自动随机 = ExpAutoRandom.Checked), Config.是否开启指定时间无经验或者未杀死目标自动随机);
+                ExpAutoRandom.CheckedChanged += ((o, e) =>
                 {
                     CheckBox2_CheckedChanged();
                 });
@@ -2366,15 +2383,15 @@ namespace Client.Scenes.Views
                         continue;
 
                     DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                    dxListBoxItem1.Parent = (DXControl)CombSkill1.ListBox;
+                    dxListBoxItem1.Parent = CombSkill1.ListBox;
                     dxListBoxItem1.Label.Text = clientUserMagic.Info.Name;
                     dxListBoxItem1.Item = (object)clientUserMagic.Info.Magic;
                     DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                    dxListBoxItem2.Parent = (DXControl)CombSkill2.ListBox;
+                    dxListBoxItem2.Parent = CombSkill2.ListBox;
                     dxListBoxItem2.Label.Text = clientUserMagic.Info.Name;
                     dxListBoxItem2.Item = (object)clientUserMagic.Info.Magic;
                     DXListBoxItem dxListBoxItem3 = new DXListBoxItem();
-                    dxListBoxItem3.Parent = (DXControl)AndroidSkills.ListBox;
+                    dxListBoxItem3.Parent = AndroidSkills.ListBox;
                     dxListBoxItem3.Label.Text = clientUserMagic.Info.Name;
                     dxListBoxItem3.Item = (object)clientUserMagic.Info.Magic;
                 }
@@ -2492,7 +2509,7 @@ namespace Client.Scenes.Views
                 dxButton1.Index = 44;
                 dxButton1.LibraryFile = LibraryFile.Interface;
                 dxButton1.Location = new Point(5, 5);
-                dxButton1.Parent = (DXControl)this;
+                dxButton1.Parent = this;
                 dxButton1.Enabled = false;
                 UpButton = dxButton1;
                 UpButton.MouseClick += (EventHandler<MouseEventArgs>)((o, e) =>
@@ -2518,7 +2535,7 @@ namespace Client.Scenes.Views
                 dxButton2.Index = 46;
                 dxButton2.LibraryFile = LibraryFile.Interface;
                 dxButton2.Location = new Point(5, 29);
-                dxButton2.Parent = (DXControl)this;
+                dxButton2.Parent = this;
                 DownButton = dxButton2;
                 DownButton.MouseClick += (EventHandler<MouseEventArgs>)((o, e) =>
                 {
@@ -2540,7 +2557,7 @@ namespace Client.Scenes.Views
                     GameScene.Game.BigPatchBox.Protect.Rows[Index + 1].SendUpdate();
                 });
                 DXItemCell dxItemCell = new DXItemCell(38, 38);
-                dxItemCell.Parent = (DXControl)this;
+                dxItemCell.Parent = this;
                 dxItemCell.Location = new Point(20, 5);
                 dxItemCell.AllowLink = true;
                 dxItemCell.FixedBorder = true;
@@ -2548,14 +2565,14 @@ namespace Client.Scenes.Views
                 dxItemCell.GridType = GridType.AutoPotion;
                 ItemCell = dxItemCell;
                 DXLabel dxLabel1 = new DXLabel();
-                dxLabel1.Parent = (DXControl)ItemCell;
+                dxLabel1.Parent = ItemCell;
                 dxLabel1.Text = (Index + 1).ToString();
                 dxLabel1.Font = new Font("宋体", CEnvir.FontSize(8f), FontStyle.Italic);
                 dxLabel1.IsControl = false;
                 dxLabel1.Location = new Point(-2, -1);
                 IndexLabel = dxLabel1;
                 DXNumberBox dxNumberBox1 = new DXNumberBox();
-                dxNumberBox1.Parent = (DXControl)this;
+                dxNumberBox1.Parent = this;
                 dxNumberBox1.Location = new Point(105, 5);
                 dxNumberBox1.Size = new Size(80, 20);
                 dxNumberBox1.ValueTextBox.Size = new Size(40, 18);
@@ -2563,9 +2580,9 @@ namespace Client.Scenes.Views
                 dxNumberBox1.MinValue = 0L;
                 dxNumberBox1.UpButton.Location = new Point(63, 1);
                 HealthTargetBox = dxNumberBox1;
-                HealthTargetBox.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => SendUpdate());
+                HealthTargetBox.ValueTextBox.ValueChanged += ((o, e) => SendUpdate());
                 DXNumberBox dxNumberBox2 = new DXNumberBox();
-                dxNumberBox2.Parent = (DXControl)this;
+                dxNumberBox2.Parent = this;
                 dxNumberBox2.Location = new Point(105, 25);
                 dxNumberBox2.Size = new Size(80, 20);
                 dxNumberBox2.ValueTextBox.Size = new Size(40, 18);
@@ -2573,9 +2590,9 @@ namespace Client.Scenes.Views
                 dxNumberBox2.MinValue = 0L;
                 dxNumberBox2.UpButton.Location = new Point(63, 1);
                 ManaTargetBox = dxNumberBox2;
-                ManaTargetBox.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) => SendUpdate());
+                ManaTargetBox.ValueTextBox.ValueChanged += ((o, e) => SendUpdate());
                 DXLabel dxLabel2 = new DXLabel();
-                dxLabel2.Parent = (DXControl)this;
+                dxLabel2.Parent = this;
                 dxLabel2.IsControl = false;
                 dxLabel2.Text = "生命值:";
                 HealthLabel = dxLabel2;
@@ -2593,7 +2610,7 @@ namespace Client.Scenes.Views
                 Point point1 = new Point(x1, y2);
                 healthLabel.Location = point1;
                 DXLabel dxLabel3 = new DXLabel();
-                dxLabel3.Parent = (DXControl)this;
+                dxLabel3.Parent = this;
                 dxLabel3.IsControl = false;
                 dxLabel3.Text = "魔法值:";
                 ManaLabel = dxLabel3;
@@ -2613,9 +2630,9 @@ namespace Client.Scenes.Views
                 DXCheckBox dxCheckBox = new DXCheckBox();
                 dxCheckBox.AutoSize = true;
                 dxCheckBox.Text = "启用";
-                dxCheckBox.Parent = (DXControl)this;
+                dxCheckBox.Parent = this;
                 EnabledCheckBox = dxCheckBox;
-                EnabledCheckBox.CheckedChanged += (EventHandler<EventArgs>)((o, e) => SendUpdate());
+                EnabledCheckBox.CheckedChanged += ((o, e) => SendUpdate());
                 DXCheckBox enabledCheckBox = EnabledCheckBox;
                 int width1 = Size.Width;
                 int width2 = EnabledCheckBox.Size.Width;
@@ -2644,10 +2661,10 @@ namespace Client.Scenes.Views
                     return;
                 _UseItem = (Library.SystemModels.ItemInfo)null;
 
-                UseItemChanged = (EventHandler<EventArgs>)null;
+                UseItemChanged = null;
                 _Index = 0;
 
-                IndexChanged = (EventHandler<EventArgs>)null;
+                IndexChanged = null;
                 if (IndexLabel != null)
                 {
                     if (!IndexLabel.IsDisposed)
@@ -2720,7 +2737,7 @@ namespace Client.Scenes.Views
                     BigPatchDialog.AutoPotionRow[] rows = Rows;
                     int index2 = index1;
                     BigPatchDialog.AutoPotionRow autoPotionRow = new BigPatchDialog.AutoPotionRow();
-                    autoPotionRow.Parent = (DXControl)this;
+                    autoPotionRow.Parent = this;
                     autoPotionRow.Location = new Point(5, 5 + 50 * index1);
                     autoPotionRow.Index = index1;
                     rows[index2] = autoPotionRow;
@@ -2770,61 +2787,61 @@ namespace Client.Scenes.Views
                 DXCheckBox dxCheckBox1 = new DXCheckBox();
                 dxCheckBox1.AutoSize = true;
                 dxCheckBox1.bAlignRight = false;
-                dxCheckBox1.Parent = (DXControl)this;
+                dxCheckBox1.Parent = this;
                 dxCheckBox1.Text = "自动回复";
                 dxCheckBox1.Location = new Point(10, 10);
                 dxCheckBox1.Checked = Config.自动回复;
                 ChkAutoReplay = dxCheckBox1;
-                ChkAutoReplay.CheckedChanged += (EventHandler<EventArgs>)((o, e) => Config.自动回复 = ChkAutoReplay.Checked);
+                ChkAutoReplay.CheckedChanged += ((o, e) => Config.自动回复 = ChkAutoReplay.Checked);
                 DXComboBox dxComboBox = new DXComboBox();
-                dxComboBox.Parent = (DXControl)this;
+                dxComboBox.Parent = this;
                 dxComboBox.Location = new Point(10, 10);
                 dxComboBox.Size = new Size(32, 18);
                 CombAutoReplayText = dxComboBox;
-                CombAutoReplayText.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => Config.自动回复时用第几行句子 = (int)CombAutoReplayText.SelectedItem);
+                CombAutoReplayText.SelectedItemChanged += ((o, e) => Config.自动回复时用第几行句子 = (int)CombAutoReplayText.SelectedItem);
                 DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                dxListBoxItem1.Parent = (DXControl)CombAutoReplayText.ListBox;
+                dxListBoxItem1.Parent = CombAutoReplayText.ListBox;
                 dxListBoxItem1.Label.Text = "您好，我有事不在";
                 dxListBoxItem1.Item = (object)0;
                 DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                dxListBoxItem2.Parent = (DXControl)CombAutoReplayText.ListBox;
+                dxListBoxItem2.Parent = CombAutoReplayText.ListBox;
                 dxListBoxItem2.Label.Text = "我去吃饭了....";
                 dxListBoxItem2.Item = (object)1;
                 DXListBoxItem dxListBoxItem3 = new DXListBoxItem();
-                dxListBoxItem3.Parent = (DXControl)CombAutoReplayText.ListBox;
+                dxListBoxItem3.Parent = CombAutoReplayText.ListBox;
                 dxListBoxItem3.Label.Text = "挂机中.....";
                 dxListBoxItem3.Item = (object)2;
                 DXListBoxItem dxListBoxItem4 = new DXListBoxItem();
-                dxListBoxItem4.Parent = (DXControl)CombAutoReplayText.ListBox;
+                dxListBoxItem4.Parent = CombAutoReplayText.ListBox;
                 dxListBoxItem4.Label.Text = "挂机练功 请勿打扰";
                 dxListBoxItem4.Item = (object)3;
                 CombAutoReplayText.ListBox.SelectItem((object)Config.自动回复时用第几行句子);
                 DXCheckBox dxCheckBox2 = new DXCheckBox();
-                dxCheckBox2.Parent = (DXControl)this;
+                dxCheckBox2.Parent = this;
                 dxCheckBox2.Label.Text = "来消息声音提示";
                 //dxCheckBox2.bAlignRight = false;
                 dxCheckBox2.Location = new Point(10, 10);
                 ChkMsgNotify = dxCheckBox2;
                 DXCheckBox dxCheckBox3 = new DXCheckBox();
-                dxCheckBox3.Parent = (DXControl)this;
+                dxCheckBox3.Parent = this;
                 dxCheckBox3.Label.Text = "自动喊话";
                 //dxCheckBox3.bAlignRight = false;
                 dxCheckBox3.Location = new Point(10, 10);
                 dxCheckBox3.Checked = false;
                 ChkAutoSayWords = dxCheckBox3;
                 DXLabel dxLabel1 = new DXLabel();
-                dxLabel1.Parent = (DXControl)this;
+                dxLabel1.Parent = this;
                 dxLabel1.Text = "间隔:";
                 IntervalLeft = dxLabel1;
                 DXNumberBox dxNumberBox = new DXNumberBox();
-                dxNumberBox.Parent = (DXControl)this;
+                dxNumberBox.Parent = this;
                 dxNumberBox.ValueTextBox.Size = new Size(50, 16);
                 dxNumberBox.MaxValue = (long)ushort.MaxValue;
                 dxNumberBox.Value = Config.多少秒一次自动喊话;
                 dxNumberBox.MinValue = 5000L;
                 AutoSayInterval = dxNumberBox;
                 DXLabel dxLabel2 = new DXLabel();
-                dxLabel2.Parent = (DXControl)this;
+                dxLabel2.Parent = this;
                 dxLabel2.Text = "毫秒";
                 IntervalRight = dxLabel2;
                 SayWordTimer = new System.Timers.Timer()
@@ -2834,12 +2851,12 @@ namespace Client.Scenes.Views
                     AutoReset = true
                 };
                 SayWordTimer.Elapsed += new ElapsedEventHandler(BigPatchDialog.DXAnsweringTab.OnSayWordsTimer);
-                AutoSayInterval.ValueTextBox.ValueChanged += (EventHandler<EventArgs>)((o, e) =>
+                AutoSayInterval.ValueTextBox.ValueChanged += ((o, e) =>
                 {
                     Config.多少秒一次自动喊话 = AutoSayInterval.Value;
                     SayWordTimer.Interval = (double)Config.多少秒一次自动喊话;
                 });
-                ChkAutoSayWords.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ChkAutoSayWords.CheckedChanged += ((o, e) =>
                 {
                     SayWordTimer.Enabled = ChkAutoSayWords.Checked;
                     SayWordTimer.Interval = (double)AutoSayInterval.Value;
@@ -2849,36 +2866,36 @@ namespace Client.Scenes.Views
                         SayWordTimer.Stop();
                 });
                 DXCheckBox dxCheckBox4 = new DXCheckBox();
-                dxCheckBox4.Parent = (DXControl)this;
+                dxCheckBox4.Parent = this;
                 dxCheckBox4.Label.Text = "保存喊话内容";
                 //dxCheckBox4.bAlignRight = false;
                 dxCheckBox4.Location = new Point(10, 10);
                 dxCheckBox4.Checked = false;
                 ChkSaveSayRecord = dxCheckBox4;
-                ChkSaveSayRecord.CheckedChanged += (EventHandler<EventArgs>)((o, e) =>
+                ChkSaveSayRecord.CheckedChanged += ((o, e) =>
                 {
                     if (!ChkSaveSayRecord.Checked)
                         return;
                     SaveSaywords();
                 });
                 DXCheckBox dxCheckBox5 = new DXCheckBox();
-                dxCheckBox5.Parent = (DXControl)this;
+                dxCheckBox5.Parent = this;
                 dxCheckBox5.Label.Text = "屏蔽NPC白字";
                 //dxCheckBox5.bAlignRight = false;
                 dxCheckBox5.Location = new Point(10, 10);
                 dxCheckBox5.Checked = Config.是否关闭NPC话;
                 ChkShieldNpcWords = dxCheckBox5;
-                ChkShieldNpcWords.CheckedChanged += (EventHandler<EventArgs>)((o, e) => Config.是否关闭NPC话 = ChkShieldNpcWords.Checked);
+                ChkShieldNpcWords.CheckedChanged += ((o, e) => Config.是否关闭NPC话 = ChkShieldNpcWords.Checked);
                 DXCheckBox dxCheckBox6 = new DXCheckBox();
-                dxCheckBox6.Parent = (DXControl)this;
+                dxCheckBox6.Parent = this;
                 dxCheckBox6.Label.Text = "屏蔽怪物白字";
                 //dxCheckBox6.bAlignRight = false;
                 dxCheckBox6.Location = new Point(10, 10);
                 dxCheckBox6.Checked = Config.是否关闭怪物话;
                 ChkShieldMonsterWords = dxCheckBox6;
-                ChkShieldMonsterWords.CheckedChanged += (EventHandler<EventArgs>)((o, e) => Config.是否关闭怪物话 = ChkShieldMonsterWords.Checked);
+                ChkShieldMonsterWords.CheckedChanged += ((o, e) => Config.是否关闭怪物话 = ChkShieldMonsterWords.Checked);
                 BigPatchDialog.DXTextView dxTextView = new BigPatchDialog.DXTextView();
-                dxTextView.Parent = (DXControl)this;
+                dxTextView.Parent = this;
                 dxTextView.ReadOnly = false;
                 dxTextView.Visible = false;
                 InputBox = dxTextView;
@@ -3008,7 +3025,7 @@ namespace Client.Scenes.Views
             public DXUserNoteBookTab()
             {
                 BigPatchDialog.DXTextView dxTextView = new BigPatchDialog.DXTextView();
-                dxTextView.Parent = (DXControl)this;
+                dxTextView.Parent = this;
                 dxTextView.ReadOnly = false;
                 dxTextView.Visible = false;
                 NoteView = dxTextView;
@@ -3043,7 +3060,7 @@ namespace Client.Scenes.Views
             public DXSystemMsgRecordTab()
             {
                 DXListBox dxListBox = new DXListBox();
-                dxListBox.Parent = (DXControl)this;
+                dxListBox.Parent = this;
                 dxListBox.Size = new Size(120, DXControl.DefaultHeight);
                 dxListBox.Location = new Point(5, 5);
                 LogList = dxListBox;
@@ -3053,7 +3070,7 @@ namespace Client.Scenes.Views
                 foreach (FileInfo file in directoryInfo.GetFiles())
                 {
                     DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                    dxListBoxItem1.Parent = (DXControl)LogList;
+                    dxListBoxItem1.Parent = LogList;
                     dxListBoxItem1.Label.Text = file.Name;
                     dxListBoxItem1.Hint = "双击 打开记录文件";
                     dxListBoxItem1.Tag = (object)file.FullName;
@@ -3245,18 +3262,18 @@ namespace Client.Scenes.Views
             public DXAutoPickItemTab()
             {
                 DXComboBox dxComboBox = new DXComboBox();
-                dxComboBox.Parent = (DXControl)this;
+                dxComboBox.Parent = this;
                 dxComboBox.Size = new Size(100, 18);
                 dxComboBox.Location = new Point(10, 5);
                 dxComboBox.DropDownHeight = 198;
                 CombTypeBox = dxComboBox;
 
-                CombTypeBox.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) => {
+                CombTypeBox.SelectedItemChanged += ((o, e) => {
                     RefreshItems(CombTypeBox.SelectedItem as ItemType?);
                 });
 
                 DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                dxListBoxItem1.Parent = (DXControl)CombTypeBox.ListBox;
+                dxListBoxItem1.Parent = CombTypeBox.ListBox;
                 dxListBoxItem1.Text = $"全部";
                 dxListBoxItem1.Item = null;
                 Type type = typeof(ItemType);
@@ -3264,13 +3281,13 @@ namespace Client.Scenes.Views
                 {
                     DescriptionAttribute customAttribute = type.GetMember(itemType.ToString())[0].GetCustomAttribute<DescriptionAttribute>();
                     DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                    dxListBoxItem2.Parent = (DXControl)CombTypeBox.ListBox;
+                    dxListBoxItem2.Parent = CombTypeBox.ListBox;
                     dxListBoxItem2.Label.Text = customAttribute?.Description ?? itemType.ToString();
                     dxListBoxItem2.Item = (object)itemType;
                 }
                 CombTypeBox.ListBox.SelectItem(null);
                 DXTextBox dxTextBox = new DXTextBox();
-                dxTextBox.Parent = (DXControl)this;
+                dxTextBox.Parent = this;
                 dxTextBox.Size = new Size(120, 20);
                 int x1 = CombTypeBox.Location.X + CombTypeBox.Size.Width + 5;
                 Point location = CombTypeBox.Location;
@@ -3287,7 +3304,7 @@ namespace Client.Scenes.Views
                 };
                 sTextBox = dxTextBox;
                 DXButton dxButton1 = new DXButton();
-                dxButton1.Parent = (DXControl)this;
+                dxButton1.Parent = this;
                 dxButton1.Size = new Size(64, 18);
                 dxButton1.Label.Text = "搜索";
                 dxButton1.ButtonType = ButtonType.SmallButton;
@@ -3302,7 +3319,7 @@ namespace Client.Scenes.Views
                     SearchItem();
                 });
                 DXButton dxButton2 = new DXButton();
-                dxButton2.Parent = (DXControl)this;
+                dxButton2.Parent = this;
                 dxButton2.Size = new Size(64, 18);
                 dxButton2.Label.Text = "重置";
                 dxButton2.ButtonType = ButtonType.SmallButton;
@@ -3330,7 +3347,7 @@ namespace Client.Scenes.Views
                 });
 
                 DXButton dxButton3 = new DXButton();
-                dxButton3.Parent = (DXControl)this;
+                dxButton3.Parent = this;
                 dxButton3.Size = new Size(64, 18);
                 dxButton3.Label.Text = "清空";
                 dxButton3.ButtonType = ButtonType.SmallButton;
@@ -3342,7 +3359,7 @@ namespace Client.Scenes.Views
                 DelButton = dxButton3;
                 DelButton.MouseClick += (EventHandler<MouseEventArgs>)((o, e) => ItemView.RemoveAll());
                 DXListView dxListView = new DXListView();
-                dxListView.Parent = (DXControl)this;
+                dxListView.Parent = this;
                 dxListView.Size = new Size(410, 405);
                 int x5 = 5;
                 location = Search.Location;
@@ -3559,7 +3576,7 @@ namespace Client.Scenes.Views
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(4, dxCheckBox.Checked);
                         };
-                        ItemView.SetItem(nItem, 5U, (DXControl)dxCheckBox9);
+                        ItemView.SetItem(nItem, 5U, dxCheckBox9);
                         DXCheckBox dxCheckBox10 = new DXCheckBox();
                         dxCheckBox10.AutoSize = false;
                         dxCheckBox10.Checked = citemFilterSet.buy;
@@ -3582,7 +3599,7 @@ namespace Client.Scenes.Views
                             DXCheckBox dxCheckBox = o as DXCheckBox;
                             ItemFilter.Items[(int)dxCheckBox.Tag]?.SetValue(6, dxCheckBox.Checked);
                         };
-                        ItemView.SetItem(nItem, 7U, (DXControl)dxCheckBox13);
+                        ItemView.SetItem(nItem, 7U, dxCheckBox13);
                     }
                 }
 
@@ -3663,7 +3680,7 @@ namespace Client.Scenes.Views
             public DXMagicHelperTab()
             {
                 DXListView dxListView = new DXListView();
-                dxListView.Parent = (DXControl)this;
+                dxListView.Parent = this;
                 dxListView.Size = new Size(410, 405);
                 dxListView.Location = new Point(140, 0);
                 MagicView = dxListView;
@@ -3894,7 +3911,7 @@ namespace Client.Scenes.Views
                     });
                     string text2 = "";
                     MagicView.SetItem(nItem, 3U, text2);
-                    MagicView.SetItem(nItem, 4U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
+                    MagicView.SetItem(nItem, 4U, BigPatchDialog.CreateCheckBox(control, "", 0, 0, ((o, e) =>
                     {
                         DXCheckBox dxCheckBox = o as DXCheckBox;
                         if (dxCheckBox == null)
@@ -3904,7 +3921,7 @@ namespace Client.Scenes.Views
                             return;
                         tag.LockPlayer = dxCheckBox.Checked;
                     }), magicHelper.LockPlayer));
-                    MagicView.SetItem(nItem, 5U, (DXControl)BigPatchDialog.CreateCheckBox(control, "", 0, 0, (EventHandler<EventArgs>)((o, e) =>
+                    MagicView.SetItem(nItem, 5U, BigPatchDialog.CreateCheckBox(control, "", 0, 0, ((o, e) =>
                     {
                         DXCheckBox dxCheckBox = o as DXCheckBox;
                         if (dxCheckBox == null)
@@ -3915,12 +3932,12 @@ namespace Client.Scenes.Views
                         tag.LockMonster = dxCheckBox.Checked;
                     }), magicHelper.LockMonster));
                     DXComboBox dxComboBox1 = new DXComboBox();
-                    MagicView.SetItem(nItem, 6U, (DXControl)dxComboBox1);
+                    MagicView.SetItem(nItem, 6U, dxComboBox1);
                     DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                    dxListBoxItem1.Parent = (DXControl)dxComboBox1.ListBox;
+                    dxListBoxItem1.Parent = dxComboBox1.ListBox;
                     dxListBoxItem1.Label.Text = "未选择";
                     dxListBoxItem1.Item = (object)-1;
-                    dxComboBox1.SelectedItemChanged += (EventHandler<EventArgs>)((o, e) =>
+                    dxComboBox1.SelectedItemChanged += ((o, e) =>
                     {
                         if (GameScene.Game.Observer)
                             return;
@@ -3957,7 +3974,7 @@ namespace Client.Scenes.Views
                             foreach (var amulet in Amulets)
                             {
                                 DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                                dxListBoxItem2.Parent = (DXControl)dxComboBox1.ListBox;
+                                dxListBoxItem2.Parent = dxComboBox1.ListBox;
                                 dxListBoxItem2.Label.Text = amulet.ItemName;
                                 dxListBoxItem2.Item = amulet.Index;
                             }

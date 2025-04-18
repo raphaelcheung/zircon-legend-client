@@ -3614,7 +3614,7 @@ namespace Client.Envir
             {
                 if (ob.ObjectID != p.ObjectID) continue;
 
-                ((PlayerObject)ob).Title = p.GuildName;
+                ((PlayerObject)ob).Title = $"[{p.GuildName}]";
                 ((PlayerObject)ob).GuildRank = p.GuildRank;
                 return;
             }
