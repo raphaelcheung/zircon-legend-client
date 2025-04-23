@@ -2029,7 +2029,7 @@ namespace Client.Envir
             {
                 if (pair.Key == Stat.WeaponElement)
                 {
-                    GameScene.Game.ReceiveChat($"你的 {fromCell.Item.Info.ItemName} 附加效果: 新元素 {(Element)fromCell.Item.AddedStats[Stat.WeaponElement]}", MessageType.Hint);
+                    GameScene.Game.ReceiveChat($"你的 {fromCell.Item.Info.ItemName} 附加效果: 新元素 {Functions.GetEnumDesc((Element)fromCell.Item.AddedStats[Stat.WeaponElement])}", MessageType.Hint);
                     continue;
                 }
 
@@ -3614,7 +3614,7 @@ namespace Client.Envir
             {
                 if (ob.ObjectID != p.ObjectID) continue;
 
-                ((PlayerObject)ob).Title = $"[{p.GuildName}]";
+                ((PlayerObject)ob).Title = string.IsNullOrEmpty(p.GuildName) ? "" : $"[{p.GuildName}]";
                 ((PlayerObject)ob).GuildRank = p.GuildRank;
                 return;
             }

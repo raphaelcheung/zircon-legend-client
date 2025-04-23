@@ -80,6 +80,7 @@ namespace Client.Envir
 
         public static bool 自动破血 { get; set; } = false;
         public static bool 自动移花接木 { get; set; } = false;
+        public static bool 自动金刚之躯 { get; set; } = false;
 
         public static bool 是否开启自动技能三连击 { get; set; } = false;
 

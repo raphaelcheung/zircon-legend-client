@@ -239,7 +239,7 @@ namespace Client.Models
             foreach (BuffType type in info.Buffs)
                 VisibleBuffs.Add(type);
 
-            Title = $"[{info.GuildName}]";
+            Title = string.IsNullOrEmpty(info.GuildName) ? "" : $"[{info.GuildName}]";
 
             CurrentLocation = info.Location;
             Direction = info.Direction;

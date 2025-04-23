@@ -3125,24 +3125,32 @@ namespace Client.Scenes
             if ((clientUserItem1?.Info?.Index ?? -1) == magicHelper.Amulet)
                 return magicHelper;
 
+            long bestCount = 0;
+            int bestIndex = -1;
+
             for (int index = 0; index < Inventory.Length; ++index)
             {
                 ClientUserItem clientUserItem2 = Inventory[index];
                 if ((clientUserItem2?.Info.Index ?? -1) == magicHelper.Amulet)
                 {
-                    if (clientUserItem2.Count > 0)
+                    if (clientUserItem2.Count > 0 && clientUserItem2.Count > bestCount)
                     {
-                        CharacterBox.Grid[11].ToEquipment(InventoryBox.Grid.Grid[index]);
-                        return magicHelper;
+                        bestCount = clientUserItem2.Count;
+                        bestIndex = index;
                     }
                 }
             }
 
-            ReceiveChat("你的符用完了，释放失败", MessageType.Hint);
+            if (bestIndex < 0)
+            {
+                ReceiveChat("你的符用完了，释放失败", MessageType.Hint);
+                return magicHelper;
+            }
 
+            CharacterBox.Grid[11].ToEquipment(InventoryBox.Grid.Grid[bestIndex]);
             return magicHelper;
         }
-   
+
         public void UseMagic(ClientUserMagic magic)
         {
             if (magic == null || User.Level < magic.Info.NeedLevel1)
@@ -3852,14 +3860,14 @@ namespace Client.Scenes
                         case MagicType.DragonRepulse:
                         case MagicType.Evasion:
                         case MagicType.RagingWind:
-                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
-                            {
-                                if (CEnvir.Now < OutputTime)
-                                    return;
-                                OutputTime = CEnvir.Now.AddSeconds(1.0);
-                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                                return;
-                            }
+                            //if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
+                            //{
+                            //    if (CEnvir.Now < OutputTime)
+                            //        return;
+                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                            //    return;
+                            //}
                             if (mapObject != null && mapObject != User)
                                 direction = Functions.DirectionFromPoint(User.CurrentLocation, mapObject.CurrentLocation);
 
@@ -4163,14 +4171,14 @@ namespace Client.Scenes
                             mapObject = MouseObject;
                             goto case MagicType.MassBeckon;
                         case MagicType.Transparency:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
-                            {
-                                if (CEnvir.Now < OutputTime)
-                                    return;
-                                OutputTime = CEnvir.Now.AddSeconds(1.0);
-                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                                return;
-                            }
+                            //if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            //{
+                            //    if (CEnvir.Now < OutputTime)
+                            //        return;
+                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                            //    return;
+                            //}
                             goto case MagicType.MassBeckon;
                         case MagicType.CelestialLight:
                             if (User.Buffs.All<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x => x.Type == BuffType.CelestialLight)))
@@ -4179,16 +4187,16 @@ namespace Client.Scenes
                         case MagicType.EmpoweredHealing:
                             return;
                         case MagicType.LifeSteal:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
-                            {
-                                if (CEnvir.Now < OutputTime)
-                                    return;
-                                OutputTime = CEnvir.Now.AddSeconds(1.0);
-                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                                return;
-                            }
+                            //if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            //{
+                            //    if (CEnvir.Now < OutputTime)
+                            //        return;
+                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                            //    return;
+                            //}
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            mapObject = null;// AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.GreaterPoisonDust:
@@ -4196,14 +4204,14 @@ namespace Client.Scenes
                         case MagicType.Scarecrow:
                         case MagicType.PoisonousCloud:
                         case MagicType.Cloak:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
-                            {
-                                if (CEnvir.Now < OutputTime)
-                                    return;
-                                OutputTime = CEnvir.Now.AddSeconds(1.0);
-                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                                return;
-                            }
+                            //if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            //{
+                            //    if (CEnvir.Now < OutputTime)
+                            //        return;
+                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                            //    return;
+                            //}
                             goto case MagicType.MassBeckon;
                         case MagicType.DragonBreath:
                             return;
@@ -4224,14 +4232,14 @@ namespace Client.Scenes
                         case MagicType.SummonJinSkeleton:
                         case MagicType.SummonDemonicCreature:
                         case MagicType.DemonExplosion:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
-                            {
-                                if (CEnvir.Now < OutputTime)
-                                    return;
-                                OutputTime = CEnvir.Now.AddSeconds(1.0);
-                                ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                                return;
-                            }
+                            //if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            //{
+                            //    if (CEnvir.Now < OutputTime)
+                            //        return;
+                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
+                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
+                            //    return;
+                            //}
                             goto case MagicType.MassBeckon;
                         case MagicType.WraithGrip:
                         case MagicType.HellFire:

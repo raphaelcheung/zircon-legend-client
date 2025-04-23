@@ -96,7 +96,8 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Size = new Size(150, 20),
                 ForeColour = Color.FromArgb(222, 255, 222),
-                Outline = false,
+                Outline = true,
+                OutlineWeight = 2,
                 Parent = namePanel,
                 Font = new Font("宋体", CEnvir.FontSize(9F), FontStyle.Bold),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter

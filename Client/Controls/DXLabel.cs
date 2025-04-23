@@ -322,13 +322,12 @@ namespace Client.Controls
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + i + weight, y + weight, w, h), OutlineColour, DrawFormat);
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y + i + weight, w, h), OutlineColour, DrawFormat);
+
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + i + weight, y + i + weight, w, h), OutlineColour, DrawFormat);
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + i + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
 
-                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x - i + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
                 TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x - i + weight, y + i + weight, w, h), OutlineColour, DrawFormat);
-
-
+                TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x - i + weight, y - i + weight, w, h), OutlineColour, DrawFormat);
             }
 
             TextRenderer.DrawText(graphics, Text, Font, new Rectangle(x + weight, y + weight, w, h), ForeColour, DrawFormat);

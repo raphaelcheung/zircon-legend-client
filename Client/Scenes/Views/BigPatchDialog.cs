@@ -269,7 +269,9 @@ namespace Client.Scenes.Views
 
         public void AutoSkills()
         {
-            if (CEnvir.Now < AutoSkillsTime) return;
+            if (CEnvir.Now < AutoSkillsTime || CEnvir.Now < GameScene.Game.User.NextMagicTime) return;
+            if (MapObject.User.Horse != HorseType.None) return;
+
             AutoSkillsTime = CEnvir.Now.AddMilliseconds(300);
 
             switch (GameScene.Game.User.Class)
@@ -290,6 +292,16 @@ namespace Client.Scenes.Views
                     if (Config.自动移花接木 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ReflectDamage))
                     {
                         var clientMagic = GameScene.Game.GetMagic(MagicType.ReflectDamage);
+                        if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
+                        {
+                            GameScene.Game.UseMagic(clientMagic);
+                            return;
+                        }
+                    }
+
+                    if (Config.自动金刚之躯 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Endurance))
+                    {
+                        var clientMagic = GameScene.Game.GetMagic(MagicType.Endurance);
                         if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
                         {
                             GameScene.Game.UseMagic(clientMagic);
@@ -1605,6 +1617,7 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoDefiance;
             public DXCheckBox AutoMight;
             public DXCheckBox AutoReflectDamage;
+            public DXCheckBox AutoEndurance;
 
             public DXCheckBox AutoThreeAct;
             public DXComboBox ThreeAct;
@@ -1773,6 +1786,11 @@ namespace Client.Scenes.Views
 
                     Config.自动移花接木 = AutoReflectDamage.Checked;
                 }), Config.自动移花接木);
+
+                AutoEndurance = CreateCheckBox(Warrior, "自动金刚之躯", x1, num2 + 25, ((o, e) => {
+
+                    Config.自动金刚之躯 = AutoEndurance.Checked;
+                }), Config.自动金刚之躯);
                 int num3 = 5;
                 int num4;
                 AutoMagicShield = CreateCheckBox(Wizard, "自动魔法盾", x1, num4 = num3 + 25, ((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);

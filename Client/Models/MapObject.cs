@@ -4147,7 +4147,7 @@ namespace Client.Models
                         ForeColour = NameColour,
                         Outline = true,
                         OutlineColour = Color.FromArgb(100, 0, 0, 0),
-                        OutlineWeight = 2,
+                        OutlineWeight = Race == ObjectType.Player ? (byte)2 : (this is MonsterObject mon && mon.MonsterInfo.IsBoss ? (byte)2 : (byte)1),
                         Text = Name,
                         IsControl = false,
                         IsVisible = true,

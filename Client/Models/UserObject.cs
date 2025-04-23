@@ -326,7 +326,7 @@ namespace Client.Models
             Class = info.Class;
             Gender = info.Gender;
 
-            Title = $"[{info.GuildName}]";
+            Title = string.IsNullOrEmpty(info.GuildName) ? "" : $"[{info.GuildName}]";
             GuildRank = info.GuildRank;
 
             CurrentLocation = info.Location;
@@ -763,7 +763,6 @@ namespace Client.Models
             GameScene.Game.MapControl.FLayer.TextureValid = false;
         }
 
-
         public override void NameChanged()
         {
             base.NameChanged();
@@ -772,6 +771,7 @@ namespace Client.Models
             GameScene.Game.CharacterBox.GuildRankLabel.Text = GuildRank;
 
             GameScene.Game.CharacterBox.CharacterNameLabel.Text = Name;
+            GameScene.Game.CharacterBox.CharacterNameLabel.ForeColour = NameColour;
             GameScene.Game.TradeBox.UserLabel.Text = Name;
         }
 
