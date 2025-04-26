@@ -2,7 +2,7 @@
 
 本开源项目仅供学习游戏技术，禁止商用以及非法用途。
 
-**本项目主站为 [Gitee-晧石传奇三](https://gitee.com/raphaelcheung/zircon-legend-server.git)，其他平台均为镜像。
+**本项目主站为 [Gitee-晧石传奇三](https://gitee.com/raphaelcheung/zircon-legend-client.git)，其他平台均为镜像。
 版本发布只放在主站上！**
 
 ## 项目背景
@@ -71,6 +71,8 @@
 【[百度网盘](https://pan.baidu.com/s/1dKrpu6G4p4klMVOIMuhOdA?pwd=j1rm)】
 
 如果嫌百度网盘太慢，这份数据我也放到了 QQ 群文件中，【[QQ群：915941142](https://qm.qq.com/q/JeoJOJ4z4e)】
+
+**运行文件中包含了大量来自于网络的图形资源，仅供学习游戏技术，请勿用于非法用途！**
 
 ### 安装依赖组件
 

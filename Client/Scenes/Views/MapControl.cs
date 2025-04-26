@@ -883,11 +883,7 @@ namespace Client.Scenes.Views
                         }
                     }
 
-                    if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10) && ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green))
-                    {
-                        GameScene.Game.UseMagic(MagicType.PoisonDust);
-                        return;
-                    }
+                    if (GameScene.Game.AutoPoison()) return;
 
                     if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
                     {

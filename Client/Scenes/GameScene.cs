@@ -119,6 +119,8 @@ namespace Client.Scenes
 
         public MagicInfo LastMagic { get; private set; } = null;
         public MapObject LastTarget { get; private set; } = null;
+
+        private DateTime AutoPoisonTime { get; set; } = DateTime.MinValue;
         #region MouseItem
 
         public ClientUserItem MouseItem
@@ -3089,12 +3091,12 @@ namespace Client.Scenes
             return null;
         }
 
-        public void UseMagic(MagicType type)
+        public void UseMagic(MagicType type, MapObject map_ob = null)
         {
             if (Game.Observer || User == null || User.Horse != HorseType.None || MagicBarBox == null)
                 return;
             ClientUserMagic clientUserMagic = GetMagic(type);
-            UseMagic(clientUserMagic);
+            UseMagic(clientUserMagic, map_ob);
         }
         public MagicHelper GetMagicHelpper(MagicType magic)
         {
@@ -3151,11 +3153,11 @@ namespace Client.Scenes
             return magicHelper;
         }
 
-        public void UseMagic(ClientUserMagic magic)
+        public void UseMagic(ClientUserMagic magic, MapObject map_ob = null)
         {
             if (magic == null || User.Level < magic.Info.NeedLevel1)
                 return;
-            MapObject mapObject = null;
+            MapObject mapObject = map_ob;
             MagicHelper helpper = TakeAmulet(magic);
             switch (magic.Info.Magic)
             {
@@ -3792,6 +3794,7 @@ namespace Client.Scenes
                             direction = MirDirection.Down;
                             goto case MagicType.MassBeckon;
                         case MagicType.SwiftBlade:
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
@@ -4007,7 +4010,7 @@ namespace Client.Scenes
                             if (magic.Info.Magic == MagicType.Purification)
                                 mapObject = MouseObject ?? (MapObject)User;
                             else
-                                mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
+                                mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             
                             goto case MagicType.MassBeckon;
                         case MagicType.PoisonDust:
@@ -4016,9 +4019,9 @@ namespace Client.Scenes
                         case MagicType.EvilSlayer:
                         case MagicType.GreaterEvilSlayer:
                             if (Config.自动换毒 && magic.Info.Magic == MagicType.PoisonDust)
-                                AutoPoison(magic);
+                                AutoChangePoison(magic);
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             goto case MagicType.MassBeckon;
                         case MagicType.MagicShield:
                             if (User.Buffs.Any(x => x.Type == BuffType.MagicShield))
@@ -4030,7 +4033,9 @@ namespace Client.Scenes
                         //    goto case MagicType.MassBeckon;
                         case MagicType.MeteorShower:
                         case MagicType.Tempest:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
+
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
                                     return;
@@ -4038,12 +4043,11 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
-
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
 
                             goto case MagicType.MassBeckon;
                         case MagicType.Asteroid:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
                                     return;
@@ -4051,8 +4055,6 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
-
-                            //mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
 
                             goto case MagicType.MassBeckon;
                         case MagicType.RayOfLight:
@@ -4074,13 +4076,14 @@ namespace Client.Scenes
                                 return;
                             goto case MagicType.MassBeckon;
                         case MagicType.Heal:
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
                             goto case MagicType.MassBeckon;
                         case MagicType.SpiritSword:
                             return;
                         case MagicType.MagicResistance:
                         case MagicType.Resilience:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
                                     return;
@@ -4088,8 +4091,6 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
-
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.MassInvisibility:
@@ -4112,7 +4113,7 @@ namespace Client.Scenes
                                 return;
                             }
 
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic);
                             goto case MagicType.MassBeckon;
                         case MagicType.TaoistCombatKick:
                         case MagicType.ThunderKick:
@@ -4127,7 +4128,8 @@ namespace Client.Scenes
                         //    }
                         //    goto case MagicType.MassBeckon;
                         case MagicType.ElementalSuperiority:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
                                     return;
@@ -4135,9 +4137,6 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
-
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
-
                             goto case MagicType.MassBeckon;
                         case MagicType.MassHeal:
                             if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
@@ -4153,7 +4152,8 @@ namespace Client.Scenes
 
                             goto case MagicType.MassBeckon;
                         case MagicType.BloodLust:
-                            if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
+                            mapObject = mapObject ?? AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            if (mapObject != null && !Functions.InRange(mapObject.CurrentLocation, User.CurrentLocation, 10))
                             {
                                 if (CEnvir.Now < OutputTime)
                                     return;
@@ -4161,8 +4161,6 @@ namespace Client.Scenes
                                 ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
                                 return;
                             }
-
-                            mapObject = AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.Resurrection:
@@ -4187,16 +4185,7 @@ namespace Client.Scenes
                         case MagicType.EmpoweredHealing:
                             return;
                         case MagicType.LifeSteal:
-                            //if (!Functions.InRange(MapControl.MapLocation, User.CurrentLocation, 10))
-                            //{
-                            //    if (CEnvir.Now < OutputTime)
-                            //        return;
-                            //    OutputTime = CEnvir.Now.AddSeconds(1.0);
-                            //    ReceiveChat("不能使用 " + magic.Info.Name + ", 你的攻击目标太远了", MessageType.Hint);
-                            //    return;
-                            //}
-
-                            mapObject = null;// AutoRemoteTarget(mapObject, helpper, magic.Info.Magic) ?? User;
+                            mapObject = null;
 
                             goto case MagicType.MassBeckon;
                         case MagicType.GreaterPoisonDust:
@@ -5882,7 +5871,36 @@ namespace Client.Scenes
 
             return result;
         }
-        private void AutoPoison(ClientUserMagic magic)
+        public bool AutoPoison()
+        {
+            if (CEnvir.Now < AutoPoisonTime) return false;
+
+            AutoPoisonTime = CEnvir.Now.AddMilliseconds(300);
+            if (!Config.自动上毒 || User.Class != MirClass.Taoist || MapObject.TargetObject == null) return false;
+                
+            if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
+
+            var helpper = GetMagicHelpper(MagicType.PoisonDust);
+            if (helpper == null) return false;
+
+            var item = Globals.ItemInfoList.Binding.FirstOrDefault(x => x.Index == helpper.Amulet);
+            if (item == null) return false;
+
+            if ((helpper.Amulet == 0 || item.ItemName == "红毒") && (MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red)
+            {
+                UseMagic(MagicType.PoisonDust);
+                return true;
+            }
+
+            if ((helpper.Amulet == 0 || item.ItemName == "绿毒") && (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green)
+            {
+                UseMagic(MagicType.PoisonDust);
+                return true;
+            }
+
+            return false;
+        }
+        private void AutoChangePoison(ClientUserMagic magic)
         {
             MagicHelper magicHelper = null;
 

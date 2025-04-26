@@ -332,7 +332,7 @@ namespace Client.Scenes.Views
                     text = $"天光\n";
                     break;
                 case BuffType.Transparency:
-                    text = $"透明\n";
+                    text = $"秒影无踪\n";
                     break;
                 case BuffType.LifeSteal:
                     text = $"生命窃取\n";
@@ -350,7 +350,7 @@ namespace Client.Scenes.Views
                     text = $"红莲\n";
                     break;
                 case BuffType.Cloak:
-                    text = $"隐形\n";
+                    text = $"潜行\n";
                     break;
                 case BuffType.GhostWalk:
                     text = $"幽灵漫步\n\n" +
