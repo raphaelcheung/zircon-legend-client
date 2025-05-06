@@ -883,7 +883,7 @@ namespace Client.Scenes.Views
                         }
                     }
 
-                    if (GameScene.Game.AutoPoison()) return;
+                    //if (GameScene.Game.AutoPoison()) return;
 
                     if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
                     {

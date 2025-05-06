@@ -41,7 +41,7 @@ namespace Client.Scenes.Views
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
 
-        private DateTime AutoSkillsTime = DateTime.MinValue;
+        public DateTime AutoSkillsTime { get; set; } = DateTime.MinValue;
 
         public override WindowType Type
         {
@@ -283,6 +283,16 @@ namespace Client.Scenes.Views
                         return;
                     }
 
+                    if (Config.自动金刚之躯 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Endurance))
+                    {
+                        var clientMagic = GameScene.Game.GetMagic(MagicType.Endurance);
+                        if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
+                        {
+                            GameScene.Game.UseMagic(clientMagic);
+                            return;
+                        }
+                    }
+
                     if (Config.自动破血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Might))
                     {
                         GameScene.Game.UseMagic(MagicType.Might);
@@ -292,16 +302,6 @@ namespace Client.Scenes.Views
                     if (Config.自动移花接木 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ReflectDamage))
                     {
                         var clientMagic = GameScene.Game.GetMagic(MagicType.ReflectDamage);
-                        if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
-                        {
-                            GameScene.Game.UseMagic(clientMagic);
-                            return;
-                        }
-                    }
-
-                    if (Config.自动金刚之躯 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Endurance))
-                    {
-                        var clientMagic = GameScene.Game.GetMagic(MagicType.Endurance);
                         if (clientMagic != null && clientMagic.NextCast < CEnvir.Now)
                         {
                             GameScene.Game.UseMagic(clientMagic);
@@ -451,6 +451,12 @@ namespace Client.Scenes.Views
 						return;
 					}
 
+                    if (Config.自动强魔震法 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ElementalSuperiority))
+                    {
+                        GameScene.Game.UseMagic(MagicType.ElementalSuperiority, GameScene.Game.User);
+                        return;
+                    }
+
                     if (Config.有宠物时自动移花接玉 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.StrengthOfFaith))
                     {
                         foreach (MapObject ob in GameScene.Game.MapControl.Objects)
@@ -469,13 +475,22 @@ namespace Client.Scenes.Views
                         return;
                     }
 
-                    if (Config.自动强魔震法 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ElementalSuperiority))
+                    if (Config.自动施放幽灵盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.MagicResistance))
                     {
-                        GameScene.Game.UseMagic(MagicType.ElementalSuperiority, GameScene.Game.User);
+                        GameScene.Game.UseMagic(MagicType.MagicResistance, GameScene.Game.User);
                         return;
                     }
 
-                    if (Config.自动给宠物施放幽灵盾 || Config.自动给宠物施放猛虎强势 || Config.自动给宠物施放神圣战甲术)
+                    if (Config.自动施放神圣战甲术 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Resilience))
+                    {
+                        GameScene.Game.UseMagic(MagicType.Resilience, GameScene.Game.User);
+                        return;
+                    }
+
+                    if (Config.开始挂机)
+                        GameScene.Game.AutoPoison();
+
+                    if (Config.自动施放幽灵盾 || Config.自动给宠物施放猛虎强势 || Config.自动施放神圣战甲术)
                     {
                         foreach (MapObject ob in GameScene.Game.MapControl.Objects)
                         {
@@ -483,13 +498,13 @@ namespace Client.Scenes.Views
                             if (mon.CompanionObject != null) continue;
                             if (!Functions.InRange(GameScene.Game.User.CurrentLocation, mon.CurrentLocation, Globals.MagicRange)) continue;
 
-                            if (Config.自动给宠物施放幽灵盾 && mon.VisibleBuffs.All(x => x != BuffType.MagicResistance))
+                            if (Config.自动施放幽灵盾 && mon.VisibleBuffs.All(x => x != BuffType.MagicResistance))
                             {
                                 GameScene.Game.UseMagic(MagicType.MagicResistance, ob);
                                 return;
                             }
 
-                            if (Config.自动给宠物施放神圣战甲术 && mon.VisibleBuffs.All(x => x != BuffType.Resilience))
+                            if (Config.自动施放神圣战甲术 && mon.VisibleBuffs.All(x => x != BuffType.Resilience))
                             {
                                 GameScene.Game.UseMagic(MagicType.Resilience, ob);
                                 return;
@@ -591,7 +606,7 @@ namespace Client.Scenes.Views
                 float num = (float)Config.血量剩下百分之多少时自动回城 / 100f;
                 if ((double)GameScene.Game.User.CurrentHP < (double)GameScene.Game.User.Stats[Stat.Health] * (double)num)
                 {
-                    DXItemCell dxItemCell = ((IEnumerable<DXItemCell>)GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(x => x?.Item?.Info.ItemName == "回城卷");
+                    DXItemCell dxItemCell = GameScene.Game.InventoryBox.Grid.Grid.FirstOrDefault(x => x?.Item?.Info.ItemName == "回城卷");
                     if (dxItemCell != null && dxItemCell.UseItem())
                         Config.是否开启回城保护 = false;
                 }
@@ -1945,10 +1960,10 @@ namespace Client.Scenes.Views
                 AutoTaoistSkill = CreateCheckBox(Taoist, "自动连续技能", x1 + 120, num6, ((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
                 AutoStrengthOfFaith = CreateCheckBox(Taoist, "有宠物时自动移花接玉", x1, num6 += 25, ((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
                 AutoLifeSteal = CreateCheckBox(Taoist, "自动吸星大法", x1, num6 += 25, ((o, e) => Config.自动吸星大法 = AutoLifeSteal.Checked), Config.自动吸星大法);
-                AutoMagicResistance = CreateCheckBox(Taoist, "自动给宠物施放幽灵盾", x1, num6 += 25, ((o, e) => Config.自动给宠物施放幽灵盾 = AutoMagicResistance.Checked), Config.自动给宠物施放幽灵盾);
-                AutoResilience = CreateCheckBox(Taoist, "自动给宠物施放神圣战甲", x1, num6 += 25, ((o, e) => Config.自动给宠物施放神圣战甲术 = AutoResilience.Checked), Config.自动给宠物施放神圣战甲术);
+                AutoMagicResistance = CreateCheckBox(Taoist, "自动施放幽灵盾", x1, num6 += 25, ((o, e) => Config.自动施放幽灵盾 = AutoMagicResistance.Checked), Config.自动施放幽灵盾);
+                AutoResilience = CreateCheckBox(Taoist, "自动施放神圣战甲", x1, num6 += 25, ((o, e) => Config.自动施放神圣战甲术 = AutoResilience.Checked), Config.自动施放神圣战甲术);
                 AutoBloodLust = CreateCheckBox(Taoist, "自动给宠物施放猛虎强势", x1, num6 += 25, ((o, e) => Config.自动给宠物施放猛虎强势 = AutoBloodLust.Checked), Config.自动给宠物施放猛虎强势);
-                AutoElementalSuperiority = CreateCheckBox(Taoist, "自动强魔震法", x1, num6 += 25, ((o, e) => Config.自动强魔震法 = AutoElementalSuperiority.Checked), Config.自动强魔震法);
+                AutoElementalSuperiority = CreateCheckBox(Taoist, "自动施放强魔震法", x1, num6 += 25, ((o, e) => Config.自动强魔震法 = AutoElementalSuperiority.Checked), Config.自动强魔震法);
 
                 int num9 = 5;
                 int num10;

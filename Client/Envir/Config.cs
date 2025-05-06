@@ -111,8 +111,8 @@ namespace Client.Envir
         public static bool 自动阴阳盾 { get; set; } = false;
         public static bool 有宠物时自动移花接玉 { get; set; } = true;
         public static bool 自动吸星大法 { get; set; } = false;
-        public static bool 自动给宠物施放神圣战甲术 { get; set; } = false;
-        public static bool 自动给宠物施放幽灵盾 { get; set; } = false;
+        public static bool 自动施放神圣战甲术 { get; set; } = false;
+        public static bool 自动施放幽灵盾 { get; set; } = false;
         public static bool 自动给宠物施放猛虎强势 { get; set; } = false;
         public static bool 自动强魔震法 { get; set; } = false;
 

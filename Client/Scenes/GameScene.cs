@@ -5884,17 +5884,19 @@ namespace Client.Scenes
             if (helpper == null) return false;
 
             var item = Globals.ItemInfoList.Binding.FirstOrDefault(x => x.Index == helpper.Amulet);
-            if (item == null) return false;
+            if (helpper.Amulet > 0 && item == null) return false;
 
             if ((helpper.Amulet == 0 || item.ItemName == "红毒") && (MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red)
             {
                 UseMagic(MagicType.PoisonDust);
+                BigPatchBox.AutoSkillsTime = CEnvir.Now.AddMilliseconds(500);
                 return true;
             }
 
             if ((helpper.Amulet == 0 || item.ItemName == "绿毒") && (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green)
             {
                 UseMagic(MagicType.PoisonDust);
+                BigPatchBox.AutoSkillsTime = CEnvir.Now.AddMilliseconds(500);
                 return true;
             }
 
