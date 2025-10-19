@@ -813,7 +813,9 @@ namespace Client.Scenes.Views
                 //    return;
                 //}
                 bool flag = true;
-                if (Config.自动四花)
+                
+                // 修改：自动四花只在战斗状态下执行
+                if (Config.自动四花 && CEnvir.Now < User.CombatTime.AddSeconds(10))
                 {
                     if (!User.Buffs.Any(x =>
                     {
@@ -1031,14 +1033,30 @@ namespace Client.Scenes.Views
                         if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) 
                             break;
                         
-                        if (Functions.InRange(MapLocation, MapObject.User.CurrentLocation, 2))
+                        int distanceToTarget = Functions.Distance(MapLocation, MapObject.User.CurrentLocation);
+                        
+                        // Shift+右键：只改变方向，不移动
+                        if (CEnvir.Shift)
                         {
                             if (direction != User.Direction)
                                 MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
-                            
                             return;
                         }
-
+                        
+                        // 距离为1格时：走一格
+                        if (distanceToTarget == 1)
+                        {
+                            if (!CanMove(direction, 1))
+                            {
+                                if (direction != User.Direction)
+                                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
+                                return;
+                            }
+                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction, 1), 1, MagicType.None));
+                            return;
+                        }
+                        
+                        // 其他情况：执行跑步
                         Run(direction);
 
                         return;
@@ -1091,8 +1109,9 @@ namespace Client.Scenes.Views
                 direction = best;
             }
 
+            // 修改：向目标移动时使用跑步而不是走路
             if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
-                MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction), 1, MagicType.None));
+                Run(direction, false);  // 使用Run方法，跑向目标
         }
 
         public void Run(MirDirection direction, bool bDetour = true)
@@ -1650,7 +1669,7 @@ namespace Client.Scenes.Views
                                 if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
                                     return;
 
-                                Walk(mirDirection1);
+                                Run(mirDirection1, bDetour); // 修改：从Walk改成Run，左键点击地面也跑步
                                 return;
                             }
                             break;
@@ -1852,11 +1871,7 @@ namespace Client.Scenes.Views
 
                     if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
                     {
-                        int num = Functions.Distance(target, MapObject.User.CurrentLocation);
-                        if (num == 2)
-                            Walk(direction);
-                        else if (num > 2)
-                            Run(direction, bDetour);
+                        Run(direction, bDetour);
                     }
                 }
             }

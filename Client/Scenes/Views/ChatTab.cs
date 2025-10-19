@@ -60,7 +60,7 @@ namespace Client.Scenes.Views
 
             if (Panel == null || CurrentTabControl == null || CurrentTabControl.SelectedTab != this) return;
 
-            float opacity = Panel.TransparentCheckBox?.Checked ?? false ? 0.5F : 1F;
+            float opacity = Panel.TransparentCheckBox?.Checked ?? false ? 0.2F : 1F;
 
             foreach (DXButton button in CurrentTabControl.TabButtons)
                 button.Opacity = opacity;
@@ -415,7 +415,7 @@ namespace Client.Scenes.Views
 
                 if (CurrentTabControl.SelectedTab == this)
                     foreach (DXButton button in CurrentTabControl.TabButtons)
-                        button.Opacity = 0.5f;
+                        button.Opacity = 0.2f;
 
 
                 foreach (DXLabel label in History)

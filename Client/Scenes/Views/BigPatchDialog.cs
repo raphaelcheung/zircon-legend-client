@@ -40,6 +40,8 @@ namespace Client.Scenes.Views
         private ClientUserMagic FlamingSword = null;
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
+        private ClientUserMagic SwiftBlade = null;
+        private ClientUserMagic ThunderStrike = null;
 
         public DateTime AutoSkillsTime { get; set; } = DateTime.MinValue;
 
@@ -265,6 +267,30 @@ namespace Client.Scenes.Views
                     }
                 }
             }
+
+            if (SwiftBlade == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.SwiftBlade)
+                    {
+                        SwiftBlade = pair.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (ThunderStrike == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.ThunderStrike)
+                    {
+                        ThunderStrike = pair.Value;
+                        break;
+                    }
+                }
+            }
         }
 
         public void AutoSkills()
@@ -295,8 +321,12 @@ namespace Client.Scenes.Views
 
                     if (Config.自动破血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Might))
                     {
-                        GameScene.Game.UseMagic(MagicType.Might);
-                        return;
+                        // 只有血量高于80%时才使用破血
+                        if (GameScene.Game.User.CurrentHP > GameScene.Game.User.Stats[Stat.Health] * 0.8)
+                        {
+                            GameScene.Game.UseMagic(MagicType.Might);
+                            return;
+                        }
                     }
 
                     if (Config.自动移花接木 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ReflectDamage))
@@ -309,14 +339,23 @@ namespace Client.Scenes.Views
                         }
                     }
 
-                    if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
-                        GameScene.Game.UseMagic(MagicType.BladeStorm);
-                    else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
-                        GameScene.Game.UseMagic(MagicType.FlamingSword);
-                    else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
-                        GameScene.Game.UseMagic(MagicType.DragonRise);
+                    // 修改：自动莲月、自动烈火、自动翔空、自动快刀斩马、自动天雷锤只在战斗状态下执行
+                    if (CEnvir.Now < GameScene.Game.User.CombatTime.AddSeconds(2))
+                    {
+                        if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
+                            GameScene.Game.UseMagic(MagicType.BladeStorm);
+                        else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
+                            GameScene.Game.UseMagic(MagicType.FlamingSword);
+                        else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
+                            GameScene.Game.UseMagic(MagicType.DragonRise);
+                        else if (Config.自动快刀斩马 && SwiftBlade != null && CEnvir.Now > SwiftBlade.NextCast)
+                            GameScene.Game.UseMagic(MagicType.SwiftBlade);
+                        else if (Config.自动天雷锤 && ThunderStrike != null && CEnvir.Now > ThunderStrike.NextCast)
+                            GameScene.Game.UseMagic(MagicType.ThunderStrike);
+                    }
 
-                    if (Config.自动半月弯刀 || Config.自动十方斩)
+                    // 修改：自动半月弯刀、自动十方斩只在战斗状态下执行
+                    if ((Config.自动半月弯刀 || Config.自动十方斩) && CEnvir.Now < GameScene.Game.User.CombatTime.AddSeconds(4))
                     {
                         int halfCount = 0;
                         int surgeCount = 0;
@@ -1257,7 +1296,7 @@ namespace Client.Scenes.Views
                 Size size1 = GroupNormal.Size;
                 Size size2 = new Size(size1.Width, num1);
                 groupNormal.Size = size2;
-                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[3];
+                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[8];  // 从 3 改为 8，新增5个宠物快捷键
 
 
                 index1 = 0;
@@ -1307,6 +1346,62 @@ namespace Client.Scenes.Views
                 });
                 CHK_ITEM_SET jingyantishi = chkItemSet1;
                 chkItemSetArray3[index1] = jingyantishi;
+                index1++;
+
+                // 宠物模式快捷键 - Ctrl+1 到 Ctrl+5
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl+1休息";
+                chkItemSet1.state = Config.启用Ctrl1宠物休息;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl1宠物休息 = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
+                index1++;
+
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl+2移动攻击";
+                chkItemSet1.state = Config.启用Ctrl2宠物移动攻击;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl2宠物移动攻击 = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
+                index1++;
+
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl+3移动";
+                chkItemSet1.state = Config.启用Ctrl3宠物移动;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl3宠物移动 = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
+                index1++;
+
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl+4攻击";
+                chkItemSet1.state = Config.启用Ctrl4宠物攻击;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl4宠物攻击 = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
+                index1++;
+
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl+5 PvP";
+                chkItemSet1.state = Config.启用Ctrl5宠物PvP;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl5宠物PvP = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
                 index1++;
 
                 //chkItemSet1 = new CHK_ITEM_SET();
@@ -1741,6 +1836,8 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoFlamingSword;
             public DXCheckBox AutoDragobRise;
             public DXCheckBox AutoBladeStorm;
+            public DXCheckBox AutoSwiftBlade;
+            public DXCheckBox AutoThunderStrike;
             public DXCheckBox AutoDefiance;
             public DXCheckBox AutoMight;
             public DXCheckBox AutoReflectDamage;
@@ -1933,6 +2030,30 @@ namespace Client.Scenes.Views
                     Config.自动十方斩 = AutoDestructiveSurge.Checked;
                 }), Config.自动十方斩);
 
+                AutoSwiftBlade = CreateCheckBox(Warrior, "自动快刀斩马", x1, num2 + 75, ((o, e) => Config.自动快刀斩马 = AutoSwiftBlade.Checked), Config.自动快刀斩马);
+                AutoSwiftBlade.CheckedChanged += ((o, e) =>
+                {
+                    if (GameScene.Game.Observer)
+                        return;
+                    CEnvir.Enqueue(new AutoFightConfChanged()
+                    {
+                        Enabled = AutoSwiftBlade.Checked,
+                        Slot = AutoSetConf.SetSwiftBladeBox
+                    });
+                });
+
+                AutoThunderStrike = CreateCheckBox(Warrior, "自动天雷锤", x1 + 120, num2 + 75, ((o, e) => Config.自动天雷锤 = AutoThunderStrike.Checked), Config.自动天雷锤);
+                AutoThunderStrike.CheckedChanged += ((o, e) =>
+                {
+                    if (GameScene.Game.Observer)
+                        return;
+                    CEnvir.Enqueue(new AutoFightConfChanged()
+                    {
+                        Enabled = AutoThunderStrike.Checked,
+                        Slot = AutoSetConf.SetThunderStrikeBox
+                    });
+                });
+
                 int num3 = 5;
                 int num4;
                 AutoMagicShield = CreateCheckBox(Wizard, "自动魔法盾", x1, num4 = num3 + 25, ((o, e) => Config.自动魔法盾 = AutoMagicShield.Checked), Config.自动魔法盾);
@@ -1953,7 +2074,7 @@ namespace Client.Scenes.Views
 
 
                 int num6 = 5 + 25;
-                int num7;
+                //int num7;
                 AutoPoisonDust = CreateCheckBox(Taoist, "自动换毒", x1, num6, ((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
                 AutoAmulet = CreateCheckBox(Taoist, "自动换符", x1 + 120, num6, ((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
                 AutoCelestial = CreateCheckBox(Taoist, "自动阴阳盾", x1, num6 += 25, ((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
@@ -2162,12 +2283,25 @@ namespace Client.Scenes.Views
                     if (GameScene.Game.Observer)
                         return;
 
-                    if (AndroidPlayer.Checked && GameScene.Game.User.AutoTime == 0L)
+                    if (AndroidPlayer.Checked)
                     {
-                        AndroidPlayer.Checked = false;
+                        if (GameScene.Game.User.AutoTime == 0L)
+                        {
+                            AndroidPlayer.Checked = false;
+                        }
+                        else
+                        {
+                            GameScene.Game.ReceiveChat("开始挂机", MessageType.System);
+                            CEnvir.Enqueue(new AutoFightConfChanged()
+                            {
+                                Enabled = AndroidPlayer.Checked,
+                                Slot = AutoSetConf.SetAutoOnHookBox
+                            });
+                        }
                     }
                     else
                     {
+                        GameScene.Game.ReceiveChat("结束挂机", MessageType.System);
                         CEnvir.Enqueue(new AutoFightConfChanged()
                         {
                             Enabled = AndroidPlayer.Checked,
@@ -2740,7 +2874,7 @@ namespace Client.Scenes.Views
                 dxNumberBox1.Location = new Point(105, 5);
                 dxNumberBox1.Size = new Size(80, 20);
                 dxNumberBox1.ValueTextBox.Size = new Size(40, 18);
-                dxNumberBox1.MaxValue = 50000L;
+                dxNumberBox1.MaxValue = 100L;
                 dxNumberBox1.MinValue = 0L;
                 dxNumberBox1.UpButton.Location = new Point(63, 1);
                 HealthTargetBox = dxNumberBox1;
@@ -2750,7 +2884,7 @@ namespace Client.Scenes.Views
                 dxNumberBox2.Location = new Point(105, 25);
                 dxNumberBox2.Size = new Size(80, 20);
                 dxNumberBox2.ValueTextBox.Size = new Size(40, 18);
-                dxNumberBox2.MaxValue = 50000L;
+                dxNumberBox2.MaxValue = 100L;
                 dxNumberBox2.MinValue = 0L;
                 dxNumberBox2.UpButton.Location = new Point(63, 1);
                 ManaTargetBox = dxNumberBox2;
@@ -2758,7 +2892,7 @@ namespace Client.Scenes.Views
                 DXLabel dxLabel2 = new DXLabel();
                 dxLabel2.Parent = this;
                 dxLabel2.IsControl = false;
-                dxLabel2.Text = "生命值:";
+                dxLabel2.Text = "血量%:";
                 HealthLabel = dxLabel2;
                 DXLabel healthLabel = HealthLabel;
                 Point location1 = HealthTargetBox.Location;
@@ -2776,7 +2910,7 @@ namespace Client.Scenes.Views
                 DXLabel dxLabel3 = new DXLabel();
                 dxLabel3.Parent = this;
                 dxLabel3.IsControl = false;
-                dxLabel3.Text = "魔法值:";
+                dxLabel3.Text = "魔法%:";
                 ManaLabel = dxLabel3;
                 DXLabel manaLabel = ManaLabel;
                 Point location2 = ManaTargetBox.Location;
@@ -2808,14 +2942,42 @@ namespace Client.Scenes.Views
             {
                 if (GameScene.Game.Observer || GameScene.Game.BigPatchBox.Protect.Updating)
                     return;
+                
+                // Safety check: Ensure stats are valid before sending
+                var stats = GameScene.Game.User?.Stats;
+                if (stats == null)
+                    return;
+                
+                int maxHP = stats[Stat.Health];
+                int maxMP = stats[Stat.Mana];
+                
+                // Don't send if max HP/MP are invalid (0 or negative)
+                if (maxHP <= 0 || maxMP <= 0)
+                    return;
+                
+                // Convert percentage to absolute value for server
+                // UI shows percentage (0-100), but server expects absolute HP/MP values
+                // Calculate absolute values from percentages
+                // Example: 80% with 1000 max HP = 800 absolute HP
+                int absoluteHealth = (int)(maxHP * HealthTargetBox.Value / 100f);
+                int absoluteMana = (int)(maxMP * ManaTargetBox.Value / 100f);
+                
+                // Validate absolute values are reasonable
+                if (absoluteHealth < 0 || absoluteHealth > maxHP || 
+                    absoluteMana < 0 || absoluteMana > maxMP)
+                    return;
+                
                 AutoPotionLinkChanged potionLinkChanged = new AutoPotionLinkChanged();
                 potionLinkChanged.Slot = Index;
                 ClientUserItem clientUserItem = ItemCell.Item;
                 potionLinkChanged.LinkIndex = clientUserItem != null ? clientUserItem.Info.Index : -1;
                 potionLinkChanged.Enabled = EnabledCheckBox.Checked;
-                potionLinkChanged.Health = (int)HealthTargetBox.Value;
-                potionLinkChanged.Mana = (int)ManaTargetBox.Value;
+                potionLinkChanged.Health = absoluteHealth; // Send absolute value
+                potionLinkChanged.Mana = absoluteMana;     // Send absolute value
                 CEnvir.Enqueue((Packet)potionLinkChanged);
+                
+                // Save percentage settings to local file after sending to server
+                GameScene.Game?.BigPatchBox?.Protect?.SaveLocalSettings();
             }
 
             protected override void Dispose(bool disposing)
@@ -2911,18 +3073,121 @@ namespace Client.Scenes.Views
             public void UpdateLinks()
             {
                 Updating = true;
+                
+                // First, load local percentage settings if they exist
+                LoadLocalSettings();
+                
                 foreach (ClientAutoPotionLink link1 in Links)
                 {
                     ClientAutoPotionLink link = link1;
                     if (link != null && link.Slot >= 0 && link.Slot < Rows.Length)
                     {
                         Rows[link.Slot].ItemCell.QuickInfo = Globals.ItemInfoList.Binding.FirstOrDefault<Library.SystemModels.ItemInfo>((Func<Library.SystemModels.ItemInfo, bool>)(x => x.Index == link.LinkInfoIndex));
-                        Rows[link.Slot].HealthTargetBox.Value = (long)link.Health;
-                        Rows[link.Slot].ManaTargetBox.Value = (long)link.Mana;
+                        
+                        // Only update percentage from server if no local setting exists
+                        // This happens on first login or if local file is missing
+                        if (Rows[link.Slot].HealthTargetBox.Value == 0 && Rows[link.Slot].ManaTargetBox.Value == 0)
+                        {
+                            // Convert absolute values from server to percentages for UI display
+                            int maxHP = GameScene.Game?.User?.Stats[Stat.Health] ?? 1;
+                            int maxMP = GameScene.Game?.User?.Stats[Stat.Mana] ?? 1;
+                            
+                            if (maxHP <= 0) maxHP = 1;
+                            if (maxMP <= 0) maxMP = 1;
+                            
+                            long healthPercent = (long)(link.Health * 100f / maxHP);
+                            long manaPercent = (long)(link.Mana * 100f / maxMP);
+                            
+                            healthPercent = Math.Max(0, Math.Min(100, healthPercent));
+                            manaPercent = Math.Max(0, Math.Min(100, manaPercent));
+                            
+                            Rows[link.Slot].HealthTargetBox.Value = healthPercent;
+                            Rows[link.Slot].ManaTargetBox.Value = manaPercent;
+                        }
+                        
                         Rows[link.Slot].EnabledCheckBox.Checked = link.Enabled;
                     }
                 }
                 Updating = false;
+            }
+
+            public void ResendAllAutoPotionLinks()
+            {
+                // Resend all enabled auto-potion configurations to server
+                // This is called when max HP/MP changes to update absolute thresholds
+                if (Rows == null || GameScene.Game?.User == null)
+                    return;
+
+                // Safety check: Don't send if stats are invalid
+                var stats = GameScene.Game.User.Stats;
+                if (stats == null || stats[Stat.Health] <= 0 || stats[Stat.Mana] <= 0)
+                    return;
+
+                foreach (var row in Rows)
+                {
+                    if (row != null && row.EnabledCheckBox.Checked)
+                    {
+                        row.SendUpdate();
+                    }
+                }
+            }
+
+            // Save percentage settings to local file
+            public void SaveLocalSettings()
+            {
+                try
+                {
+                    string filename = $"./{CEnvir.LogonCharacterDesc}-AutoPotion.ini";
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filename))
+                    {
+                        for (int i = 0; i < Rows.Length; i++)
+                        {
+                            if (Rows[i] != null)
+                            {
+                                writer.WriteLine($"[Slot{i}]");
+                                writer.WriteLine($"HealthPercent={Rows[i].HealthTargetBox.Value}");
+                                writer.WriteLine($"ManaPercent={Rows[i].ManaTargetBox.Value}");
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            // Load percentage settings from local file
+            public void LoadLocalSettings()
+            {
+                try
+                {
+                    string filename = $"./{CEnvir.LogonCharacterDesc}-AutoPotion.ini";
+                    if (!System.IO.File.Exists(filename))
+                        return;
+
+                    int currentSlot = -1;
+                    foreach (string line in System.IO.File.ReadAllLines(filename))
+                    {
+                        string trimmed = line.Trim();
+                        if (trimmed.StartsWith("[Slot") && trimmed.EndsWith("]"))
+                        {
+                            string slotStr = trimmed.Substring(5, trimmed.Length - 6);
+                            int.TryParse(slotStr, out currentSlot);
+                        }
+                        else if (currentSlot >= 0 && currentSlot < Rows.Length && Rows[currentSlot] != null)
+                        {
+                            if (trimmed.StartsWith("HealthPercent="))
+                            {
+                                if (long.TryParse(trimmed.Substring(14), out long value))
+                                    Rows[currentSlot].HealthTargetBox.Value = value;
+                            }
+                            else if (trimmed.StartsWith("ManaPercent="))
+                            {
+                                if (long.TryParse(trimmed.Substring(12), out long value))
+                                    Rows[currentSlot].ManaTargetBox.Value = value;
+                            }
+                        }
+                    }
+                }
+                catch { }
             }
 
             public override void OnSizeChanged(Size oValue, Size nValue)

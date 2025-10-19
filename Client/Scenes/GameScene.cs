@@ -16,7 +16,7 @@ using Library.SystemModels;
 using MirDB;
 using C = Library.Network.ClientPackets;
 using UserObject = Client.Models.UserObject;
-using System.ComponentModel;
+//using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using Library.Network.ClientPackets;
 using Library.Network;
@@ -289,6 +289,10 @@ namespace Client.Scenes
 
         private KeyBindInfo LastAttackModeKey { get; set; }
         private KeyBindInfo LastPetModeKey { get; set; }
+
+        // Track last MaxHP/MaxMP to avoid unnecessary auto-potion updates
+        private int _LastMaxHP = 0;
+        private int _LastMaxMP = 0;
 
         #region StorageSize
 
@@ -701,6 +705,7 @@ namespace Client.Scenes
                 Label = { Text = "隐藏" },
                 Parent = this,
                 Size = new Size(50, SmallButtonHeight),
+                Opacity = 0.2f,
                 //Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 150),
             };
 
@@ -806,12 +811,11 @@ namespace Client.Scenes
             MainPanel.Location = new Point((Size.Width - MainPanel.Size.Width)/2
                 , Size.Height - MainPanel.Size.Height);
 
+            //MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
+            //    , MainPanel.Location.Y - MagicBarBox.Size.Height);
 
-            MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
-                , MainPanel.Location.Y - MagicBarBox.Size.Height);
-
-            BeltBox.Location = new Point(MagicBarBox.Location.X + MagicBarBox.Size.Width - BeltBox.Size.Width
-                , MagicBarBox.Location.Y - BeltBox.Size.Height);
+            //BeltBox.Location = new Point(MagicBarBox.Location.X + MagicBarBox.Size.Width - BeltBox.Size.Width
+            //    , MagicBarBox.Location.Y - BeltBox.Size.Height);
 
             ChatTextBox.Location = new Point(MainPanel.Location.X, MainPanel.Location.Y - ChatTextBox.Size.Height);
 
@@ -915,6 +919,7 @@ namespace Client.Scenes
                     pSetting.HintChat = tab.Panel.HintCheckBox.Checked;
                     pSetting.SystemChat = tab.Panel.SystemCheckBox.Checked;
                     pSetting.GainsChat = tab.Panel.GainsCheckBox.Checked;
+                    pSetting.AnnouncementChat = tab.Panel.AnnouncementCheckBox.Checked;
                 }
             }
         }
@@ -925,7 +930,20 @@ namespace Client.Scenes
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
+            // 先尝试从数据库读取已保存的聊天配置
+            DBCollection<ChatTabPageSetting> savedSettings = CEnvir.Session.GetCollection<ChatTabPageSetting>();
+            
             List<ChatTabPageSetting> settings = new List<ChatTabPageSetting>();
+            
+            // 如果数据库中有保存的设置，直接使用
+            if (savedSettings.Binding.Count > 0)
+            {
+                settings.AddRange(savedSettings.Binding);
+                _LoadChatTabs(settings);
+                return;
+            }
+            
+            // 否则使用默认设置
             settings.Add(new ChatTabPageSetting
             {
                 Name = "全部",
@@ -1060,11 +1078,6 @@ namespace Client.Scenes
             });
 
             _LoadChatTabs(settings);
-
-            foreach(var set in settings)
-                set.Delete();
-
-            settings.Clear();
         }
         private void _LoadChatTabs(List<ChatTabPageSetting> controlSettings)
         {
@@ -1108,6 +1121,9 @@ namespace Client.Scenes
                 tab.Panel.SystemCheckBox.Checked = pSetting.SystemChat;
                 tab.Panel.GainsCheckBox.Checked = pSetting.GainsChat;
                 tab.Panel.AnnouncementCheckBox.Checked = pSetting.AnnouncementChat;
+
+                // 立即应用透明状态
+                tab.TransparencyChanged();
 
                 if (selected == null)
                     selected = tab;
@@ -1323,6 +1339,90 @@ namespace Client.Scenes
             base.OnKeyDown(e);
 
             if (e.Handled) return;
+
+            // Hardcode: 宠物模式快捷键 Ctrl+1 到 Ctrl+5
+            if (e.Control && !Observer)
+            {
+                PetMode? targetMode = null;
+                bool enabled = false;
+
+                switch (e.KeyCode)
+                {
+                    case Keys.D1:
+                        if (Config.启用Ctrl1宠物休息)
+                        {
+                            targetMode = PetMode.None;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D2:
+                        if (Config.启用Ctrl2宠物移动攻击)
+                        {
+                            targetMode = PetMode.Both;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D3:
+                        if (Config.启用Ctrl3宠物移动)
+                        {
+                            targetMode = PetMode.Move;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D4:
+                        if (Config.启用Ctrl4宠物攻击)
+                        {
+                            targetMode = PetMode.Attack;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D5:
+                        if (Config.启用Ctrl5宠物PvP)
+                        {
+                            targetMode = PetMode.PvP;
+                            enabled = true;
+                        }
+                        break;
+                }
+
+                if (enabled && targetMode.HasValue)
+                {
+                    User.PetMode = targetMode.Value;
+                    CEnvir.Enqueue(new C.ChangePetMode { Mode = User.PetMode });
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // Ctrl + Enter: Toggle chat visibility
+            if (e.Control && e.KeyCode == Keys.Enter)
+            {
+                if (ChatTabControl != null)
+                {
+                    if (ChatTabControl.Visible)
+                    {
+                        // Hide chat
+                        ChatTabControl.Visible = false;
+                        ChatTextBox.Visible = false;
+                        ShowChat.Visible = true;
+                        HideChat.Visible = false;
+                        BigPatch.Visible = true;
+                        Ranking.Visible = true;
+                    }
+                    else
+                    {
+                        // Show chat
+                        ChatTabControl.Visible = true;
+                        ChatTextBox.Visible = true;
+                        ShowChat.Visible = false;
+                        HideChat.Visible = true;
+                        BigPatch.Visible = false;
+                        Ranking.Visible = false;
+                    }
+                }
+                e.Handled = true;
+                return;
+            }
 
             switch (e.KeyCode)
             {
@@ -1768,12 +1868,12 @@ namespace Client.Scenes
                         break;
                     case KeyBindAction.Guaji:
                         //GameScene.Game.ReceiveChat("挂机功能暂未开放，敬请期待...", MessageType.System);
-                        if (!MapControl.MapInfo.AllowRT)
-                            GameScene.Game.ReceiveChat("目前您在不允许使用自动打怪功能的地图，因此不能挂机", MessageType.System);
-                        //else if (Game.User.Zdgjgongneng)
+                        // if (!MapControl.MapInfo.AllowRT)
+                        //     GameScene.Game.ReceiveChat("目前您在不允许使用自动打怪功能的地图，因此不能挂机", MessageType.System);
+                        // else if (Game.User.Zdgjgongneng)
                         //    GameScene.Game.ReceiveChat("每天18 : 00 点至 22 : 00 点不允许自动挂机的时间，因此不能挂机", MessageType.System);
-                        else
-                            Game.BigPatchBox.Helper.AndroidPlayer.Checked = !Game.BigPatchBox.Helper.AndroidPlayer.Checked;
+                        // else
+                        Game.BigPatchBox.Helper.AndroidPlayer.Checked = !Game.BigPatchBox.Helper.AndroidPlayer.Checked;
                         break;
                     default:
                         continue;
@@ -4832,6 +4932,18 @@ namespace Client.Scenes
                 cell.UpdateColours();
 
             CharacterBox.UpdateStats();
+            
+            // Update auto-potion thresholds ONLY when max HP/MP actually changes
+            // This prevents excessive network traffic
+            int currentMaxHP = User.Stats[Stat.Health];
+            int currentMaxMP = User.Stats[Stat.Mana];
+            
+            if (currentMaxHP != _LastMaxHP || currentMaxMP != _LastMaxMP)
+            {
+                _LastMaxHP = currentMaxHP;
+                _LastMaxMP = currentMaxMP;
+                BigPatchBox?.Protect?.ResendAllAutoPotionLinks();
+            }
         }
         public void ExperienceChanged()
         {
@@ -5789,10 +5901,10 @@ namespace Client.Scenes
 
             if (false)//if (!MapControl.MapInfo.AllowGuaji)
             {
-                if (BigPatchBox.Helper.AndroidPlayer.Checked)
-                    BigPatchBox.Helper.AndroidPlayer.Checked = false;
-                if (BigPatchBox.Helper.AndroidPlayer.Visible)
-                    BigPatchBox.Helper.AndroidPlayer.Visible = false;
+                //if (BigPatchBox.Helper.AndroidPlayer.Checked)
+                //    BigPatchBox.Helper.AndroidPlayer.Checked = false;
+                //if (BigPatchBox.Helper.AndroidPlayer.Visible)
+                //    BigPatchBox.Helper.AndroidPlayer.Visible = false;
 
             }
             else

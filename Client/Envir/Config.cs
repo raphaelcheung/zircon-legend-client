@@ -76,6 +76,10 @@ namespace Client.Envir
 
         public static bool 自动莲月 { get; set; } = false;
 
+        public static bool 自动快刀斩马 { get; set; } = false;
+
+        public static bool 自动天雷锤 { get; set; } = false;
+
         public static bool 自动铁布衫 { get; set; } = false;
 
         public static bool 自动破血 { get; set; } = false;
@@ -117,6 +121,13 @@ namespace Client.Envir
         public static bool 自动强魔震法 { get; set; } = false;
 
         public static bool 自动四花 { get; set; } = false;
+
+        // 宠物模式快捷键设置
+        public static bool 启用Ctrl1宠物休息 { get; set; } = false;
+        public static bool 启用Ctrl2宠物移动攻击 { get; set; } = false;
+        public static bool 启用Ctrl3宠物移动 { get; set; } = false;
+        public static bool 启用Ctrl4宠物攻击 { get; set; } = false;
+        public static bool 启用Ctrl5宠物PvP { get; set; } = false;
 
         public static bool 自动风之闪避 { get; set; } = false;
 
