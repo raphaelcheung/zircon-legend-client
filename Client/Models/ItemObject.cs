@@ -26,6 +26,11 @@ namespace Client.Models
         public MirLibrary BodyLibrary;
         public Color LabelBackColour = Color.FromArgb(30, 0, 24, 48);
 
+        // 碎片颜色常量（基于稀有度，更深更暗的颜色）
+    public static readonly Color FragmentCommon = Color.FromArgb(180, 180, 180); // 浅灰色，亮度提升 (原本白色)
+    public static readonly Color FragmentSuperior = Color.FromArgb(120, 170, 120); // 灰绿色，亮度提升，饱和度低 (原本浅绿)
+    public static readonly Color FragmentElite = Color.FromArgb(140, 120, 180); // 紫灰色，亮度提升，饱和度低 (原本中紫色)
+
         public ItemObject(S.ObjectItem info)
         {
             ObjectID = info.ObjectID;
@@ -38,7 +43,7 @@ namespace Client.Models
             {
                 itemInfo = Globals.ItemInfoList.Binding.First(x => x.Index == Item.AddedStats[Stat.ItemIndex]);
 
-                Title = "[碎片]";
+                Title = "**";
             }
 
             Name = Item.Count > 1 ? $"{itemInfo.ItemName} ({Item.Count})" : itemInfo.ItemName;
@@ -63,27 +68,44 @@ namespace Client.Models
                             BlendRate = 0.5F,
                         });
                     }
-                    else NameColour = Color.White;
+                    else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置暗灰色
+                        NameColour = FragmentCommon;
+                    else
+                        NameColour = Color.White;
                     break;
                 case Rarity.Superior:
-                    NameColour = Color.PaleGreen;
-                    Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.PaleGreen)
+                    if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置灰绿色
                     {
-                        Target = this,
-                        Loop = true,
-                        Blend = true,
-                        BlendRate = 0.5F,
-                    });
+                        NameColour = FragmentSuperior;
+                    }
+                    else
+                    {
+                        NameColour = Color.PaleGreen;
+                        Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.PaleGreen)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.5F,
+                        });
+                    }
                     break;
                 case Rarity.Elite:
-                    NameColour = Color.MediumPurple;
-                    Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.MediumPurple)
+                    if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置深紫灰色
                     {
-                        Target = this,
-                        Loop = true,
-                        Blend = true,
-                        BlendRate = 0.5F,
-                    });
+                        NameColour = FragmentElite;
+                    }
+                    else
+                    {
+                        NameColour = Color.MediumPurple;
+                        Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.MediumPurple)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.5F,
+                        });
+                    }
                     break;
             }
 
@@ -213,6 +235,33 @@ namespace Client.Models
         public override void NameChanged()
         {
             base.NameChanged();
+
+            // 特殊处理：如果是碎片，让 TitleNameLabel 也使用和 NameLabel 相同的颜色
+            if (!string.IsNullOrEmpty(Title) && Title == "**")
+            {
+                if (!NameLabels.TryGetValue(Title, out List<DXLabel> titles))
+                    NameLabels[Title] = titles = new List<DXLabel>();
+
+                TitleNameLabel = titles.FirstOrDefault(x => x.ForeColour == NameColour && x.BackColour == Color.Empty);
+
+                if (TitleNameLabel == null)
+                {
+                    TitleNameLabel = new DXLabel
+                    {
+                        BackColour = Color.Empty,
+                        ForeColour = NameColour, // 使用与Name相同的颜色
+                        Outline = true,
+                        OutlineColour = Color.Black,
+                        OutlineWeight = 1,
+                        Text = Title,
+                        IsControl = false,
+                        IsVisible = true,
+                    };
+
+                    TitleNameLabel.Disposing += (o, e) => titles.Remove(TitleNameLabel);
+                    titles.Add(TitleNameLabel);
+                }
+            }
 
             if (string.IsNullOrEmpty(Name))
             {

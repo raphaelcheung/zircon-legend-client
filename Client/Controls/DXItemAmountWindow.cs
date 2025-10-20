@@ -88,7 +88,7 @@ namespace Client.Controls
 
             AmountBox.Location = new Point(ItemCell.Location.X + ItemCell.Size.Width + 10, ItemCell.Location.Y + (ItemCell.Size.Height - AmountBox.Size.Height)/2);
 
-            AmountBox.Value = 1;
+            AmountBox.Value = item.Count; // 默认最大值
             AmountBox.ValueTextBox.KeepFocus = true;
             AmountBox.ValueTextBox.SetFocus();
             AmountBox.ValueTextBox.TextBox.KeyPress += AmountBox_KeyPress;

@@ -616,9 +616,21 @@ namespace Client.Scenes.Views
                     DXItemCell.SelectedCell = null;
                     return;
                 }
-                
-                DXItemAmountWindow window = new DXItemAmountWindow("掉落物品", cell.Item);
 
+                if (cell.Item.Count <= 1)
+                {
+                    // 只有1个，直接丢弃
+                    CEnvir.Enqueue(new C.ItemDrop
+                    {
+                        Link = new CellLinkInfo { GridType = cell.GridType, Slot = cell.Slot, Count = 1 }
+                    });
+                    cell.Locked = true;
+                    DXItemCell.SelectedCell = null;
+                    return;
+                }
+
+                // 多于1个，弹窗，默认最大值
+                DXItemAmountWindow window = new DXItemAmountWindow("掉落物品", cell.Item);
                 window.ConfirmButton.MouseClick += (o, a) =>
                 {
                     if (window.Amount <= 0) return;
@@ -630,7 +642,6 @@ namespace Client.Scenes.Views
 
                     cell.Locked = true;
                 };
-
                 DXItemCell.SelectedCell = null;
                 return;
             }
