@@ -43,7 +43,7 @@ namespace Client.Models
             {
                 itemInfo = Globals.ItemInfoList.Binding.First(x => x.Index == Item.AddedStats[Stat.ItemIndex]);
 
-                Title = "**";
+                Title = "*";
             }
 
             Name = Item.Count > 1 ? $"{itemInfo.ItemName} ({Item.Count})" : itemInfo.ItemName;
@@ -237,7 +237,7 @@ namespace Client.Models
             base.NameChanged();
 
             // 特殊处理：如果是碎片，让 TitleNameLabel 也使用和 NameLabel 相同的颜色
-            if (!string.IsNullOrEmpty(Title) && Title == "**")
+            if (!string.IsNullOrEmpty(Title) && Title == "*")
             {
                 if (!NameLabels.TryGetValue(Title, out List<DXLabel> titles))
                     NameLabels[Title] = titles = new List<DXLabel>();
