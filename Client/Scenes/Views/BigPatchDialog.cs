@@ -537,6 +537,9 @@ namespace Client.Scenes.Views
                             if (mon.CompanionObject != null) continue;
                             if (!Functions.InRange(GameScene.Game.User.CurrentLocation, mon.CurrentLocation, Globals.MagicRange)) continue;
 
+                            // don't buff pets immediately after summon, give them 3 seconds to stabilize
+                            if (mon.SummonedTime != DateTime.MinValue && CEnvir.Now < mon.SummonedTime.AddSeconds(4)) continue;
+
                             if (Config.自动施放幽灵盾 && mon.VisibleBuffs.All(x => x != BuffType.MagicResistance))
                             {
                                 GameScene.Game.UseMagic(MagicType.MagicResistance, ob);

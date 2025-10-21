@@ -247,6 +247,7 @@ namespace Client.Scenes
         public QuestDialog QuestBox;
         public QuestTrackerDialog QuestTrackerBox;
         public CompanionDialog CompanionBox;
+        public CompanionHealthPanel CompanionHealth;
         public BlockDialog BlockBox;
         public MonsterDialog MonsterBox;
         public MagicBarDialog MagicBarBox { get; set; }
@@ -529,6 +530,13 @@ namespace Client.Scenes
             MiniMapBox = new MiniMapDialog
             {
                 Parent = this,
+            };
+            CompanionHealth = new CompanionHealthPanel
+            {
+                Parent = this,
+                Location = new Point(0, Size.Height - 150), // left bottom (height adjusted to visible area)
+                Size = new Size(100, 150), // narrow panel width
+                IsControl = false,
             };
             MagicBox = new MagicDialog()
             {
@@ -866,6 +874,12 @@ namespace Client.Scenes
             FortuneCheckerBox.Location = new Point((Size.Width - FortuneCheckerBox.Size.Width) / 2, (Size.Height - FortuneCheckerBox.Size.Height) / 2);
 
             NPCWeaponCraftBox.Location = new Point((Size.Width - NPCWeaponCraftBox.Size.Width) / 2, (Size.Height - NPCWeaponCraftBox.Size.Height) / 2);
+
+            // Companion health panel anchored bottom-left
+            if (CompanionHealth != null)
+            {
+                CompanionHealth.Location = new Point(0, Size.Height - CompanionHealth.Size.Height);
+            }
 
             HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 148);
             ShowChat.Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height);

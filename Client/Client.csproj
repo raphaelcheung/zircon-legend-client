@@ -221,6 +221,7 @@
     <Compile Include="Scenes\Views\BlockDialog.cs" />
     <Compile Include="Scenes\Views\EditCharacterDialog.cs" />
     <Compile Include="Scenes\Views\FortuneCheckerDialog.cs" />
+    <Compile Include="Scenes\Views\CompanionHealthPanel.cs" />
     <Compile Include="Scenes\Views\GuildDialog.cs" />
     <Compile Include="Scenes\Views\InventoryDialog.cs" />
     <Compile Include="Scenes\Views\MagicBarDialog.cs" />
