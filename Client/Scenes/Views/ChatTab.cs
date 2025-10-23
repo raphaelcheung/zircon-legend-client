@@ -41,7 +41,7 @@ namespace Client.Scenes.Views
 
             ScrollBar.VisibleSize = TextPanel.Size.Height;
             ScrollBar.Location = new Point(Size.Width - ScrollBar.Size.Width - ResizeBuffer, ResizeBuffer);
-            ScrollBar.Size = new Size(14, Size.Height - ResizeBuffer*2);
+            ScrollBar.Size = new Size(14, Size.Height - ResizeBuffer*2 - 15);  // 缩短滚动条高度 15px
 
             if (!IsResizing)
                 ResizeChat();
@@ -79,6 +79,7 @@ namespace Client.Scenes.Views
         {
             Opacity = 0.5F;
             DrawOtherBorder = true;
+            AllowResize = false;
 
 
             ScrollBar = new DXVScrollBar
@@ -425,7 +426,7 @@ namespace Client.Scenes.Views
             {
                 ScrollBar.Visible = true;
                 DrawTexture = true;
-                AllowResize = true;
+                AllowResize = false; // 保持禁止调整大小
                 DrawOtherBorder = true;
 
                 if (CurrentTabControl.SelectedTab == this)

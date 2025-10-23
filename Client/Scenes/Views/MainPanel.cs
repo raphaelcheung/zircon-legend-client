@@ -269,7 +269,7 @@ namespace Client.Scenes.Views
                 Text = "Lv",
                 Hint = "等级",
             };
-            label.Location = new Point(300 - label.Size.Width, 41);
+            label.Location = new Point(300 - label.Size.Width, 40);
 
             label = new DXLabel
             {
@@ -278,7 +278,7 @@ namespace Client.Scenes.Views
                 Text = "AC",
                 Hint = "物理防御",
             };
-            label.Location = new Point(385 - label.Size.Width, 21);
+            label.Location = new Point(385 - label.Size.Width, 20);
 
             label = new DXLabel
             {
@@ -288,7 +288,7 @@ namespace Client.Scenes.Views
                 Hint = "魔法防御",
 
             };
-            label.Location = new Point(470 - label.Size.Width, 21);
+            label.Location = new Point(470 - label.Size.Width, 20);
 
             label = new DXLabel
             {
@@ -298,7 +298,7 @@ namespace Client.Scenes.Views
                 Hint = "破坏力",
 
             };
-            label.Location = new Point(385 - label.Size.Width, 41);
+            label.Location = new Point(385 - label.Size.Width, 40);
 
             DXLabel MCLabelLabel = new DXLabel
             {
@@ -308,7 +308,7 @@ namespace Client.Scenes.Views
                 Hint = "自然魔法攻击力",
 
             };
-            MCLabelLabel.Location = new Point(470 - MCLabelLabel.Size.Width, 41);
+            MCLabelLabel.Location = new Point(470 - MCLabelLabel.Size.Width, 40);
 
             DXLabel SCLabelLabel = new DXLabel
             {
@@ -318,7 +318,7 @@ namespace Client.Scenes.Views
                 Hint = "精神魔法攻击力",
 
             };
-            SCLabelLabel.Location = new Point(470 - SCLabelLabel.Size.Width, 41);
+            SCLabelLabel.Location = new Point(470 - SCLabelLabel.Size.Width, 40);
 
             label = new DXLabel
             {
@@ -327,7 +327,7 @@ namespace Client.Scenes.Views
                 Text = "Acc",
                 Hint = "准确度",
             };
-            label.Location = new Point(567 - label.Size.Width, 21);
+            label.Location = new Point(567 - label.Size.Width, 20);
 
             label = new DXLabel
             {
@@ -336,14 +336,14 @@ namespace Client.Scenes.Views
                 Text = "Agl",
                 Hint = "敏捷度",
             };
-            label.Location = new Point(567 - label.Size.Width, 41);
+            label.Location = new Point(567 - label.Size.Width, 40);
 
             ClassLabel = new DXLabel
             {
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(300, 21),
+                Location = new Point(300, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -353,7 +353,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(300, 41),
+                Location = new Point(300, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -363,7 +363,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(385, 21),
+                Location = new Point(385, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -373,7 +373,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(470, 21),
+                Location = new Point(470, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -383,7 +383,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(385, 41),
+                Location = new Point(385, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -393,7 +393,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(470, 41),
+                Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -404,7 +404,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(470, 41),
+                Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -415,7 +415,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(567, 21),
+                Location = new Point(567, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };
@@ -425,7 +425,7 @@ namespace Client.Scenes.Views
                 AutoSize = false,
                 Parent = this,
                 Font = new Font("宋体", CEnvir.FontSize(9F)),
-                Location = new Point(567, 41),
+                Location = new Point(567, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
             };

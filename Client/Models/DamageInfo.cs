@@ -309,9 +309,9 @@ namespace Client.Models
                
                 int index;
                 int width;
-                if (Value <= -1000)
+                if (Critical && Value <= -1000)
                 {
-                    //White
+                    //White - only for critical hits over 1000
                     index = WhiteIndex;
                     width = WhiteWidth;
                 }

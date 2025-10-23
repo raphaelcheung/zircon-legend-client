@@ -41,7 +41,7 @@ namespace Client.Scenes.Views
             int y = 0;
             
             // 绘制时的坐标调整
-            int xOffset = 280;
+            int xOffset = 648;
             int yOffset = -33;
 
             // 获取血条图像（使用游戏中宠物血条的图像ID 79为血条，80为边框）
@@ -83,7 +83,7 @@ namespace Client.Scenes.Views
                 float percent = Math.Max(0, Math.Min(1F, data.Health / (float)data.MaxHealth));
 
                 // 根据宠物类型设置血条颜色
-                Color barColor = (data.MonsterInfo?.Image == MonsterImage.InfernalSoldier) ? Color.Orange : Color.Yellow;
+                Color barColor = (data.MonsterInfo?.Image == MonsterImage.InfernalSoldier) ? Color.Lime : Color.Yellow;
 
                 // 使用相对于该面板的坐标，加上偏移量
                 int screenX = DisplayArea.X + x + xOffset;

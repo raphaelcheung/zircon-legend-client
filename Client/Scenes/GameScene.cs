@@ -709,6 +709,7 @@ namespace Client.Scenes
             HideChat = new DXButton()
             {
                 Visible = true,
+                ForeColour = Color.White,
                 ButtonType = ButtonType.Default,
                 Label = { Text = "隐藏" },
                 Parent = this,
@@ -882,7 +883,7 @@ namespace Client.Scenes
                 CompanionHealth.Size = new Size(MainPanel.Size.Width, 20);
             }
 
-            HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 148);
+            HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - HideChat.Size.Height - 3);
             ShowChat.Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height);
             BigPatch.Location = new Point(Game.ShowChat.Location.X + Game.ShowChat.Size.Width + 3, Game.ShowChat.Location.Y);
             Ranking.Location = new Point(Game.BigPatch.Location.X + Game.BigPatch.Size.Width + 3, Game.BigPatch.Location.Y);
@@ -1145,6 +1146,14 @@ namespace Client.Scenes
             }
 
             ChatTabControl.SelectedTab = selected;
+
+            // 加载完成后，对所有按钮应用透明度
+            if (selected != null && selected.Panel != null)
+            {
+                float opacity = selected.Panel.TransparentCheckBox?.Checked ?? false ? 0.2F : 1F;
+                foreach (DXButton button in ChatTabControl.TabButtons)
+                    button.Opacity = opacity;
+            }
         }
         private void OnChatTabChanged(object sender, EventArgs e)
         {
@@ -1956,7 +1965,7 @@ namespace Client.Scenes
 
                 label = new DXLabel
                 {
-                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
+                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.Violet),
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
                     Text = displayInfo.Rarity > Rarity.Common ? $"{itemtype}{rarity}" : itemtype,
