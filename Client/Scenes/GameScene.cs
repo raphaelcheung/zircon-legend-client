@@ -533,9 +533,9 @@ namespace Client.Scenes
             };
             CompanionHealth = new CompanionHealthPanel
             {
-                Parent = this,
-                Location = new Point(0, Size.Height - 150), // left bottom (height adjusted to visible area)
-                Size = new Size(54, 100), // narrow panel width
+                Parent = MainPanel,
+                Location = new Point(0, MainPanel.Size.Height - 20), // 位于MainPanel最左下
+                Size = new Size(MainPanel.Size.Width, 20), // 宽度与MainPanel相同，高度20像素
                 IsControl = false,
             };
             MagicBox = new MagicDialog()
@@ -875,10 +875,11 @@ namespace Client.Scenes
 
             NPCWeaponCraftBox.Location = new Point((Size.Width - NPCWeaponCraftBox.Size.Width) / 2, (Size.Height - NPCWeaponCraftBox.Size.Height) / 2);
 
-            // Companion health panel anchored bottom-center, offset left by 512 + panel width
+            // Companion health panel positioned at MainPanel's bottom-left, extending right
             if (CompanionHealth != null)
             {
-                CompanionHealth.Location = new Point(Size.Width / 2 - 512 - CompanionHealth.Size.Width, Size.Height - CompanionHealth.Size.Height);
+                CompanionHealth.Location = new Point(0, MainPanel.Size.Height - 20);
+                CompanionHealth.Size = new Size(MainPanel.Size.Width, 20);
             }
 
             HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 148);
