@@ -309,33 +309,41 @@ namespace Client.Models
                
                 int index;
                 int width;
-                if (Critical && Value <= -1000)
+                int absValue = Math.Abs(Value);
+                
+                if (Critical && absValue >= 10000)
                 {
-                    //White - only for critical hits over 1000
+                    // 10000+ critical hits: White large text
                     index = WhiteIndex;
                     width = WhiteWidth;
                 }
-                else if (Value <= -500)
+                else if (!Critical && absValue >= 5000)
                 {
-                    //Orange
+                    // 5000+ non-critical hits: White large text
+                    index = WhiteIndex;
+                    width = WhiteWidth;
+                }
+                else if (absValue >= 2000)
+                {
+                    // 2000+: Orange text
                     index = OrangeIndex;
                     width = OrangeWidth;
                 }
-                else if (Value <= -100)
+                else if (absValue >= 500)
                 {
-                    //Green
+                    // 500-1999: Green text
                     index = GreenIndex;
                     width = GreenWidth;
                 }
                 else if (Value < 0)
                 {
-                    //Red
+                    // 0-499: Red text
                     index = RedIndex;
                     width = RedWidth;
                 }
                 else
                 {
-                    //Blue
+                    // Positive values: Blue text
                     index = BlueIndex;
                     width = BlueWidth;
                 }

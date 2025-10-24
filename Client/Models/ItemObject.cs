@@ -53,32 +53,31 @@ namespace Client.Models
                 case Rarity.Common:
                     if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        NameColour = Color.White;
+                        NameColour = Color.LightSkyBlue; // 稍带蓝色的极浅天蓝
 
                         Effects.Add(new MirEffect(110, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.LightSkyBlue)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.2F,
                         });
                     }
                     else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置暗灰色
                         NameColour = Color.DarkGray;
                     else
-                        NameColour = Color.LightGray;
+                        NameColour = Color.Gainsboro;
                     break;
                 case Rarity.Superior:
                     if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        NameColour = Color.Green; // 高级物品有额外属性时：正绿色
-
-                        Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Green)
+                        NameColour = Color.Lime; // 亮绿色 RGB(0,255,0)
+                        Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Lime)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.4F,
                         });
                     }
                     else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置灰绿色
@@ -87,42 +86,42 @@ namespace Client.Models
                     }
                     else
                     {
-                        NameColour = Color.LightGreen; // 高级物品：亮浅绿
+                        NameColour = Color.LightGreen; // 亮浅绿
                         Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.LightGreen)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.2F,
                         });
                     }
                     break;
                 case Rarity.Elite:
                     if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        NameColour = Color.Magenta; // 稀有物品有额外属性时：正紫色
+                        NameColour = Color.Magenta; // 稀有物品有额外属性时：紫红
 
-                        Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.BlueViolet)
+                        Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Magenta)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.4F,
                         });
                     }
-                    else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置灰色粉紫色
+                    else if (Item.Info.Effect == ItemEffect.ItemPart) 
                     {
-                        NameColour = Color.FromArgb(186, 130, 165); // 灰色粉紫色碎片
+                        NameColour = Color.MediumOrchid; // 灰色粉紫色碎片
                     }
                     else
                     {
-                        NameColour = Color.Violet; // 稀有物品：更饱和的亮浅紫
+                        NameColour = Color.Violet; // 亮浅紫
                         Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Violet)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.2F,
                         });
                     }
                     break;

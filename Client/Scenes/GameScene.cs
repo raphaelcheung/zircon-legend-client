@@ -1965,7 +1965,7 @@ namespace Client.Scenes
 
                 label = new DXLabel
                 {
-                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.Violet),
+                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.LightGreen : Color.Violet),
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
                     Text = displayInfo.Rarity > Rarity.Common ? $"{itemtype}{rarity}" : itemtype,
