@@ -1312,7 +1312,7 @@ namespace Client.Scenes
 
 
             if (Config.开始挂机 
-                && ((Config.是否开启挂机自动技能 && isWizardOrTaoist)
+                && ((Config.远战挂机是否使用技能 && isWizardOrTaoist)
                 || !isWizardOrTaoist))
             {
                 var pick = MapControl.FindNearstItem();

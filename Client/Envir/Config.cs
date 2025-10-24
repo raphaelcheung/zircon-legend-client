@@ -160,8 +160,8 @@ namespace Client.Envir
         public static bool 自动躲避 { get; set; } = false;
 
         public static bool 死亡回城 { get; set; } = false;
-
-        public static bool 是否开启挂机自动技能 { get; set; } = false;
+        public static bool 是否远战挂机 { get; set; } = false;
+        public static bool 远战挂机是否使用技能 { get; set; } = false;
 
         public static MagicType 挂机自动技能 { get; set; } = MagicType.None;
 
