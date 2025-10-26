@@ -1373,35 +1373,35 @@ namespace Client.Scenes
                 switch (e.KeyCode)
                 {
                     case Keys.D1:
-                        if (Config.启用Ctrl1宠物休息)
+                        if (Config.启用Ctrl数字控制宠物)
                         {
                             targetMode = PetMode.None;
                             enabled = true;
                         }
                         break;
                     case Keys.D2:
-                        if (Config.启用Ctrl2宠物移动攻击)
+                        if (Config.启用Ctrl数字控制宠物)
                         {
                             targetMode = PetMode.Both;
                             enabled = true;
                         }
                         break;
                     case Keys.D3:
-                        if (Config.启用Ctrl3宠物移动)
+                        if (Config.启用Ctrl数字控制宠物)
                         {
                             targetMode = PetMode.Move;
                             enabled = true;
                         }
                         break;
                     case Keys.D4:
-                        if (Config.启用Ctrl4宠物攻击)
+                        if (Config.启用Ctrl数字控制宠物)
                         {
                             targetMode = PetMode.Attack;
                             enabled = true;
                         }
                         break;
                     case Keys.D5:
-                        if (Config.启用Ctrl5宠物PvP)
+                        if (Config.启用Ctrl数字控制宠物)
                         {
                             targetMode = PetMode.PvP;
                             enabled = true;
@@ -5939,17 +5939,18 @@ namespace Client.Scenes
         }
         private void ProcessSkills()
         {
-            if (Config.是否开启自动技能1 && CEnvir.Now >= skillTime1)
+            if (Config.是否开启自动技能1 && !Config.暂停辅助功能 && CEnvir.Now >= skillTime1)
             {
                 if ((uint)Config.自动技能1 > 0U)
                     UseMagic(Config.自动技能1);
                 skillTime1 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能1多长时间使用一次 > 0L ? (double)Config.自动技能1多长时间使用一次 : 10.0);
             }
-            if (!Config.是否开启自动技能2 || !(CEnvir.Now >= skillTime2))
-                return;
-            if ((uint)Config.自动技能2 > 0U)
-                UseMagic(Config.自动技能2);
-            skillTime2 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能2多长时间使用一次 > 0L ? (double)Config.自动技能2多长时间使用一次 : 10.0);
+            if (Config.是否开启自动技能2 && !Config.暂停辅助功能 && CEnvir.Now >= skillTime2)
+            {
+                if ((uint)Config.自动技能2 > 0U)
+                    UseMagic(Config.自动技能2);
+                skillTime2 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能2多长时间使用一次 > 0L ? (double)Config.自动技能2多长时间使用一次 : 10.0);
+            }
         }
         public void SortFillItems(List<ClientUserItem> items)
         {

@@ -895,8 +895,8 @@ namespace Client.Scenes.Views
                     }
                 }
                 
-                // 如果发现近身怪物（1格以内），立即停止pathfinding并切换到战斗
-                if (closestMonster != null && closestDistance == 1)
+                // 如果发现近身怪物（3格以内），立即停止pathfinding并切换到战斗
+                if (closestMonster != null && closestDistance < 4)
                 {
                     GameScene.Game.TargetObject = closestMonster;
                     _shouldClearAutoPath = true; // 标记需要清除pathfinding
@@ -1039,7 +1039,36 @@ namespace Client.Scenes.Views
                     }
                 }
 
-                if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                int targetDistance = Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation);
+                
+                // ！ 新增：如果距离为0（重叠），尝试向任意可移动方向走一步
+                if (targetDistance == 0 && GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
+                {
+                    // 尝试所有8个方向，找到第一个可以移动的方向
+                    for (int i = 0; i < 8; i++)
+                    {
+                        MirDirection tryDirection = (MirDirection)i;
+                        if (CanMove(tryDirection, 1))
+                        {
+                            // 找到可移动的方向，执行移动
+                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, tryDirection, Functions.Move(MapObject.User.CurrentLocation, tryDirection, 1), new object[2]
+                            {
+                                1,
+                                MagicType.None
+                            }));
+                            return;
+                        }
+                    }
+                    // 如果所有方向都不能移动，至少改变朝向
+                    MirDirection faceDirection = Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation);
+                    if (faceDirection != User.Direction)
+                    {
+                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, faceDirection, MapObject.User.CurrentLocation));
+                    }
+                    return;
+                }
+                // 距离为1则执行操作
+                if (targetDistance == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
                 {
                     if (Config.开始挂机 && (flag && User.Class == MirClass.Assassin && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE)))
                         GameScene.Game.UseMagic(Config.挂机自动技能);
@@ -1302,17 +1331,34 @@ namespace Client.Scenes.Views
 
                 if (bDetour)
                 {
-                    // 先尝试多步跑（优先用跑的）
-                    // 如果能跑2步，就跑2步；能跑1步，就跑1步
-                    if (i >= 2 && CanMove(direction, 2))
+                    // 骑马时的特殊处理：只有3步和1步，没有2步 
+                    if (User.Horse != HorseType.None)
                     {
-                        steps = 4;
-                        break;
+                        // 骑马时：如果3步不能走，直接走1步
+                        if (i >= 3 && CanMove(direction, 3))
+                        {
+                            steps = 3;  // 保持3步
+                            break;
+                        }
+                        else if (i >= 1 && CanMove(direction, 1))
+                        {
+                            steps = 1;  // 回退到1步
+                            break;
+                        }
                     }
-                    else if (i >= 1 && CanMove(direction, 1))
+                    else
                     {
-                        steps = 1;
-                        break;
+                        // 非骑马时的原有逻辑：优先多步，再回退到少步
+                        if (i >= 2 && CanMove(direction, 2))
+                        {
+                            steps = 4;
+                            break;
+                        }
+                        else if (i >= 1 && CanMove(direction, 1))
+                        {
+                            steps = 1;
+                            break;
+                        }
                     }
 
                     // 跑不了才尝试45度逃脱
@@ -1639,7 +1685,8 @@ namespace Client.Scenes.Views
             if ((double)num1 > 25.0)
                 return null;
 
-            if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
+            // if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
+            if (!Config.是否远战挂机)
             {
                 MirDirection direction = Functions.DirectionFromPoint(minob.Location, GameScene.Game.User.CurrentLocation);
                 Point target = Functions.Move(minob.Location, direction, 1);
@@ -1819,13 +1866,26 @@ namespace Client.Scenes.Views
         /// <summary>
         /// ！ 新增：检查是否有更近的怪物需要优先攻击
         /// 逻辑：总是选择距离最近的怪物，每秒判断一次
+        /// 如果当前目标距离为0（重叠），自动选择下一个最近的目标
         /// </summary>
         private void CheckAndPrioritizeNearbyMonster()
         {
             if (!Config.开始挂机)
                 return;
             
-            // 查找最近的怪物
+            // 检查当前目标是否与玩家重叠（距离为0）
+            if (GameScene.Game.TargetObject != null && !GameScene.Game.TargetObject.Dead)
+            {
+                int currentDistance = Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation);
+                
+                // 如果当前目标距离为0，清除目标以便选择新目标
+                if (currentDistance == 0)
+                {
+                    GameScene.Game.TargetObject = null;
+                }
+            }
+            
+            // 查找最近的怪物（排除距离为0的怪物）
             MapObject nearestMonster = null;
             int nearestDistance = int.MaxValue;
             
@@ -1836,7 +1896,8 @@ namespace Client.Scenes.Views
                 
                 int distance = Functions.Distance(User.CurrentLocation, obj.CurrentLocation);
                 
-                if (distance < nearestDistance)
+                // 只选择距离大于0的怪物（避免重叠的怪物）
+                if (distance >= 1 && distance < nearestDistance)
                 {
                     nearestDistance = distance;
                     nearestMonster = obj;
@@ -1847,7 +1908,7 @@ namespace Client.Scenes.Views
             if (nearestMonster != null && nearestDistance <= SHORT_DISTANCE_DETECTION_RANGE)
             {
                 // 如果当前没有目标，或者新的目标更近，则切换
-                if (GameScene.Game.TargetObject == null || 
+                if (GameScene.Game.TargetObject == null ||
                     GameScene.Game.TargetObject.Dead ||
                     nearestDistance < Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation))
                 {
@@ -1904,7 +1965,7 @@ namespace Client.Scenes.Views
                 if (!string.IsNullOrEmpty(clientObjectData.PetOwner) || clientObjectData.MonsterInfo.AI < 0) continue;
 
                 float distance = (float)Functions.Distance(userLoc, clientObjectData.Location);
-                if (distance > 30.0f) continue; // 只考虑30格内的怪物
+                if (distance > 20.0f) continue; // 只考虑30格内的怪物
 
                 // 将怪物位置按5x5格区域分组统计密度
                 int gridX = clientObjectData.Location.X / 5;
