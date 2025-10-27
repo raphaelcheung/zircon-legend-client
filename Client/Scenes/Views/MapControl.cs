@@ -58,7 +58,7 @@ namespace Client.Scenes.Views
         private ShortDistanceMode _currentShortDistanceMode = ShortDistanceMode.Mode1_ShortDistance;
         
         // ！ 追踪上一次的挂机状态，只在状态改变时清除路径
-        private bool _lastAutoHangupState = false;
+        private bool _lastAutoAndroidState = false;
         
         // ！ 新增：用于跟踪是否应该清除AutoPath的标志
         // 用来解决pathfinding中检测到怪物需要立即停止的问题
@@ -242,7 +242,7 @@ namespace Client.Scenes.Views
             FLayer = new Floor { Parent = this, Size = Size };
             LLayer = new Light { Parent = this, Location = new Point(-GameScene.Game.Location.X, -GameScene.Game.Location.Y), Size = Size };
             
-            // ！ 小修改2：进入游戏时关闭自动挂机
+            // ！ 进入游戏时关闭自动挂机
             Config.开始挂机 = false;
         }
 
@@ -841,9 +841,8 @@ namespace Client.Scenes.Views
             // 在每帧开始检查是否需要清除pathfinding
             ClearAutoPathIfNeeded();
 
-            // ！ 修复：仅在挂机状态改变时清除路径，而不是每帧都清
-            // 这样右键走路就不会被每帧清空了
-            if (!Config.开始挂机 && _lastAutoHangupState)
+            // ！ 修复：仅在挂机状态改变时清除路径，而不是每帧都清除
+            if (!Config.开始挂机 && _lastAutoAndroidState)
             {
                 // 挂机从打开切换到关闭，此时才清除挂机路径
                 AutoPath = false;
@@ -858,7 +857,7 @@ namespace Client.Scenes.Views
                     User.AttemptAction(new ObjectAction(MirAction.Standing, User.Direction, User.CurrentLocation));
                 }
             }
-            _lastAutoHangupState = Config.开始挂机; // 记录本帧状态
+            _lastAutoAndroidState = Config.开始挂机; // 记录本帧状态
 
             if (User == null || (User.Dead || (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type == BuffType.FrostBite))) return; //Para or Frozen??
 
@@ -927,7 +926,7 @@ namespace Client.Scenes.Views
                         GameScene.Game.TargetObject = mapObject;
                     else
                     {
-                        // ！ 改进：仅在1秒延迟后再执行下一次寻路计算
+                        // ！ 改进：仅在1秒延迟后再执行下一次寻路计算，减少消耗
                         if (CEnvir.Now >= _lastAutoStateChangeTime.AddSeconds(STATE_CHANGE_DELAY))
                         {
                             ChangeAutoFightLocation();
@@ -2257,13 +2256,38 @@ namespace Client.Scenes.Views
                         }
                     }
                 }
-                if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE) && ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green))
-                    GameScene.Game.UseMagic(MagicType.PoisonDust);
+
+                // 本段逻辑实际由GameScene相似代码执行，注释掉以供参考👇
+                // 注：原本想要添加挂机自动施毒包括传染，结果发现这玩意已经写到了gamescene里去了。
+                // if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
+                // {
+                //     ClientUserMagic infectionMagic =   GameScene.Game.GetMagic(MagicType.Infection);
+                //     // if (infectionMagic != null && (GameScene.Game.TargetObject.Poison & PoisonType.Infection) != PoisonType.Infection)
+                //     // {
+                //     //     string debugMsg = $"[AutoPoison] Try Infection: TargetID={GameScene.Game.TargetObject?.ObjectID}, Poison={GameScene.Game.TargetObject?.Poison}, MagicType={infectionMagic.Info.Magic}, Name={infectionMagic.Info.Name}, Level={infectionMagic.Level}";
+                //     //     GameScene.Game.UseMagic(MagicType.Infection, GameScene.Game.TargetObject);
+                //     //     return;
+                //     // }
+                //     // 检查PoisonDust（红毒和绿毒）
+                //     // else 
+                //     if ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green)
+                //     {
+                //         GameScene.Game.UseMagic(MagicType.PoisonDust);
+                //         return;
+                //     }
+                // }
+
+                // 自动施毒
+                // if (Config.自动上毒) GameScene.Game.AutoPoison();
 
                 if (Config.远战挂机是否使用技能 && Config.是否远战挂机)
                 {
+
                     if (Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                     {
+                        var autoMagic = GameScene.Game.GetMagic(Config.挂机自动技能);
+                        // string debugMsg = $"[AutoSkill] Config.挂机自动技能={Config.挂机自动技能}, MagicObj={(autoMagic == null ? "null" : ($"Type={autoMagic.Info.Magic}, Name={autoMagic.Info.Name}, Level={autoMagic.Level}"))}";
+                        // GameScene.Game.ReceiveChat(debugMsg, MessageType.Hint);
                         GameScene.Game.UseMagic(Config.挂机自动技能);
                         return;
                     }
@@ -2287,7 +2311,7 @@ namespace Client.Scenes.Views
 
         public bool ForceAttack(Point target)
         {
-            if (AutoPath || Config.开始挂机 && (User.Class == MirClass.Taoist || User.Class == MirClass.Wizard))
+            if (AutoPath || Config.开始挂机 && Config.是否远战挂机)
                 return false;
 
             bool flag = false;

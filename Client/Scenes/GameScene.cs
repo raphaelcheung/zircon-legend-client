@@ -6014,14 +6014,22 @@ namespace Client.Scenes
 
             AutoPoisonTime = CEnvir.Now.AddMilliseconds(300);
             if (!Config.自动上毒 || User.Class != MirClass.Taoist || MapObject.TargetObject == null) return false;
-                
-            if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
+
+            if (MapObject.TargetObject == null || !Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
 
             var helpper = GetMagicHelpper(MagicType.PoisonDust);
-            if (helpper == null) return false;
-
             var item = Globals.ItemInfoList.Binding.FirstOrDefault(x => x.Index == helpper.Amulet);
-            if (helpper.Amulet > 0 && item == null) return false;
+            // Infection
+            var infectionMagic = GetMagic(MagicType.Infection);
+
+            if ((helpper == null || item == null) && infectionMagic == null) return false;
+
+            if (infectionMagic != null && CEnvir.Now >= infectionMagic.NextCast && (MapObject.TargetObject.Poison & PoisonType.Infection) != PoisonType.Infection)
+            {
+                UseMagic(MagicType.Infection);
+                BigPatchBox.AutoSkillsTime = CEnvir.Now.AddMilliseconds(500);
+                return true;
+            }
 
             if ((helpper.Amulet == 0 || item.ItemName == "红毒") && (MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red)
             {
