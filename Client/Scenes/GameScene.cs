@@ -1347,7 +1347,7 @@ namespace Client.Scenes
             {
                 case MirClass.Wizard:
                 case MirClass.Taoist:
-                    if (Config.是否开启挂机自动技能 
+                    if (Config.远战挂机是否使用技能
                         && (TargetObject == null 
                         || TargetObject.Dead 
                         || Functions.Distance(TargetObject.CurrentLocation, User.CurrentLocation) > Globals.MagicRange))

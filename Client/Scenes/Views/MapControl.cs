@@ -905,12 +905,7 @@ namespace Client.Scenes.Views
                 {
                     MapObject mapObject = null;
 
-                    if (GameScene.Game.User.XunzhaoGuaiwuMoshi01)
-                        mapObject = LaoSelectMonster();
-                    else if (GameScene.Game.User.XunzhaoGuaiwuMoshi02)
-                        mapObject = SelectMonster();
-                    else if (!GameScene.Game.User.XunzhaoGuaiwuMoshi01 && !GameScene.Game.User.XunzhaoGuaiwuMoshi02)
-                        mapObject = LaoSelectMonster();
+                    mapObject = SelectMonster();
 
                     int num;
                     if (mapObject != null)
@@ -1685,7 +1680,7 @@ namespace Client.Scenes.Views
             }
 
             // ！ 修复：扩大挂机视野范围从9格增加到25格，避免频繁寻路
-            if ((double)num1 > 25.0)
+            if (bestDistance > 25)
                 return null;
 
             // if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
@@ -1706,78 +1701,57 @@ namespace Client.Scenes.Views
             return newTarget;
         }
 
-        //public void ProcessInput2()
-        //{
-        //    bool bDetour = true;
-        //    if (GameScene.Game.Observer || User == null || (User.Dead || (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || User.Buffs.Any<ClientBuffInfo>((Func<ClientBuffInfo, bool>)(x =>
-        //    {
-        //        if (x.Type != BuffType.DragonRepulse)
-        //            return x.Type == BuffType.FrostBite;
-        //        return true;
-        //    }))))
-        //        return;
-        //    if (User.MagicAction != null)
-        //    {
-        //        if (CEnvir.Now < MapObject.User.NextActionTime || (uint)MapObject.User.ActionQueue.Count > 0U)
-        //            return;
-        //        MapObject.User.AttemptAction(User.MagicAction);
-        //        User.MagicAction = (ObjectAction)null;
-        //        Mining = false;
-        //    }
-        //    //bool haselementalhurricane = MapObject.User.VisibleBuffs.Contains(BuffType.ElementalHurricane);
-        //    if (Config.开始挂机)
-        //    {
-        //        //if (!haselementalhurricane)
-        //        {
-        //            if (GameScene.Game.TargetObject == null || GameScene.Game.TargetObject.Dead || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, MapControl.User.CurrentLocation, 10))
-        //            {
-        //                MapObject mapObject = null;
+        public MapObject SelectMonster()
+        {
+            int num1 = 100;
+            ClientObjectData minob = null;
+            List<Node> nodeList = null;
+            foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
+            {
+                int mapIndex = clientObjectData.MapIndex;
+                int? index = GameScene.Game.MapControl?.MapInfo?.Index;
+                int valueOrDefault = index.GetValueOrDefault();
+                if (mapIndex == valueOrDefault & index.HasValue
+                    && clientObjectData.ItemInfo == null
+                    && (clientObjectData.MonsterInfo != null && clientObjectData.MonsterInfo.Index != 16)
+                    && !clientObjectData.Dead
+                    && ((clientObjectData.MonsterInfo == null || !clientObjectData.Dead)
+                    && string.IsNullOrEmpty(clientObjectData.PetOwner)
+                    && (clientObjectData.MonsterInfo.AI >= 0 && clientObjectData.MapIndex == GameScene.Game.MapControl.MapInfo.Index)))
+                {
+                    if (Config.范围挂机)
+                    {
+                        int x1 = clientObjectData.Location.X;
+                        Point androidCoord = Config.范围挂机坐标;
+                        int num2 = (int)(androidCoord.X - Config.范围距离);
+                        int num3;
 
-        //                //if (GameScene.Game.User.XunzhaoGuaiwuMoshi01)
-        //                //    mapObject = LaoSelectMonster();
-        //                //else if (GameScene.Game.User.XunzhaoGuaiwuMoshi02)
-        //                //    mapObject = SelectMonster();
-        //                //else if (!GameScene.Game.User.XunzhaoGuaiwuMoshi01 && !GameScene.Game.User.XunzhaoGuaiwuMoshi02)
-        //                    mapObject = SelectMonsterTarget();
+                        if (x1 >= num2)
+                        {
+                            int x2 = clientObjectData.Location.X;
+                            androidCoord = Config.范围挂机坐标;
+                            int num4 = (int)(androidCoord.X + Config.范围距离);
+                            num3 = x2 > num4 ? 1 : 0;
+                        }
+                        else
+                            num3 = 1;
 
-        //                int num;
-        //                if (mapObject != null)
-        //                {
-        //                    int objectId1 = (int)mapObject.ObjectID;
-        //                    uint? objectId2 = GameScene.Game.TargetObject?.ObjectID;
-        //                    int valueOrDefault = (int)objectId2.GetValueOrDefault();
-        //                    num = !(objectId1 == valueOrDefault & objectId2.HasValue) ? 1 : 0;
-        //                }
-        //                else
-        //                    num = 0;
-        //                if (num != 0)
-        //                    GameScene.Game.TargetObject = mapObject;
-        //                else
-        //                    ChangeAutoFightLocation();
-        //            }
-        //            else
-        //                AndroidProcess();
-        //        }
-        //    }
-        //    MirDirection mirDirection1 = MouseDirection();
-        //    if (GameScene.Game.AutoRun)//if(GameScene.Game.AutoRun && !haselementalhurricane)
-        //    {
-        //        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
-        //            return;
-        //        Run(mirDirection1, true);
-        //    }
-        //    else
-        //    {
-        //        if (MouseControl == this)
-        //        {
-        //            switch (MapButtons)
-        //            {
-        //                case MouseButtons.Left:
-        //                    Mining = false;
-        //                    if (MapLocation == MapObject.User.CurrentLocation)
-        //                    {
+                        if (num3 == 0)
+                        {
+                            int y1 = clientObjectData.Location.Y;
+                            androidCoord = Config.范围挂机坐标;
+                            int num4 = (int)(androidCoord.Y - Config.范围距离);
+                            int num5;
 
-        //                        if (CEnvir.Now <= GameScene.Game.PickUpTime) return;
+                            if (y1 >= num4)
+                            {
+                                int y2 = clientObjectData.Location.Y;
+                                androidCoord = Config.范围挂机坐标;
+                                int num6 = (int)(androidCoord.Y + Config.范围距离);
+                                num5 = y2 > num6 ? 1 : 0;
+                            }
+                            else
+                                num5 = 1;
 
                             if (num5 != 0)
                                 continue;
@@ -1786,7 +1760,7 @@ namespace Client.Scenes.Views
                             continue;
                     }
                     int num7 = Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
-                    
+
                     if (minob == null)
                     {
                         minob = clientObjectData;
@@ -1802,7 +1776,7 @@ namespace Client.Scenes.Views
                         if ((User.Class == MirClass.Assassin || (uint)User.Class <= 0U) && Functions.InRange(clientObjectData.Location, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                         {
                             List<Node> path = PathFinder.FindPath(User.CurrentLocation, Functions.PointNearTarget(User.CurrentLocation, clientObjectData.Location, 1));
-                            
+
                             if (path != null && num7 + 25 >= path.Count)
                                 nodeList = path;
                         }
@@ -1810,20 +1784,20 @@ namespace Client.Scenes.Views
                 }
             }
 
-        //                        return;
-        //                    }
-        //                    if (MapObject.TargetObject == null && (Config.免SHIFT || CEnvir.Shift))
-        //                    {
-        //                        if (!(CEnvir.Now > User.AttackTime) || User.Horse != HorseType.None)
-        //                            return;
+            if (nodeList != null && nodeList.Count > 0)
+            {
+                CurrentPath = nodeList;
+                AutoPath = true;
+            }
 
-        //                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Attack, mirDirection1, MapObject.User.CurrentLocation, new object[3]
-        //                        {
-        //                            0,
-        //                            MagicType.None,
-        //                            Element.None
-        //                        }));
-
+            return Objects.FirstOrDefault<MapObject>((Func<MapObject, bool>)(x =>
+            {
+                int objectId1 = (int)x.ObjectID;
+                uint? objectId2 = minob?.ObjectID;
+                int valueOrDefault = (int)objectId2.GetValueOrDefault();
+                return objectId1 == valueOrDefault & objectId2.HasValue;
+            }));
+        }
         public static bool CanAttackAction(MapObject target)
         {
             return target != null && !target.Dead && (target.Race == ObjectType.Monster && string.IsNullOrEmpty(target.PetOwner) || (CEnvir.Shift || Config.免SHIFT));
@@ -1975,15 +1949,6 @@ namespace Client.Scenes.Views
 
             // ！ 后台常驻：每秒更新一次位置历史和卡住状态
             UpdateCharacterStuckState();
-<<<<<<< .mine
-        //                        }
-        //                        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
-        //                            return;
-=======
-
-
-
->>>>>>> .theirs
 
             // 统计每个区域的怪物数量
             foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
