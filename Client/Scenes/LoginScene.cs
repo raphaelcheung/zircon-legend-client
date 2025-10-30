@@ -103,7 +103,7 @@ namespace Client.Scenes
         public RankingDialog RankingBox;
 
         private bool QueringDns = false;
-        private IPAddress IpServer = null;
+        //private IPAddress IpServer = null;
         private bool Logining = false;
 
         private TcpClient ConnectingClient;
@@ -320,12 +320,12 @@ namespace Client.Scenes
             return true;
         }
 
-        private void AttemptConnect(IPAddress ip)
+        private void AttemptConnect(string host, int port, bool ipv4)
         {
-            CEnvir.SaveError($"AttemptConnect: {ip}");
-            Console.WriteLine($"AttemptConnect: {ip}");
-            ConnectingClient = new TcpClient(ip.AddressFamily);
-            ConnectingClient.BeginConnect(ip, Config.Port, Connecting, ConnectingClient);
+            CEnvir.SaveError($"AttemptConnect: {host}");
+            Console.WriteLine($"AttemptConnect: {host}");
+            ConnectingClient = new TcpClient(ipv4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6);
+            ConnectingClient.BeginConnect(host, port, Connecting, ConnectingClient);
         }
 
         //[DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
@@ -339,26 +339,7 @@ namespace Client.Scenes
 
                 try
                 {
-                    if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
-                        IpServer = ip;
-                    else
-                    {
-                        var result = Dns.GetHostEntry(Config.IPAddress);
-
-
-                        foreach (var ipaddr in result.AddressList)
-                        {
-                            if (ipaddr.AddressFamily == AddressFamily.InterNetwork
-                                || ipaddr.AddressFamily == AddressFamily.InterNetworkV6)
-                            {
-                                IpServer = ipaddr;
-                                break;
-                            }
-                        }
-                    }
-
-                    AttemptConnect(IpServer);
-
+                    AttemptConnect(Config.IPAddress, Config.Port, Config.Ipv4);
                     ConnectionTime = CEnvir.Now.AddSeconds(5);
                     ConnectionAttempt++;
                 }
@@ -367,6 +348,8 @@ namespace Client.Scenes
 
                     CEnvir.SaveError($"连接 {Config.IPAddress} 时出现异常：{ex.Message}");
                     CEnvir.SaveError(ex.StackTrace);
+
+                    ConnectionTime = CEnvir.Now.AddSeconds(5);
                     ConnectionAttempt++;
                 }
             }

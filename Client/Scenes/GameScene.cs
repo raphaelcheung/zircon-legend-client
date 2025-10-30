@@ -109,6 +109,7 @@ namespace Client.Scenes
 
         #endregion
 
+        private DateTime FindTargetTime { get; set; } = DateTime.MinValue;
         public bool GoldPickedUp { get; set; }
 
         public MapObject MagicObject, TargetObject, FocusObject;
@@ -1268,33 +1269,12 @@ namespace Client.Scenes
 
 
             MonsterObject mob = MouseObject as MonsterObject;
-            bool isWizardOrTaoist = User.Class == MirClass.Wizard || User.Class == MirClass.Taoist;
 
-
-            if (Config.开始挂机 
-                && ((Config.是否开启挂机自动技能 && isWizardOrTaoist)
-                || !isWizardOrTaoist))
+            if (Config.开始挂机)
             {
-                var pick = MapControl.FindNearstItem();
-
-
-                if (TargetObject == null || TargetObject.Dead)
-                {
-                    if (Game.User.XunzhaoGuaiwuMoshi01)
-                        TargetObject = MapControl.LaoSelectMonster();
-                    else if (Game.User.XunzhaoGuaiwuMoshi02)
-                        TargetObject = MapControl.SelectMonster();
-                    else if (!Game.User.XunzhaoGuaiwuMoshi01 && !Game.User.XunzhaoGuaiwuMoshi02)
-                        TargetObject = MapControl.LaoSelectMonster();
-
-                    if (TargetObject != null)
-                        Game.MapControl.AutoPath = false;
-                    mob = TargetObject as MonsterObject;
-                }
-                else
-                    mob = TargetObject as MonsterObject;
-
-                MouseObject = TargetObject;
+                //var pick = MapControl.FindNearstItem();
+                FindTarget();
+                MouseObject = mob = TargetObject as MonsterObject;
             }
 
 
@@ -1318,6 +1298,57 @@ namespace Client.Scenes
             ProcessSkills();
         }
 
+        private void FindTarget()
+        {
+            if (FindTargetTime > CEnvir.Now) return;
+            FindTargetTime = CEnvir.Now.AddMilliseconds(400);
+
+            switch(User.Class)
+            {
+                case MirClass.Wizard:
+                case MirClass.Taoist:
+                    if (Config.是否开启挂机自动技能 
+                        && (TargetObject == null 
+                        || TargetObject.Dead 
+                        || Functions.Distance(TargetObject.CurrentLocation, User.CurrentLocation) > Globals.MagicRange))
+                    {
+
+                        TargetObject = MapControl.SelectMonsterTarget(TargetObject);
+
+                        if (TargetObject != null)
+                            Game.MapControl.AutoPath = false;
+
+                        MouseObject = TargetObject;
+                    }
+
+                    break;
+
+                default:
+                    if (TargetObject?.Dead ?? true)
+                    {
+                        TargetObject = MapControl.SelectMonsterTarget();
+                        if (TargetObject != null)
+                            Game.MapControl.AutoPath = false;
+                    }
+                    else
+                    {
+                        var distance = Functions.Distance(TargetObject.CurrentLocation, User.CurrentLocation);
+                        if (distance != 1)
+                        {
+                            var newTarget = MapControl.SelectMonsterTarget(TargetObject);
+                            if (newTarget != null)
+                            {
+                                var newDistance = Functions.Distance(User.CurrentLocation, newTarget.CurrentLocation);
+                                if (distance < 1 || newDistance < distance)
+                                    TargetObject = newTarget;
+                            }
+                        }
+                    }
+
+                    MouseObject = TargetObject;
+                    break;
+            }
+        }
         public override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -5847,6 +5878,9 @@ namespace Client.Scenes
             if (helpper == null) 
                 helpper = GetMagicHelpper(magic);
 
+            if (Config.开始挂机)
+                MouseObject = null;
+
             if (CanAttackTarget(MouseObject))
             {
                 result = MouseObject;
@@ -5876,7 +5910,12 @@ namespace Client.Scenes
             if (CEnvir.Now < AutoPoisonTime) return false;
 
             AutoPoisonTime = CEnvir.Now.AddMilliseconds(300);
-            if (!Config.自动上毒 || User.Class != MirClass.Taoist || MapObject.TargetObject == null) return false;
+            if (!Config.自动上毒 || User.Class != MirClass.Taoist) return false;
+
+            if (MapObject.TargetObject == null || MapObject.TargetObject.Dead)
+                MapObject.TargetObject = MapControl.SelectMonsterTarget();
+
+            if (MapObject.TargetObject == null || MapObject.TargetObject.Dead) return false;
                 
             if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
 

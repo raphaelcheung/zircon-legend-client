@@ -51,22 +51,17 @@ namespace Client
                         case "-QuickGame":
                             CEnvir.IsQuickGame = true;
                             break;
-                        case "-IPAddress":
+                        case "-Host":
                             if (parts.Length > 1)
-                            {
-                                if (parts.Length > 2)
-                                {
-                                    string[] tmp = parts.Skip(1).ToArray();
-                                    Config.IPAddress = string.Join(":", tmp);
-                                }
-                                else
-                                    Config.IPAddress = parts[1];
-
-                            }
+                                Config.IPAddress = parts[1];
                             break;
                         case "-Port":
                             if (parts.Length > 1 && int.TryParse(parts[1], out int port))
                                 Config.Port = port;
+                            break;
+                        case "-Ipv4":
+                            if (parts.Length > 1 && bool.TryParse(parts[1], out bool ipv4))
+                                Config.Ipv4 = ipv4;
                             break;
                         case "-FullScreen":
                             if (parts.Length > 1 && bool.TryParse(parts[1], out bool fs))

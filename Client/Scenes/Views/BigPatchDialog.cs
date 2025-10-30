@@ -445,6 +445,8 @@ namespace Client.Scenes.Views
                     break;
 
                 case MirClass.Taoist:
+                    AutoHealing();
+
                     if (Config.自动阴阳盾 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.CelestialLight))
                     {
     					GameScene.Game.UseMagic(MagicType.CelestialLight);
@@ -488,7 +490,8 @@ namespace Client.Scenes.Views
                     }
 
                     if (Config.开始挂机)
-                        GameScene.Game.AutoPoison();
+                        if (GameScene.Game.AutoPoison())
+                            return;
 
                     if (Config.自动施放幽灵盾 || Config.自动给宠物施放猛虎强势 || Config.自动施放神圣战甲术)
                     {
@@ -517,6 +520,9 @@ namespace Client.Scenes.Views
                             }
                         }
                     }
+
+                    if (GameScene.Game.User.Buffs.Any(x => x.Type == BuffType.Transparency || x.Type == BuffType.Invisibility))
+                        return;
 
                     if (Config.自动道士连续技能
                     && GameScene.Game.LastMagic != null
@@ -559,7 +565,60 @@ namespace Client.Scenes.Views
                     break;
             }
         }
+        private void AutoHealing()
+        {
+            //生命值低于一半时施展秒影后持续用群疗或治愈术直至恢复血量
+            if (Config.自动施展秒影恢复血量)
+            {
+                bool userDangers = GameScene.Game.User.CurrentHP < GameScene.Game.User.Stats[Stat.Health] / 2;
+                MapObject target = null;
 
+                if (userDangers) target = GameScene.Game.User;
+                else
+                {
+                    List<MonsterObject> list = new List<MonsterObject>();
+                    foreach (var ob in GameScene.Game.MapControl.Objects)
+                    {
+                        if (ob is MonsterObject mon && !mon.Dead && mon.PetOwner == GameScene.Game.User.Name && mon.CompanionObject == null)
+                        {
+                            if (!GameScene.Game.DataDictionary.TryGetValue(mon.ObjectID, out var monData)) continue;
+                            if (monData.Health > 0 && monData.Health < monData.MaxHealth / 2)
+                            {
+                                target = mon;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (target == null) return;
+
+                if (GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Transparency))
+                {
+                    var invisibleMagic = GameScene.Game.GetMagic(MagicType.Transparency);
+                    if (invisibleMagic != null)
+                    {
+                        GameScene.Game.UseMagic(MagicType.Transparency, null);
+                        return;
+                    }
+                }
+                else if ((target == GameScene.Game.User && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Heal)) || target != GameScene.Game.User)
+                {
+                    var healMagic = GameScene.Game.GetMagic(MagicType.MassHeal);
+                    if (healMagic != null)
+                    {
+                        GameScene.Game.UseMagic(MagicType.MassHeal, target);
+                        return;
+                    }
+
+                    healMagic = GameScene.Game.GetMagic(MagicType.Heal);
+                    if (healMagic != null)
+                        GameScene.Game.UseMagic(MagicType.Heal, target);
+
+                    return;
+                }
+            }
+        }
         public bool CanAttack(Point pi)
         {
             var scene = GameScene.Game;
@@ -1772,6 +1831,7 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoResilience;
             public DXCheckBox AutoElementalSuperiority;
             public DXCheckBox AutoBloodLust;
+            public DXCheckBox AutoKeepLife;
 
 
             public BigPatchDialog.DXGroupBox Assassin;
@@ -1958,12 +2018,15 @@ namespace Client.Scenes.Views
                 AutoAmulet = CreateCheckBox(Taoist, "自动换符", x1 + 120, num6, ((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
                 AutoCelestial = CreateCheckBox(Taoist, "自动阴阳盾", x1, num6 += 25, ((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
                 AutoTaoistSkill = CreateCheckBox(Taoist, "自动连续技能", x1 + 120, num6, ((o, e) => Config.自动道士连续技能 = AutoTaoistSkill.Checked), Config.自动道士连续技能);
-                AutoStrengthOfFaith = CreateCheckBox(Taoist, "有宠物时自动移花接玉", x1, num6 += 25, ((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
                 AutoLifeSteal = CreateCheckBox(Taoist, "自动吸星大法", x1, num6 += 25, ((o, e) => Config.自动吸星大法 = AutoLifeSteal.Checked), Config.自动吸星大法);
-                AutoMagicResistance = CreateCheckBox(Taoist, "自动施放幽灵盾", x1, num6 += 25, ((o, e) => Config.自动施放幽灵盾 = AutoMagicResistance.Checked), Config.自动施放幽灵盾);
+                AutoMagicResistance = CreateCheckBox(Taoist, "自动施放幽灵盾", x1 + 120, num6, ((o, e) => Config.自动施放幽灵盾 = AutoMagicResistance.Checked), Config.自动施放幽灵盾);
+
+                AutoStrengthOfFaith = CreateCheckBox(Taoist, "有宠物时自动移花接玉", x1, num6 += 25, ((o, e) => Config.有宠物时自动移花接玉 = AutoStrengthOfFaith.Checked), Config.有宠物时自动移花接玉);
                 AutoResilience = CreateCheckBox(Taoist, "自动施放神圣战甲", x1, num6 += 25, ((o, e) => Config.自动施放神圣战甲术 = AutoResilience.Checked), Config.自动施放神圣战甲术);
                 AutoBloodLust = CreateCheckBox(Taoist, "自动给宠物施放猛虎强势", x1, num6 += 25, ((o, e) => Config.自动给宠物施放猛虎强势 = AutoBloodLust.Checked), Config.自动给宠物施放猛虎强势);
                 AutoElementalSuperiority = CreateCheckBox(Taoist, "自动施放强魔震法", x1, num6 += 25, ((o, e) => Config.自动强魔震法 = AutoElementalSuperiority.Checked), Config.自动强魔震法);
+                AutoKeepLife = CreateCheckBox(Taoist, "生命低于一半时自动施展秒影并恢复血量", x1, num6 += 25, ((o, e) => Config.自动施展秒影恢复血量 = AutoKeepLife.Checked), Config.自动施展秒影恢复血量);
+
 
                 int num9 = 5;
                 int num10;

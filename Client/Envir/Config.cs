@@ -14,8 +14,9 @@ namespace Client.Envir
         public static readonly Size IntroSceneSize = new Size(1366, 768);
 
         [ConfigSection("Network")]
-        public static string IPAddress { get; set; } = "mir.ibaboo.xyz";
-        public static int Port { get; set; } = 53536;
+        public static string IPAddress { get; set; } = "mir3.ibaboo.xyz";
+        public static int Port { get; set; } = 17777;
+        public static bool Ipv4 { get; set; } = true;
         public static TimeSpan TimeOutDuration { get; set; } = TimeSpan.FromSeconds(15);
 
 
@@ -115,6 +116,7 @@ namespace Client.Envir
         public static bool 自动施放幽灵盾 { get; set; } = false;
         public static bool 自动给宠物施放猛虎强势 { get; set; } = false;
         public static bool 自动强魔震法 { get; set; } = false;
+        public static bool 自动施展秒影恢复血量 { get; set; } = false;
 
         public static bool 自动四花 { get; set; } = false;
 
