@@ -40,6 +40,8 @@ namespace Client.Scenes.Views
         private ClientUserMagic FlamingSword = null;
         private ClientUserMagic DragonRise = null;
         private ClientUserMagic BladeStorm = null;
+        private ClientUserMagic SwiftBlade = null;
+        private ClientUserMagic SeismicSlam = null;  // 战士技能：天雷锤
 
         public DateTime AutoSkillsTime { get; set; } = DateTime.MinValue;
 
@@ -265,10 +267,37 @@ namespace Client.Scenes.Views
                     }
                 }
             }
+
+            if (SwiftBlade == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.SwiftBlade)
+                    {
+                        SwiftBlade = pair.Value;
+                        break;
+                    }
+                }
+            }
+
+            if (SeismicSlam == null)
+            {
+                foreach (var pair in MapObject.User.Magics)
+                {
+                    if (pair.Key.Magic == MagicType.SeismicSlam)
+                    {
+                        SeismicSlam = pair.Value;
+                        break;
+                    }
+                }
+            }
         }
 
         public void AutoSkills()
         {
+            // 如果暂停辅助功能，直接返回
+            if (Config.暂停辅助功能) return;
+            
             if (CEnvir.Now < AutoSkillsTime || CEnvir.Now < GameScene.Game.User.NextMagicTime) return;
             if (MapObject.User.Horse != HorseType.None) return;
 
@@ -295,8 +324,12 @@ namespace Client.Scenes.Views
 
                     if (Config.自动破血 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Might))
                     {
-                        GameScene.Game.UseMagic(MagicType.Might);
-                        return;
+                        // 只有血量高于80%时才使用破血
+                        if (GameScene.Game.User.CurrentHP > GameScene.Game.User.Stats[Stat.Health] * 0.8)
+                        {
+                            GameScene.Game.UseMagic(MagicType.Might);
+                            return;
+                        }
                     }
 
                     if (Config.自动移花接木 && GameScene.Game.User.Buffs.All(x => x.Type != BuffType.ReflectDamage))
@@ -309,14 +342,38 @@ namespace Client.Scenes.Views
                         }
                     }
 
-                    if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
-                        GameScene.Game.UseMagic(MagicType.BladeStorm);
-                    else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
-                        GameScene.Game.UseMagic(MagicType.FlamingSword);
-                    else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
-                        GameScene.Game.UseMagic(MagicType.DragonRise);
+                    // 修改：自动莲月、自动烈火、自动翔空、自动快刀斩马、自动天雷锤只在战斗状态下执行
+                    if (IsInCombat())
+                    {
+                        if (Config.自动莲月 && BladeStorm != null && CEnvir.Now > BladeStorm.NextCast)
+                            GameScene.Game.UseMagic(MagicType.BladeStorm);
+                        else if (Config.自动烈火 && FlamingSword != null && CEnvir.Now > FlamingSword.NextCast)
+                            GameScene.Game.UseMagic(MagicType.FlamingSword);
+                        else if (Config.自动翔空 && DragonRise != null && CEnvir.Now > DragonRise.NextCast)
+                            GameScene.Game.UseMagic(MagicType.DragonRise);
+                        else if (Config.自动快刀斩马 && SwiftBlade != null && CEnvir.Now > SwiftBlade.NextCast)
+                        {
+                            // 快刀斩马：只有在有目标时才释放
+                            if (HasCurrentTarget() != null)
+                                GameScene.Game.UseMagic(MagicType.SwiftBlade);
+                        }
+                        else if (Config.自动天雷锤 && SeismicSlam != null && CEnvir.Now > SeismicSlam.NextCast)
+                        {   
+                            // 天雷锤：如果有近距离目标，向目标方向释放；否则向鼠标方向释放
+                            int? targetDistance = HasCurrentTarget();
+                            if (targetDistance != null && targetDistance < 4)
+                            {
+                                // 有近距离目标，向目标方向释放
+                                var target = MapObject.TargetObject != null && GameScene.Game.CanAttackTarget(MapObject.TargetObject) 
+                                    ? MapObject.TargetObject 
+                                    : GameScene.Game.MouseObject;
+                                GameScene.Game.UseMagic(MagicType.SeismicSlam, target);
+                            }
+                        }
+                    }
 
-                    if (Config.自动半月弯刀 || Config.自动十方斩)
+                    // 修改：自动半月弯刀、自动十方斩只在战斗状态下执行
+                    if ((Config.自动半月弯刀 || Config.自动十方斩) && IsInCombat(4))
                     {
                         int halfCount = 0;
                         int surgeCount = 0;
@@ -498,6 +555,9 @@ namespace Client.Scenes.Views
                             if (mon.CompanionObject != null) continue;
                             if (!Functions.InRange(GameScene.Game.User.CurrentLocation, mon.CurrentLocation, Globals.MagicRange)) continue;
 
+                            // don't buff pets immediately after summon, give them 3 seconds to stabilize
+                            if (mon.SummonedTime != DateTime.MinValue && CEnvir.Now < mon.SummonedTime.AddSeconds(4)) continue;
+
                             if (Config.自动施放幽灵盾 && mon.VisibleBuffs.All(x => x != BuffType.MagicResistance))
                             {
                                 GameScene.Game.UseMagic(MagicType.MagicResistance, ob);
@@ -573,6 +633,42 @@ namespace Client.Scenes.Views
 
             return false;
         }
+
+        /// <summary>
+        /// 检查玩家是否在战斗状态
+        /// </summary>
+        /// <param name="seconds">战斗状态持续秒数，默认2秒</param>
+        /// <returns>如果在战斗状态返回true</returns>
+        public bool IsInCombat(int seconds = 2)
+        {
+            return CEnvir.Now < GameScene.Game.User.CombatTime.AddSeconds(seconds);
+        }
+
+        /// <summary>
+        /// 检查是否有当前目标（鼠标悬停目标或锁定目标）并返回距离
+        /// </summary>
+        /// <returns>如果有可攻击的目标返回距离，否则返回null</returns>
+        public int? HasCurrentTarget()
+        {
+            var scene = GameScene.Game;
+            MapObject target = null;
+            
+            // 优先检查锁定目标
+            if (MapObject.TargetObject != null && scene.CanAttackTarget(MapObject.TargetObject))
+                target = MapObject.TargetObject;
+            // 其次检查鼠标悬停目标
+            else if (scene.MouseObject != null && scene.CanAttackTarget(scene.MouseObject))
+                target = scene.MouseObject;
+            
+            if (target != null)
+            {
+                // 返回与目标的距离
+                return Functions.Distance(scene.User.CurrentLocation, target.CurrentLocation);
+            }
+            
+            return null;
+        }
+
         public void UpdateAutoAssist()
         {
             CastFourFlowers();
@@ -1041,6 +1137,11 @@ namespace Client.Scenes.Views
             public BigPatchDialog.DXGroupBox GroupItem;
             public BigPatchDialog.DXGroupBox GroupWeather;
             public DXComboBox CombWeather;
+            
+            // 特殊命令控件（从辅助Tab移动过来）
+            public DXLabel LabCommand;
+            public DXComboBox CombCmdBox;
+            public DXButton BtSubmit;
             //public BigPatchDialog.DXGroupBox GroupAutoAttack;
             public DXCheckBox ChkAutoFire;
             public DXComboBox CombAutoFire;
@@ -1257,7 +1358,7 @@ namespace Client.Scenes.Views
                 Size size1 = GroupNormal.Size;
                 Size size2 = new Size(size1.Width, num1);
                 groupNormal.Size = size2;
-                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[3];
+                BigPatchDialog.DXCommonlyTab.CHK_ITEM_SET[] chkItemSetArray3 = new CHK_ITEM_SET[4];  // 从 3 改为 4，新增1个宠物快捷键
 
 
                 index1 = 0;
@@ -1307,6 +1408,18 @@ namespace Client.Scenes.Views
                 });
                 CHK_ITEM_SET jingyantishi = chkItemSet1;
                 chkItemSetArray3[index1] = jingyantishi;
+                index1++;
+
+                // 宠物模式快捷键 - Ctrl+1 到 Ctrl+5
+                chkItemSet1 = new CHK_ITEM_SET();
+                chkItemSet1.name = "Ctrl + 1-5 控制随从";
+                chkItemSet1.state = Config.启用Ctrl数字控制宠物;
+                chkItemSet1.method = ((o, e) =>
+                {
+                    DXCheckBox dxCheckBox = o as DXCheckBox;
+                    Config.启用Ctrl数字控制宠物 = dxCheckBox != null && dxCheckBox.Checked;
+                });
+                chkItemSetArray3[index1] = chkItemSet1;
                 index1++;
 
                 //chkItemSet1 = new CHK_ITEM_SET();
@@ -1585,6 +1698,74 @@ namespace Client.Scenes.Views
                 dxButton2.Label.Text = "重置设置";
                 ReloadConfig = dxButton2;
                 ReloadConfig.MouseClick += (EventHandler<MouseEventArgs>)((o, e) => { });
+
+                // 特殊命令从辅助Tab移动过来
+                int cmdLabelX = x5;
+                int cmdLabelY = y14 + num2 + 20;  // 距离上面远一点
+
+                DXLabel dxLabel5 = new DXLabel();
+                dxLabel5.Parent = this;
+                dxLabel5.Text = "特殊命令";
+                dxLabel5.Location = new Point(cmdLabelX, cmdLabelY);
+                LabCommand = dxLabel5;
+                
+                // 下拉框与按钮在下面一行，在标签下方
+                int cmdComboY = cmdLabelY + dxLabel5.Size.Height + 5;
+                
+                DXComboBox dxComboBox4 = new DXComboBox();
+                dxComboBox4.Parent = this;
+                dxComboBox4.Size = new Size(100, 18);
+                dxComboBox4.Location = new Point(cmdLabelX, cmdComboY);
+                CombCmdBox = dxComboBox4;
+                
+                DXListBoxItem cmdItem0 = new DXListBoxItem();
+                cmdItem0.Parent = CombCmdBox.ListBox;
+                cmdItem0.Label.Text = "空";
+                cmdItem0.Item = (object)null;
+                
+                string[] cmdArray = new string[]
+                {
+                   "@允许召唤",
+                   "@队伍召唤",
+                   "@宠物技能3",
+                   "@宠物技能5",
+                   "@宠物技能7",
+                   "@宠物技能10",
+                   "@宠物技能11",
+                   "@宠物技能13",
+                   "@宠物技能15",
+                   "@允许交易",
+                   "@允许加入行会",
+                   "@退出行会",
+                   "@属性提取",
+                   "@摇骰子",
+                };
+                
+                int cmdIndex = 0;
+                foreach (string cmd in cmdArray)
+                {
+                    DXListBoxItem cmdItem = new DXListBoxItem();
+                    cmdItem.Parent = CombCmdBox.ListBox;
+                    cmdItem.Label.Text = cmd;
+                    cmdItem.Item = (object)cmdIndex++;
+                }
+                CombCmdBox.ListBox.SelectItem((object)null);
+                
+                int cmdButtonX = cmdLabelX + dxComboBox4.Size.Width + 5;
+                DXButton dxButton3 = new DXButton();
+                dxButton3.Parent = this;
+                dxButton3.Size = new Size(50, 16);  
+                dxButton3.Location = new Point(cmdButtonX, cmdComboY);
+                dxButton3.ButtonType = ButtonType.SmallButton;
+                dxButton3.Label.Text = "执行";
+                BtSubmit = dxButton3;
+                BtSubmit.MouseClick += (EventHandler<MouseEventArgs>)((o, e) => 
+                { 
+                    if (GameScene.Game.Observer) return;
+                    string text = CombCmdBox?.SelectedLabel?.Text;
+                    if (!string.IsNullOrEmpty(text) && text != "空")
+                        CEnvir.Enqueue(new Chat { Text = text });
+                });
             }
             private void ChkAutoPick_CheckedChanged()
             {
@@ -1725,6 +1906,27 @@ namespace Client.Scenes.Views
                 location = RefreshBag.Location;
                 int y = location.Y;
                 ReloadConfig.Location = new Point(x2, y);
+                
+                // 调整特殊命令控件位置
+                if (LabCommand != null && CombCmdBox != null && BtSubmit != null)
+                {
+                    location = RefreshBag.Location;
+                    int cmdX = location.X;
+                    size1 = RefreshBag.Size;
+                    int cmdHeight = size1.Height;
+                    location = RefreshBag.Location;
+                    int cmdY = location.Y;
+                    
+                    int cmdLabelY = cmdY + cmdHeight + 20;
+                    LabCommand.Location = new Point(cmdX, cmdLabelY);
+                    
+                    int cmdComboY = cmdLabelY + LabCommand.Size.Height + 5;
+                    
+                    CombCmdBox.Location = new Point(cmdX, cmdComboY);
+
+                    int cmdButtonX = cmdX + CombCmdBox.Size.Width + 5;
+                    BtSubmit.Location = new Point(cmdButtonX, cmdComboY);
+                }
             }
 
             public struct CHK_ITEM_SET
@@ -1741,6 +1943,8 @@ namespace Client.Scenes.Views
             public DXCheckBox AutoFlamingSword;
             public DXCheckBox AutoDragobRise;
             public DXCheckBox AutoBladeStorm;
+            public DXCheckBox AutoSwiftBlade;
+            public DXCheckBox AutoThunderStrike;
             public DXCheckBox AutoDefiance;
             public DXCheckBox AutoMight;
             public DXCheckBox AutoReflectDamage;
@@ -1789,9 +1993,10 @@ namespace Client.Scenes.Views
             public DXCheckBox ChkAutoAddEnemy;
             public DXCheckBox ChkPkMode;
             public DXCheckBox ChkPkDrink;
-            public DXLabel LabCommand;
-            public DXComboBox CombCmdBox;
-            public DXButton BtSubmit;
+            
+            // 新增：暂停辅助功能checkbox
+            public DXCheckBox ChkPauseAutoSkills;
+            
             public BigPatchDialog.DXGroupBox Android;
             public DXLabel TimeLable;
             public DXCheckBox AndroidPlayer;
@@ -1799,8 +2004,8 @@ namespace Client.Scenes.Views
             public DXCheckBox AndroidPoisonDust;
             public DXCheckBox AndroidEluded;
             public DXCheckBox AndroidBackCastle;
-            public DXCheckBox AndroidSingleSkill;
             public DXComboBox AndroidSkills;
+            public DXCheckBox AndroidLongRange;
             public DXNumberBox AndroidCoordX;
             public DXNumberBox AndroidCoordY;
             public DXNumberBox AndroidCoordRange;
@@ -1903,35 +2108,59 @@ namespace Client.Scenes.Views
                         Slot = AutoSetConf.SetBladeStormBox
                     });
                 });
-                AutoDefiance = CreateCheckBox(Warrior, "自动铁布衫", x1 + 120, y2, ((o, e) => {
-                    Config.自动铁布衫 = AutoDefiance.Checked;
 
-                }), Config.自动铁布衫);
                 int num2;
-                AutoMight = CreateCheckBox(Warrior, "自动破血", x1, num2 = y2 + 25, ((o, e) => {
+                AutoMight = CreateCheckBox(Warrior, "自动破血", x1, num2 = y2 + 35, ((o, e) => {
                     
                     Config.自动破血 = AutoMight.Checked;
                 }), Config.自动破血);
+                AutoDefiance = CreateCheckBox(Warrior, "自动铁布衫", x1 + 120, num2, ((o, e) => {
+                    Config.自动铁布衫 = AutoDefiance.Checked;
 
+                }), Config.自动铁布衫);
+                AutoEndurance = CreateCheckBox(Warrior, "自动金刚之躯", x1, num2 = num2 + 25, ((o, e) => {
+
+                    Config.自动金刚之躯 = AutoEndurance.Checked;
+                }), Config.自动金刚之躯);
                 AutoReflectDamage = CreateCheckBox(Warrior, "自动移花接木", x1 + 120, num2, ((o, e) => {
 
                     Config.自动移花接木 = AutoReflectDamage.Checked;
                 }), Config.自动移花接木);
 
-                AutoEndurance = CreateCheckBox(Warrior, "自动金刚之躯", x1, num2 + 25, ((o, e) => {
 
-                    Config.自动金刚之躯 = AutoEndurance.Checked;
-                }), Config.自动金刚之躯);
+                AutoDestructiveSurge = CreateCheckBox(Warrior, "智能十方斩", x1, num2 = num2 + 35, ((o, e) => {
 
-                AutoHalfMoon = CreateCheckBox(Warrior, "智能半月弯刀", x1 + 120, num2 + 25, ((o, e) => {
+                    Config.自动十方斩 = AutoDestructiveSurge.Checked;
+                }), Config.自动十方斩);
+                AutoHalfMoon = CreateCheckBox(Warrior, "智能半月弯刀", x1 + 120, num2, ((o, e) => {
 
                     Config.自动半月弯刀 = AutoHalfMoon.Checked;
                 }), Config.自动半月弯刀);
 
-                AutoDestructiveSurge = CreateCheckBox(Warrior, "智能十方斩", x1, num2 + 50, ((o, e) => {
 
-                    Config.自动十方斩 = AutoDestructiveSurge.Checked;
-                }), Config.自动十方斩);
+                AutoSwiftBlade = CreateCheckBox(Warrior, "自动快刀斩马", x1, num2 = num2 + 25, ((o, e) => Config.自动快刀斩马 = AutoSwiftBlade.Checked), Config.自动快刀斩马);
+                AutoSwiftBlade.CheckedChanged += ((o, e) =>
+                {
+                    if (GameScene.Game.Observer)
+                        return;
+                    CEnvir.Enqueue(new AutoFightConfChanged()
+                    {
+                        Enabled = AutoSwiftBlade.Checked,
+                        Slot = AutoSetConf.SetSwiftBladeBox
+                    });
+                });
+
+                AutoThunderStrike = CreateCheckBox(Warrior, "自动天雷锤", x1 + 120, num2, ((o, e) => Config.自动天雷锤 = AutoThunderStrike.Checked), Config.自动天雷锤);
+                AutoThunderStrike.CheckedChanged += ((o, e) =>
+                {
+                    if (GameScene.Game.Observer)
+                        return;
+                    CEnvir.Enqueue(new AutoFightConfChanged()
+                    {
+                        Enabled = AutoThunderStrike.Checked,
+                        Slot = AutoSetConf.SetThunderStrikeBox
+                    });
+                });
 
                 int num3 = 5;
                 int num4;
@@ -1953,7 +2182,7 @@ namespace Client.Scenes.Views
 
 
                 int num6 = 5 + 25;
-                int num7;
+                //int num7;
                 AutoPoisonDust = CreateCheckBox(Taoist, "自动换毒", x1, num6, ((o, e) => Config.自动换毒 = AutoPoisonDust.Checked), Config.自动换毒);
                 AutoAmulet = CreateCheckBox(Taoist, "自动换符", x1 + 120, num6, ((o, e) => Config.自动换符 = AutoAmulet.Checked), Config.自动换符);
                 AutoCelestial = CreateCheckBox(Taoist, "自动阴阳盾", x1, num6 += 25, ((o, e) => Config.自动阴阳盾 = AutoCelestial.Checked), Config.自动阴阳盾);
@@ -2091,51 +2320,13 @@ namespace Client.Scenes.Views
                 AutoSkill_2 = dxCheckBox2;
                 AutoSkill_2.CheckedChanged += ((o, e) => Config.是否开启自动技能2 = AutoSkill_2.Checked);
                 AutoSkill.Size = new Size(125, y6 + 25 + 5);
-                DXLabel dxLabel5 = new DXLabel();
-                dxLabel5.Parent = this;
-                dxLabel5.Text = "特殊命令:";
-                LabCommand = dxLabel5;
-                DXComboBox dxComboBox3 = new DXComboBox();
-                dxComboBox3.Parent = this;
-                dxComboBox3.Size = new Size(180, 18);
-                CombCmdBox = dxComboBox3;
-                DXListBoxItem dxListBoxItem1 = new DXListBoxItem();
-                dxListBoxItem1.Parent = CombCmdBox.ListBox;
-                dxListBoxItem1.Label.Text = "空";
-                dxListBoxItem1.Item = (object)null;
-                string[] strArray = new string[]
-                {
-                   "@允许召唤",
-                   "@队伍召唤",
-                   "@宠物技能3",
-                   "@宠物技能5",
-                   "@宠物技能7",
-                   "@宠物技能10",
-                   "@宠物技能11",
-                   "@宠物技能13",
-                   "@宠物技能15",
-                   "@允许交易",
-                   "@允许加入行会",
-                   "@退出行会",
-                   "@属性提取",
-                   "@摇骰子",
-                };
-                int dijihang = 0;
-                foreach (string str in strArray)
-                {
-                    DXListBoxItem dxListBoxItem2 = new DXListBoxItem();
-                    dxListBoxItem2.Parent = CombCmdBox.ListBox;
-                    dxListBoxItem2.Label.Text = str;
-                    dxListBoxItem2.Item = (object)dijihang++;
-                }
-                CombCmdBox.ListBox.SelectItem((object)null);
-                DXButton dxButton = new DXButton();
-                dxButton.Parent = this;
-                dxButton.Size = new Size(60, 18);
-                dxButton.ButtonType = ButtonType.SmallButton;
-                dxButton.Label.Text = "执行";
-                BtSubmit = dxButton;
-                BtSubmit.MouseClick += (EventHandler<MouseEventArgs>)((o, e) => { Zhixingmingling(); });
+                
+                // 新增：暂停以上辅助功能checkbox（替代原来的特殊命令）
+                ChkPauseAutoSkills = CreateCheckBox(this, "暂停以上全部辅助、定时施法", 15, 30, 
+                    ((o, e) => Config.暂停辅助功能 = ChkPauseAutoSkills.Checked), 
+                    Config.暂停辅助功能);
+                ChkPauseAutoSkills.Hint = "勾选后将暂停所有职业技能辅助功能和自动施法，但保留设置";
+                
                 int x7 = 15;
                 int y10 = 30;
                 DXLabel dxLabel6 = new DXLabel();
@@ -2162,12 +2353,25 @@ namespace Client.Scenes.Views
                     if (GameScene.Game.Observer)
                         return;
 
-                    if (AndroidPlayer.Checked && GameScene.Game.User.AutoTime == 0L)
+                    if (AndroidPlayer.Checked)
                     {
-                        AndroidPlayer.Checked = false;
+                        if (GameScene.Game.User.AutoTime == 0L)
+                        {
+                            AndroidPlayer.Checked = false;
+                        }
+                        else
+                        {
+                            GameScene.Game.ReceiveChat("开始挂机", MessageType.System);
+                            CEnvir.Enqueue(new AutoFightConfChanged()
+                            {
+                                Enabled = AndroidPlayer.Checked,
+                                Slot = AutoSetConf.SetAutoOnHookBox
+                            });
+                        }
                     }
                     else
                     {
+                        GameScene.Game.ReceiveChat("结束挂机", MessageType.System);
                         CEnvir.Enqueue(new AutoFightConfChanged()
                         {
                             Enabled = AndroidPlayer.Checked,
@@ -2181,16 +2385,41 @@ namespace Client.Scenes.Views
                 int num13;
                 AndroidBackCastle = CreateCheckBox(Android, "死亡回城", x7 + 170, num13 = y11, ((o, e) => Config.死亡回城 = AndroidBackCastle.Checked), Config.死亡回城);
                 int y12;
-                AndroidSingleSkill = CreateCheckBox(Android, "法道自动技能", x7, y12 = num13 + 25, ((o, e) => Config.是否开启挂机自动技能 = AndroidSingleSkill.Checked), Config.是否开启挂机自动技能);
+
+
+                // 是否远战挂机复选框
+                AndroidLongRange = CreateCheckBox(Android, "法系挂机", x7, y12 = num13 + 25, ((o, e) => Config.是否远战挂机 = AndroidLongRange.Checked), Config.是否远战挂机);
+
+                // 挂机技能下拉框
+                DXLabel dxLabelSkill = new DXLabel();
+                dxLabelSkill.Parent = Android;
+                dxLabelSkill.Text = "技能";
+                dxLabelSkill.Outline = true;
+                dxLabelSkill.Location = new Point(x7 + 70, y12);
+                
                 DXComboBox dxComboBox4 = new DXComboBox();
                 dxComboBox4.Parent = Android;
                 dxComboBox4.Size = new Size(120, 18);
-                int x9 = AndroidSingleSkill.Location.X;
-                size = AndroidSingleSkill.Size;
-                int width2 = size.Width;
-                dxComboBox4.Location = new Point(x9 + width2 + 5, y12);
+                dxComboBox4.Location = new Point(x7 + 70 + dxLabelSkill.Size.Width + 5, y12);
                 AndroidSkills = dxComboBox4;
-                AndroidSkills.SelectedItemChanged += ((o, e) => Config.挂机自动技能 = (MagicType)AndroidSkills.ListBox.SelectedItem.Item);
+                AndroidSkills.SelectedItemChanged += ((o, e) => 
+                {
+                    if (AndroidSkills.ListBox.SelectedItem == null || AndroidSkills.ListBox.SelectedItem.Item == null)
+                    {
+                        // 选择了"不使用技能"
+                        Config.远战挂机是否使用技能 = false;
+                        Config.挂机自动技能 = MagicType.None;
+                    }
+                    else
+                    {
+                        // 选择了具体技能
+                        Config.远战挂机是否使用技能 = true;
+                        Config.挂机自动技能 = (MagicType)AndroidSkills.ListBox.SelectedItem.Item;
+                    }
+                });
+                
+                
+                
                 DXLabel dxLabel9 = new DXLabel();
                 dxLabel9.Parent = Android;
                 dxLabel9.Text = "X坐标:";
@@ -2262,7 +2491,7 @@ namespace Client.Scenes.Views
                 dxLabel15.Outline = true;
                 dxLabel15.Hint = "　　百分比值";
                 int y15;
-                dxLabel15.Location = new Point(x7, y15 = y14 + 40);
+                dxLabel15.Location = new Point(x7, y15 = y14 + 50);
                 DXLabel dxLabel16 = dxLabel15;
                 DXNumberBox dxNumberBox6 = new DXNumberBox();
                 dxNumberBox6.Parent = Android;
@@ -2530,16 +2759,14 @@ namespace Client.Scenes.Views
             //    }
             //}
 
-            public void Zhixingmingling()
-            {
-                if (GameScene.Game.Observer) return;
-
-                string text = CombCmdBox?.SelectedLabel?.Text;
-                CEnvir.Enqueue(new Chat { Text = text });
-            }
-
             public void UpdateMagic()
             {
+                // 为 AndroidSkills 添加"不使用技能"选项
+                DXListBoxItem noSkillItem = new DXListBoxItem();
+                noSkillItem.Parent = AndroidSkills.ListBox;
+                noSkillItem.Label.Text = "不使用技能";
+                noSkillItem.Item = null;
+                
                 foreach (KeyValuePair<MagicInfo, ClientUserMagic> magic in GameScene.Game.User.Magics)
                 { 
                     ClientUserMagic clientUserMagic = magic.Value;
@@ -2561,7 +2788,16 @@ namespace Client.Scenes.Views
                 }
                 CombSkill1.ListBox.SelectItem((object)Config.自动技能1);
                 CombSkill2.ListBox.SelectItem((object)Config.自动技能2);
-                AndroidSkills.ListBox.SelectItem((object)Config.挂机自动技能);
+                
+                // 根据"远战挂机是否使用技能"配置选择合适的选项
+                if (!Config.远战挂机是否使用技能 || Config.挂机自动技能 == MagicType.None)
+                {
+                    AndroidSkills.ListBox.SelectItem(null); // 选择"不使用技能"
+                }
+                else
+                {
+                    AndroidSkills.ListBox.SelectItem((object)Config.挂机自动技能);
+                }
             }
 
             public override void OnSizeChanged(Size oValue, Size nValue)
@@ -2587,9 +2823,10 @@ namespace Client.Scenes.Views
                 Android.Location = new Point(x1 + width + 5, y1);
                 AutoSkill.Size = new Size(width, AutoSkill.Size.Height);
                 AutoSkill.Location = new Point(x1, y1 + height2);
-                LabCommand.Location = new Point(AutoSkill.Location.X, AutoSkill.Location.Y + AutoSkill.Size.Height + 5);
-                CombCmdBox.Location = new Point(LabCommand.Location.X + 5, LabCommand.Location.Y + LabCommand.Size.Height + 5);
-                BtSubmit.Location = new Point(CombCmdBox.Location.X + CombCmdBox.Size.Width + 5, CombCmdBox.Location.Y);
+                
+                // 调整暂停checkbox位置（在AutoSkill下方，向右和向下各偏移5px）
+                if (ChkPauseAutoSkills != null)
+                    ChkPauseAutoSkills.Location = new Point(AutoSkill.Location.X + 5, AutoSkill.Location.Y + AutoSkill.Size.Height + 5);
             }
         }
 
@@ -2740,7 +2977,7 @@ namespace Client.Scenes.Views
                 dxNumberBox1.Location = new Point(105, 5);
                 dxNumberBox1.Size = new Size(80, 20);
                 dxNumberBox1.ValueTextBox.Size = new Size(40, 18);
-                dxNumberBox1.MaxValue = 50000L;
+                dxNumberBox1.MaxValue = 100L;
                 dxNumberBox1.MinValue = 0L;
                 dxNumberBox1.UpButton.Location = new Point(63, 1);
                 HealthTargetBox = dxNumberBox1;
@@ -2750,7 +2987,7 @@ namespace Client.Scenes.Views
                 dxNumberBox2.Location = new Point(105, 25);
                 dxNumberBox2.Size = new Size(80, 20);
                 dxNumberBox2.ValueTextBox.Size = new Size(40, 18);
-                dxNumberBox2.MaxValue = 50000L;
+                dxNumberBox2.MaxValue = 100L;
                 dxNumberBox2.MinValue = 0L;
                 dxNumberBox2.UpButton.Location = new Point(63, 1);
                 ManaTargetBox = dxNumberBox2;
@@ -2758,7 +2995,7 @@ namespace Client.Scenes.Views
                 DXLabel dxLabel2 = new DXLabel();
                 dxLabel2.Parent = this;
                 dxLabel2.IsControl = false;
-                dxLabel2.Text = "生命值:";
+                dxLabel2.Text = "血量%:";
                 HealthLabel = dxLabel2;
                 DXLabel healthLabel = HealthLabel;
                 Point location1 = HealthTargetBox.Location;
@@ -2776,7 +3013,7 @@ namespace Client.Scenes.Views
                 DXLabel dxLabel3 = new DXLabel();
                 dxLabel3.Parent = this;
                 dxLabel3.IsControl = false;
-                dxLabel3.Text = "魔法值:";
+                dxLabel3.Text = "魔法%:";
                 ManaLabel = dxLabel3;
                 DXLabel manaLabel = ManaLabel;
                 Point location2 = ManaTargetBox.Location;
@@ -2808,14 +3045,42 @@ namespace Client.Scenes.Views
             {
                 if (GameScene.Game.Observer || GameScene.Game.BigPatchBox.Protect.Updating)
                     return;
+                
+                // Safety check: Ensure stats are valid before sending
+                var stats = GameScene.Game.User?.Stats;
+                if (stats == null)
+                    return;
+                
+                int maxHP = stats[Stat.Health];
+                int maxMP = stats[Stat.Mana];
+                
+                // Don't send if max HP/MP are invalid (0 or negative)
+                if (maxHP <= 0 || maxMP <= 0)
+                    return;
+                
+                // Convert percentage to absolute value for server
+                // UI shows percentage (0-100), but server expects absolute HP/MP values
+                // Calculate absolute values from percentages
+                // Example: 80% with 1000 max HP = 800 absolute HP
+                int absoluteHealth = (int)(maxHP * HealthTargetBox.Value / 100f);
+                int absoluteMana = (int)(maxMP * ManaTargetBox.Value / 100f);
+                
+                // Validate absolute values are reasonable
+                if (absoluteHealth < 0 || absoluteHealth > maxHP || 
+                    absoluteMana < 0 || absoluteMana > maxMP)
+                    return;
+                
                 AutoPotionLinkChanged potionLinkChanged = new AutoPotionLinkChanged();
                 potionLinkChanged.Slot = Index;
                 ClientUserItem clientUserItem = ItemCell.Item;
                 potionLinkChanged.LinkIndex = clientUserItem != null ? clientUserItem.Info.Index : -1;
                 potionLinkChanged.Enabled = EnabledCheckBox.Checked;
-                potionLinkChanged.Health = (int)HealthTargetBox.Value;
-                potionLinkChanged.Mana = (int)ManaTargetBox.Value;
+                potionLinkChanged.Health = absoluteHealth; // Send absolute value
+                potionLinkChanged.Mana = absoluteMana;     // Send absolute value
                 CEnvir.Enqueue((Packet)potionLinkChanged);
+                
+                // Save percentage settings to local file after sending to server
+                GameScene.Game?.BigPatchBox?.Protect?.SaveLocalSettings();
             }
 
             protected override void Dispose(bool disposing)
@@ -2911,18 +3176,121 @@ namespace Client.Scenes.Views
             public void UpdateLinks()
             {
                 Updating = true;
+                
+                // First, load local percentage settings if they exist
+                LoadLocalSettings();
+                
                 foreach (ClientAutoPotionLink link1 in Links)
                 {
                     ClientAutoPotionLink link = link1;
                     if (link != null && link.Slot >= 0 && link.Slot < Rows.Length)
                     {
                         Rows[link.Slot].ItemCell.QuickInfo = Globals.ItemInfoList.Binding.FirstOrDefault<Library.SystemModels.ItemInfo>((Func<Library.SystemModels.ItemInfo, bool>)(x => x.Index == link.LinkInfoIndex));
-                        Rows[link.Slot].HealthTargetBox.Value = (long)link.Health;
-                        Rows[link.Slot].ManaTargetBox.Value = (long)link.Mana;
+                        
+                        // Only update percentage from server if no local setting exists
+                        // This happens on first login or if local file is missing
+                        if (Rows[link.Slot].HealthTargetBox.Value == 0 && Rows[link.Slot].ManaTargetBox.Value == 0)
+                        {
+                            // Convert absolute values from server to percentages for UI display
+                            int maxHP = GameScene.Game?.User?.Stats[Stat.Health] ?? 1;
+                            int maxMP = GameScene.Game?.User?.Stats[Stat.Mana] ?? 1;
+                            
+                            if (maxHP <= 0) maxHP = 1;
+                            if (maxMP <= 0) maxMP = 1;
+                            
+                            long healthPercent = (long)(link.Health * 100f / maxHP);
+                            long manaPercent = (long)(link.Mana * 100f / maxMP);
+                            
+                            healthPercent = Math.Max(0, Math.Min(100, healthPercent));
+                            manaPercent = Math.Max(0, Math.Min(100, manaPercent));
+                            
+                            Rows[link.Slot].HealthTargetBox.Value = healthPercent;
+                            Rows[link.Slot].ManaTargetBox.Value = manaPercent;
+                        }
+                        
                         Rows[link.Slot].EnabledCheckBox.Checked = link.Enabled;
                     }
                 }
                 Updating = false;
+            }
+
+            public void ResendAllAutoPotionLinks()
+            {
+                // Resend all enabled auto-potion configurations to server
+                // This is called when max HP/MP changes to update absolute thresholds
+                if (Rows == null || GameScene.Game?.User == null)
+                    return;
+
+                // Safety check: Don't send if stats are invalid
+                var stats = GameScene.Game.User.Stats;
+                if (stats == null || stats[Stat.Health] <= 0 || stats[Stat.Mana] <= 0)
+                    return;
+
+                foreach (var row in Rows)
+                {
+                    if (row != null && row.EnabledCheckBox.Checked)
+                    {
+                        row.SendUpdate();
+                    }
+                }
+            }
+
+            // Save percentage settings to local file
+            public void SaveLocalSettings()
+            {
+                try
+                {
+                    string filename = $"./{CEnvir.LogonCharacterDesc}-AutoPotion.ini";
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filename))
+                    {
+                        for (int i = 0; i < Rows.Length; i++)
+                        {
+                            if (Rows[i] != null)
+                            {
+                                writer.WriteLine($"[Slot{i}]");
+                                writer.WriteLine($"HealthPercent={Rows[i].HealthTargetBox.Value}");
+                                writer.WriteLine($"ManaPercent={Rows[i].ManaTargetBox.Value}");
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            // Load percentage settings from local file
+            public void LoadLocalSettings()
+            {
+                try
+                {
+                    string filename = $"./{CEnvir.LogonCharacterDesc}-AutoPotion.ini";
+                    if (!System.IO.File.Exists(filename))
+                        return;
+
+                    int currentSlot = -1;
+                    foreach (string line in System.IO.File.ReadAllLines(filename))
+                    {
+                        string trimmed = line.Trim();
+                        if (trimmed.StartsWith("[Slot") && trimmed.EndsWith("]"))
+                        {
+                            string slotStr = trimmed.Substring(5, trimmed.Length - 6);
+                            int.TryParse(slotStr, out currentSlot);
+                        }
+                        else if (currentSlot >= 0 && currentSlot < Rows.Length && Rows[currentSlot] != null)
+                        {
+                            if (trimmed.StartsWith("HealthPercent="))
+                            {
+                                if (long.TryParse(trimmed.Substring(14), out long value))
+                                    Rows[currentSlot].HealthTargetBox.Value = value;
+                            }
+                            else if (trimmed.StartsWith("ManaPercent="))
+                            {
+                                if (long.TryParse(trimmed.Substring(12), out long value))
+                                    Rows[currentSlot].ManaTargetBox.Value = value;
+                            }
+                        }
+                    }
+                }
+                catch { }
             }
 
             public override void OnSizeChanged(Size oValue, Size nValue)

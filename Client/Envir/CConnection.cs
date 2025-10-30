@@ -801,7 +801,7 @@ namespace Client.Envir
             {
                 CEnvir.SaveError(e.Message);
                 CEnvir.SaveError(e.StackTrace);
-                throw e;
+                throw;
             }
 
             CEnvir.IsQuickGame = false;
@@ -1479,7 +1479,11 @@ namespace Client.Envir
                 if (ob.Race != ObjectType.Monster) return;
 
                 MonsterObject mob = (MonsterObject)ob;
+                var prevOwner = mob.PetOwner;
                 mob.PetOwner = p.PetOwner;
+                // if this object has been newly assigned to the player treat it as a freshly summoned pet
+                if (!string.IsNullOrEmpty(p.PetOwner) && GameScene.Game?.User != null && p.PetOwner == GameScene.Game.User.Name && prevOwner != p.PetOwner)
+                    mob.SummonedTime = CEnvir.Now;
                 return;
             }
         }
