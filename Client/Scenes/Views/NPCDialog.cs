@@ -6879,6 +6879,20 @@ namespace Client.Scenes.Views
             #endregion
 
            
+            // 自动放置按钮
+            DXButton autoPlaceButton = new DXButton
+            {
+                Parent = this,
+                Location = new Point(YellowCell.Location.X, ClientArea.Y + 235),
+                Size = new Size(YellowCell.Size.Width + 99, SmallButtonHeight),
+                ButtonType = ButtonType.SmallButton,
+                Label = { Text = "自动放置" }
+            };
+            autoPlaceButton.MouseClick += (o, e) =>
+            {
+                if (GameScene.Game.Observer) return;
+                AutoPlaceAll();
+            };
 
             AttemptButton = new DXButton
             {
@@ -6950,6 +6964,118 @@ namespace Client.Scenes.Views
                 CEnvir.Enqueue(packet);
                 AttemptButton.Enabled = CanCraft;
             };
+        }
+
+        /// <summary>
+        /// 自动放置武器和立方体
+        /// </summary>
+        private void AutoPlaceAll()
+        {
+            // 1. 自动放置武器（如果模板格子为空）
+            if (TemplateCell.Grid[0].Link == null)
+            {
+                AutoPlaceWeapon();
+            }
+
+            // 2. 自动放置所有颜色的立方体
+            AutoPlaceCubes();
+        }
+
+        /// <summary>
+        /// 自动从背包放置第一把武器到模板格子
+        /// </summary>
+        private void AutoPlaceWeapon()
+        {
+            if (TemplateCell.Grid[0].Link != null)
+                return;
+
+            // 遍历背包找第一把武器
+            for (int i = 0; i < GameScene.Game.Inventory.Length; i++)
+            {
+                var item = GameScene.Game.Inventory[i];
+                if (item == null) continue;
+                
+                // 检查物品是否被锁定
+                if ((item.Flags & UserItemFlags.Locked) == UserItemFlags.Locked) continue;
+
+                // 检查是否是武器或武器模板
+                if (item.Info.ItemType == ItemType.Weapon || 
+                    item.Info.Effect == ItemEffect.WeaponTemplate)
+                {
+                    // 找到对应的背包格子
+                    var inventoryCell = GameScene.Game.InventoryBox.Grid.Grid[i];
+                    if (inventoryCell != null && !inventoryCell.Locked)
+                    {
+                        // 创建链接，设置数量为1
+                        TemplateCell.Grid[0].LinkedCount = 1;
+                        TemplateCell.Grid[0].Link = inventoryCell;
+                        return;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 自动从背包放置最高级的各颜色立方体
+        /// </summary>
+        private void AutoPlaceCubes()
+        {
+            // 定义颜色立方体映射
+            var cubeMapping = new[]
+            {
+                new { Cell = YellowCell, Effect = ItemEffect.YellowSlot },
+                new { Cell = BlueCell, Effect = ItemEffect.BlueSlot },
+                new { Cell = RedCell, Effect = ItemEffect.RedSlot },
+                new { Cell = PurpleCell, Effect = ItemEffect.PurpleSlot },
+                new { Cell = GreenCell, Effect = ItemEffect.GreenSlot },
+                new { Cell = GreyCell, Effect = ItemEffect.GreySlot }
+            };
+
+            foreach (var mapping in cubeMapping)
+            {
+                // 如果格子已有物品，跳过
+                if (mapping.Cell.Grid[0].Link != null)
+                    continue;
+
+                // 查找该颜色的最高级立方体
+                ClientUserItem bestCube = null;
+                int bestSlot = -1;
+
+                for (int i = 0; i < GameScene.Game.Inventory.Length; i++)
+                {
+                    var item = GameScene.Game.Inventory[i];
+                    if (item == null) continue;
+                    
+                    // 检查物品是否被锁定
+                    if ((item.Flags & UserItemFlags.Locked) == UserItemFlags.Locked) continue;
+
+                    if (item.Info.Effect == mapping.Effect)
+                    {
+                        // 选择最高级的立方体
+                        // 优先级: RequiredAmount(等级) > Rarity(品质)
+                        if (bestCube == null ||
+                            item.Info.RequiredAmount > bestCube.Info.RequiredAmount ||
+                            (item.Info.RequiredAmount == bestCube.Info.RequiredAmount &&
+                             item.Info.Rarity > bestCube.Info.Rarity))
+                        {
+                            bestCube = item;
+                            bestSlot = i;
+                        }
+                    }
+                }
+
+                // 找到最佳立方体后放置
+                if (bestCube != null && bestSlot >= 0)
+                {
+                    var inventoryCell = GameScene.Game.InventoryBox.Grid.Grid[bestSlot];
+                    if (inventoryCell != null && !inventoryCell.Locked)
+                    {
+                        // 创建链接，设置数量为1
+                        mapping.Cell.Grid[0].LinkedCount = 1;
+                        mapping.Cell.Grid[0].Link = inventoryCell;
+                    }
+                }
+            }
         }
 
     }

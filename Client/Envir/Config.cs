@@ -77,6 +77,10 @@ namespace Client.Envir
 
         public static bool 自动莲月 { get; set; } = false;
 
+        public static bool 自动快刀斩马 { get; set; } = false;
+
+        public static bool 自动天雷锤 { get; set; } = false;
+
         public static bool 自动铁布衫 { get; set; } = false;
 
         public static bool 自动破血 { get; set; } = false;
@@ -120,6 +124,9 @@ namespace Client.Envir
 
         public static bool 自动四花 { get; set; } = false;
 
+        // 宠物模式快捷键设置
+        public static bool 启用Ctrl数字控制宠物 { get; set; } = false;
+
         public static bool 自动风之闪避 { get; set; } = false;
 
         public static bool 自动风之守护 { get; set; } = false;
@@ -136,6 +143,8 @@ namespace Client.Envir
 
         public static bool 是否开启自动技能2 { get; set; } = false;
 
+        public static bool 暂停辅助功能 { get; set; } = false;
+
         public static bool 是否开启Buff显示时间 { get; set; } = false;
 
         public static bool 是否开启自动添加敌人 { get; set; } = false;
@@ -151,8 +160,8 @@ namespace Client.Envir
         public static bool 自动躲避 { get; set; } = false;
 
         public static bool 死亡回城 { get; set; } = false;
-
-        public static bool 是否开启挂机自动技能 { get; set; } = false;
+        public static bool 是否远战挂机 { get; set; } = false;
+        public static bool 远战挂机是否使用技能 { get; set; } = false;
 
         public static MagicType 挂机自动技能 { get; set; } = MagicType.None;
 

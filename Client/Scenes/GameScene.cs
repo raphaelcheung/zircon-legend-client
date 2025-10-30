@@ -16,7 +16,7 @@ using Library.SystemModels;
 using MirDB;
 using C = Library.Network.ClientPackets;
 using UserObject = Client.Models.UserObject;
-using System.ComponentModel;
+//using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using Library.Network.ClientPackets;
 using Library.Network;
@@ -248,6 +248,7 @@ namespace Client.Scenes
         public QuestDialog QuestBox;
         public QuestTrackerDialog QuestTrackerBox;
         public CompanionDialog CompanionBox;
+        public CompanionHealthPanel CompanionHealth;
         public BlockDialog BlockBox;
         public MonsterDialog MonsterBox;
         public MagicBarDialog MagicBarBox { get; set; }
@@ -290,6 +291,10 @@ namespace Client.Scenes
 
         private KeyBindInfo LastAttackModeKey { get; set; }
         private KeyBindInfo LastPetModeKey { get; set; }
+
+        // Track last MaxHP/MaxMP to avoid unnecessary auto-potion updates
+        private int _LastMaxHP = 0;
+        private int _LastMaxMP = 0;
 
         #region StorageSize
 
@@ -527,6 +532,13 @@ namespace Client.Scenes
             {
                 Parent = this,
             };
+            CompanionHealth = new CompanionHealthPanel
+            {
+                Parent = MainPanel,
+                Location = new Point(0, MainPanel.Size.Height - 20), // 位于MainPanel最左下
+                Size = new Size(MainPanel.Size.Width, 20), // 宽度与MainPanel相同，高度20像素
+                IsControl = false,
+            };
             MagicBox = new MagicDialog()
             {
                 Parent = this,
@@ -698,10 +710,12 @@ namespace Client.Scenes
             HideChat = new DXButton()
             {
                 Visible = true,
+                ForeColour = Color.White,
                 ButtonType = ButtonType.Default,
                 Label = { Text = "隐藏" },
                 Parent = this,
                 Size = new Size(50, SmallButtonHeight),
+                Opacity = 0.2f,
                 //Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 150),
             };
 
@@ -807,12 +821,11 @@ namespace Client.Scenes
             MainPanel.Location = new Point((Size.Width - MainPanel.Size.Width)/2
                 , Size.Height - MainPanel.Size.Height);
 
+            //MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
+            //    , MainPanel.Location.Y - MagicBarBox.Size.Height);
 
-            MagicBarBox.Location = new Point(MainPanel.Location.X + MainPanel.Size.Width - MagicBarBox.Size.Width
-                , MainPanel.Location.Y - MagicBarBox.Size.Height);
-
-            BeltBox.Location = new Point(MagicBarBox.Location.X + MagicBarBox.Size.Width - BeltBox.Size.Width
-                , MagicBarBox.Location.Y - BeltBox.Size.Height);
+            //BeltBox.Location = new Point(MagicBarBox.Location.X + MagicBarBox.Size.Width - BeltBox.Size.Width
+            //    , MagicBarBox.Location.Y - BeltBox.Size.Height);
 
             ChatTextBox.Location = new Point(MainPanel.Location.X, MainPanel.Location.Y - ChatTextBox.Size.Height);
 
@@ -864,7 +877,14 @@ namespace Client.Scenes
 
             NPCWeaponCraftBox.Location = new Point((Size.Width - NPCWeaponCraftBox.Size.Width) / 2, (Size.Height - NPCWeaponCraftBox.Size.Height) / 2);
 
-            HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - 148);
+            // Companion health panel positioned at MainPanel's bottom-left, extending right
+            if (CompanionHealth != null)
+            {
+                CompanionHealth.Location = new Point(0, MainPanel.Size.Height - 20);
+                CompanionHealth.Size = new Size(MainPanel.Size.Width, 20);
+            }
+
+            HideChat.Location = new Point(Game.ChatTextBox.Location.X + Game.ChatTextBox.Size.Width - HideChat.Size.Width, Game.ChatTextBox.Location.Y - HideChat.Size.Height - 3);
             ShowChat.Location = new Point(Game.MainPanel.Location.X, Game.MainPanel.Location.Y - ShowChat.Size.Height);
             BigPatch.Location = new Point(Game.ShowChat.Location.X + Game.ShowChat.Size.Width + 3, Game.ShowChat.Location.Y);
             Ranking.Location = new Point(Game.BigPatch.Location.X + Game.BigPatch.Size.Width + 3, Game.BigPatch.Location.Y);
@@ -916,6 +936,7 @@ namespace Client.Scenes
                     pSetting.HintChat = tab.Panel.HintCheckBox.Checked;
                     pSetting.SystemChat = tab.Panel.SystemCheckBox.Checked;
                     pSetting.GainsChat = tab.Panel.GainsCheckBox.Checked;
+                    pSetting.AnnouncementChat = tab.Panel.AnnouncementCheckBox.Checked;
                 }
             }
         }
@@ -926,7 +947,20 @@ namespace Client.Scenes
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
+            // 先尝试从数据库读取已保存的聊天配置
+            DBCollection<ChatTabPageSetting> savedSettings = CEnvir.Session.GetCollection<ChatTabPageSetting>();
+            
             List<ChatTabPageSetting> settings = new List<ChatTabPageSetting>();
+            
+            // 如果数据库中有保存的设置，直接使用
+            if (savedSettings.Binding.Count > 0)
+            {
+                settings.AddRange(savedSettings.Binding);
+                _LoadChatTabs(settings);
+                return;
+            }
+            
+            // 否则使用默认设置
             settings.Add(new ChatTabPageSetting
             {
                 Name = "全部",
@@ -1061,11 +1095,6 @@ namespace Client.Scenes
             });
 
             _LoadChatTabs(settings);
-
-            foreach(var set in settings)
-                set.Delete();
-
-            settings.Clear();
         }
         private void _LoadChatTabs(List<ChatTabPageSetting> controlSettings)
         {
@@ -1110,11 +1139,22 @@ namespace Client.Scenes
                 tab.Panel.GainsCheckBox.Checked = pSetting.GainsChat;
                 tab.Panel.AnnouncementCheckBox.Checked = pSetting.AnnouncementChat;
 
+                // 立即应用透明状态
+                tab.TransparencyChanged();
+
                 if (selected == null)
                     selected = tab;
             }
 
             ChatTabControl.SelectedTab = selected;
+
+            // 加载完成后，对所有按钮应用透明度
+            if (selected != null && selected.Panel != null)
+            {
+                float opacity = selected.Panel.TransparentCheckBox?.Checked ?? false ? 0.2F : 1F;
+                foreach (DXButton button in ChatTabControl.TabButtons)
+                    button.Opacity = opacity;
+            }
         }
         private void OnChatTabChanged(object sender, EventArgs e)
         {
@@ -1354,6 +1394,90 @@ namespace Client.Scenes
             base.OnKeyDown(e);
 
             if (e.Handled) return;
+
+            // Hardcode: 宠物模式快捷键 Ctrl+1 到 Ctrl+5
+            if (e.Control && !Observer)
+            {
+                PetMode? targetMode = null;
+                bool enabled = false;
+
+                switch (e.KeyCode)
+                {
+                    case Keys.D1:
+                        if (Config.启用Ctrl数字控制宠物)
+                        {
+                            targetMode = PetMode.None;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D2:
+                        if (Config.启用Ctrl数字控制宠物)
+                        {
+                            targetMode = PetMode.Both;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D3:
+                        if (Config.启用Ctrl数字控制宠物)
+                        {
+                            targetMode = PetMode.Move;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D4:
+                        if (Config.启用Ctrl数字控制宠物)
+                        {
+                            targetMode = PetMode.Attack;
+                            enabled = true;
+                        }
+                        break;
+                    case Keys.D5:
+                        if (Config.启用Ctrl数字控制宠物)
+                        {
+                            targetMode = PetMode.PvP;
+                            enabled = true;
+                        }
+                        break;
+                }
+
+                if (enabled && targetMode.HasValue)
+                {
+                    User.PetMode = targetMode.Value;
+                    CEnvir.Enqueue(new C.ChangePetMode { Mode = User.PetMode });
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // Ctrl + Enter: Toggle chat visibility
+            if (e.Control && e.KeyCode == Keys.Enter)
+            {
+                if (ChatTabControl != null)
+                {
+                    if (ChatTabControl.Visible)
+                    {
+                        // Hide chat
+                        ChatTabControl.Visible = false;
+                        ChatTextBox.Visible = false;
+                        ShowChat.Visible = true;
+                        HideChat.Visible = false;
+                        BigPatch.Visible = true;
+                        Ranking.Visible = true;
+                    }
+                    else
+                    {
+                        // Show chat
+                        ChatTabControl.Visible = true;
+                        ChatTextBox.Visible = true;
+                        ShowChat.Visible = false;
+                        HideChat.Visible = true;
+                        BigPatch.Visible = false;
+                        Ranking.Visible = false;
+                    }
+                }
+                e.Handled = true;
+                return;
+            }
 
             switch (e.KeyCode)
             {
@@ -1798,10 +1922,10 @@ namespace Client.Scenes
                         UseMagic(SpellKey.Spell24);
                         break;
                     case KeyBindAction.Guaji:
-                        //GameScene.Game.ReceiveChat("挂机功能暂未开放，敬请期待...", MessageType.System);
-                        if (!MapControl.MapInfo.AllowRT)
+                        // GameScene.Game.ReceiveChat("挂机功能暂未开放，敬请期待...", MessageType.System);
+                        if (!MapControl.MapInfo.AllowRT && !Game.User.Buffs.Exists(x => x.Type == BuffType.Developer))
                             GameScene.Game.ReceiveChat("目前您在不允许使用自动打怪功能的地图，因此不能挂机", MessageType.System);
-                        //else if (Game.User.Zdgjgongneng)
+                        // else if (Game.User.Zdgjgongneng)
                         //    GameScene.Game.ReceiveChat("每天18 : 00 点至 22 : 00 点不允许自动挂机的时间，因此不能挂机", MessageType.System);
                         else
                             Game.BigPatchBox.Helper.AndroidPlayer.Checked = !Game.BigPatchBox.Helper.AndroidPlayer.Checked;
@@ -1872,7 +1996,7 @@ namespace Client.Scenes
 
                 label = new DXLabel
                 {
-                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
+                    ForeColour = displayInfo.Rarity == Rarity.Common ? Color.White : (displayInfo.Rarity == Rarity.Superior ? Color.LightGreen : Color.Violet),
                     Location = new Point(4, ItemLabel.DisplayArea.Bottom + 2),
                     Parent = ItemLabel,
                     Text = displayInfo.Rarity > Rarity.Common ? $"{itemtype}{rarity}" : itemtype,
@@ -4863,6 +4987,18 @@ namespace Client.Scenes
                 cell.UpdateColours();
 
             CharacterBox.UpdateStats();
+            
+            // Update auto-potion thresholds ONLY when max HP/MP actually changes
+            // This prevents excessive network traffic
+            int currentMaxHP = User.Stats[Stat.Health];
+            int currentMaxMP = User.Stats[Stat.Mana];
+            
+            if (currentMaxHP != _LastMaxHP || currentMaxMP != _LastMaxMP)
+            {
+                _LastMaxHP = currentMaxHP;
+                _LastMaxMP = currentMaxMP;
+                BigPatchBox?.Protect?.ResendAllAutoPotionLinks();
+            }
         }
         public void ExperienceChanged()
         {
@@ -5820,10 +5956,10 @@ namespace Client.Scenes
 
             if (false)//if (!MapControl.MapInfo.AllowGuaji)
             {
-                if (BigPatchBox.Helper.AndroidPlayer.Checked)
-                    BigPatchBox.Helper.AndroidPlayer.Checked = false;
-                if (BigPatchBox.Helper.AndroidPlayer.Visible)
-                    BigPatchBox.Helper.AndroidPlayer.Visible = false;
+                //if (BigPatchBox.Helper.AndroidPlayer.Checked)
+                //    BigPatchBox.Helper.AndroidPlayer.Checked = false;
+                //if (BigPatchBox.Helper.AndroidPlayer.Visible)
+                //    BigPatchBox.Helper.AndroidPlayer.Visible = false;
 
             }
             else
@@ -5834,17 +5970,18 @@ namespace Client.Scenes
         }
         private void ProcessSkills()
         {
-            if (Config.是否开启自动技能1 && CEnvir.Now >= skillTime1)
+            if (Config.是否开启自动技能1 && !Config.暂停辅助功能 && CEnvir.Now >= skillTime1)
             {
                 if ((uint)Config.自动技能1 > 0U)
                     UseMagic(Config.自动技能1);
                 skillTime1 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能1多长时间使用一次 > 0L ? (double)Config.自动技能1多长时间使用一次 : 10.0);
             }
-            if (!Config.是否开启自动技能2 || !(CEnvir.Now >= skillTime2))
-                return;
-            if ((uint)Config.自动技能2 > 0U)
-                UseMagic(Config.自动技能2);
-            skillTime2 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能2多长时间使用一次 > 0L ? (double)Config.自动技能2多长时间使用一次 : 10.0);
+            if (Config.是否开启自动技能2 && !Config.暂停辅助功能 && CEnvir.Now >= skillTime2)
+            {
+                if ((uint)Config.自动技能2 > 0U)
+                    UseMagic(Config.自动技能2);
+                skillTime2 = CEnvir.Now + TimeSpan.FromSeconds(Config.自动技能2多长时间使用一次 > 0L ? (double)Config.自动技能2多长时间使用一次 : 10.0);
+            }
         }
         public void SortFillItems(List<ClientUserItem> items)
         {
@@ -5916,14 +6053,22 @@ namespace Client.Scenes
                 MapObject.TargetObject = MapControl.SelectMonsterTarget();
 
             if (MapObject.TargetObject == null || MapObject.TargetObject.Dead) return false;
-                
-            if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
+
+            if (MapObject.TargetObject == null || !Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)) return false;
 
             var helpper = GetMagicHelpper(MagicType.PoisonDust);
-            if (helpper == null) return false;
-
             var item = Globals.ItemInfoList.Binding.FirstOrDefault(x => x.Index == helpper.Amulet);
-            if (helpper.Amulet > 0 && item == null) return false;
+            // Infection
+            var infectionMagic = GetMagic(MagicType.Infection);
+
+            if ((helpper == null || item == null) && infectionMagic == null) return false;
+
+            if (infectionMagic != null && CEnvir.Now >= infectionMagic.NextCast && (MapObject.TargetObject.Poison & PoisonType.Infection) != PoisonType.Infection)
+            {
+                UseMagic(MagicType.Infection);
+                BigPatchBox.AutoSkillsTime = CEnvir.Now.AddMilliseconds(500);
+                return true;
+            }
 
             if ((helpper.Amulet == 0 || item.ItemName == "红毒") && (MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red)
             {

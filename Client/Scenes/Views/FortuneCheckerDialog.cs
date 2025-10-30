@@ -33,7 +33,7 @@ namespace Client.Scenes.Views
         {
             //HasFooter = true;
             TitleLabel.Text = "算命人";
-            SetClientSize(new Size(485, 551));
+            SetClientSize(new Size(685, 551));
             
             #region Search
 
@@ -168,9 +168,12 @@ namespace Client.Scenes.Views
             ItemType filter = (ItemType?) ItemTypeBox.SelectedItem ?? 0;
             bool useFilter = ItemTypeBox.SelectedItem != null;
 
+            bool isDeveloper = GameScene.Game?.User?.Buffs != null && GameScene.Game.User.Buffs.Exists(x => x.Type == BuffType.Developer);
+
             foreach (ItemInfo info in Globals.ItemInfoList.Binding)
             {
-                if (info.Drops.Count == 0) continue;
+                // If not a developer, skip items with no drops.
+                if (!isDeveloper && (info.Drops == null || info.Drops.Count == 0)) continue;
 
                 if (useFilter && info.ItemType != filter) continue;
 
@@ -306,15 +309,16 @@ namespace Client.Scenes.Views
         private ClientFortuneInfo Fortune;
         
         public DXItemCell ItemCell;
-        public DXLabel NameLabel, CountLabelLabel, CountLabel, ProgressLabelLabel, ProgressLabel, DateLabel, TogoLabel, DateLabelLabel;
+        public DXLabel NameLabel, MonsterLabel, CountLabelLabel, CountLabel, ProgressLabelLabel, ProgressLabel, DateLabel, TogoLabel, DateLabelLabel;
         public DXButton CheckButton;
+    // No DropGrid - use wrapped MonsterLabel for drop info
         #endregion
 
 
 
         public FortuneCheckerRow()
         {
-            Size = new Size(465, 55);
+            Size = new Size(665, 55);
 
             DrawTexture = true;
             BackColour = Selected ? Color.FromArgb(80, 80, 125) : Color.FromArgb(25, 20, 0);
@@ -338,6 +342,61 @@ namespace Client.Scenes.Views
                 Parent = this,
                 Location = new Point(ItemCell.Location.X + ItemCell.Size.Width, 22),
                 IsControl = false,
+                DrawFormat = System.Windows.Forms.TextFormatFlags.SingleLine | System.Windows.Forms.TextFormatFlags.EndEllipsis,
+            };
+
+            MonsterLabel = new DXLabel
+            {
+                Parent = this,
+                Location = new Point(ItemCell.Location.X + ItemCell.Size.Width, 4),
+                IsControl = false,
+                ForeColour = Color.Wheat,
+                Visible = false,
+            };
+
+            ItemCell.MouseEnter += (o, e) =>
+            {
+                try
+                {
+                    if (ItemInfo != null)
+                    {
+                        // Hide item name to avoid layout conflicts and show monster list
+                        NameLabel.Visible = false;
+                        PopulateDropMonsters();
+                        MonsterLabel.Visible = true;
+                        // Hide right-side info while showing the monster list
+                        CountLabelLabel.Visible = false;
+                        CountLabel.Visible = false;
+                        ProgressLabelLabel.Visible = false;
+                        ProgressLabel.Visible = false;
+                        DateLabelLabel.Visible = false;
+                        DateLabel.Visible = false;
+                        // Hide the fortune button so MonsterLabel can expand
+                        if (CheckButton != null) CheckButton.Visible = false;
+                        MonsterLabel.Size = new Size(MonsterLabel.Size.Width + 50, MonsterLabel.Size.Height);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Swallow any errors to avoid crashing the client from hover.
+                    MonsterLabel.Visible = false;
+                }
+            };
+
+            ItemCell.MouseLeave += (o, e) =>
+            {
+                MonsterLabel.Visible = false;
+                NameLabel.Visible = true;
+                // Restore right-side info when not hovering
+                CountLabelLabel.Visible = true;
+                CountLabel.Visible = true;
+                ProgressLabelLabel.Visible = true;
+                ProgressLabel.Visible = true;
+                DateLabelLabel.Visible = true;
+                DateLabel.Visible = true;
+                // Restore the fortune button
+                if (CheckButton != null) CheckButton.Visible = true;
+                MonsterLabel.Size = new Size(MonsterLabel.Size.Width - 50, MonsterLabel.Size.Height);
             };
 
             CountLabelLabel = new DXLabel
@@ -348,14 +407,20 @@ namespace Client.Scenes.Views
                 IsControl = false,
 
             };
-            CountLabelLabel.Location = new Point(320 - CountLabelLabel.Size.Width, 5);
+            int baseX = 320 + 200; // shift right by 200
+            CountLabelLabel.Location = new Point(baseX - CountLabelLabel.Size.Width, 5);
 
             CountLabel = new DXLabel
             {
                 Parent = this,
-                Location = new Point(320, 5),
+                Location = new Point(baseX, 5),
                 IsControl = false,
             };
+
+            // Limit monster label width so it will wrap inside bounds instead of overflowing
+            MonsterLabel.AutoSize = false;
+            MonsterLabel.Size = new Size(550, 40);
+            MonsterLabel.DrawFormat = System.Windows.Forms.TextFormatFlags.WordBreak;
 
             ProgressLabelLabel = new DXLabel
             {
@@ -365,12 +430,12 @@ namespace Client.Scenes.Views
                 IsControl = false,
 
             };
-            ProgressLabelLabel.Location = new Point(320 - ProgressLabelLabel.Size.Width, 20);
+            ProgressLabelLabel.Location = new Point(baseX - ProgressLabelLabel.Size.Width, 20);
 
             ProgressLabel = new DXLabel
             {
-                Parent = this,
-                Location = new Point(320, 20),
+                    Parent = this,
+                    Location = new Point(baseX, 20),
                 IsControl = false,
             };
 
@@ -382,12 +447,12 @@ namespace Client.Scenes.Views
                 IsControl = false,
 
             };
-            DateLabelLabel.Location = new Point(320 - DateLabelLabel.Size.Width, 35);
+            DateLabelLabel.Location = new Point(baseX - DateLabelLabel.Size.Width, 35);
 
             DateLabel = new DXLabel
             {
-                Parent = this,
-                Location = new Point(320, 35),
+                    Parent = this,
+                    Location = new Point(baseX, 35),
                 IsControl = false,
             };
 
@@ -420,10 +485,47 @@ namespace Client.Scenes.Views
         {
             base.Process();
 
-            if (Fortune == null) return;
+            if (Fortune == null)
+            {
+                DateLabel.Text = "未算命";
+                return;
+            }
 
             DateLabel.Text = Functions.ToString(CEnvir.Now - Fortune.CheckDate, true, true);
         }
+
+        private void PopulateDropMonsters()
+        {
+            try
+            {
+                if (ItemInfo == null)
+                {
+                    MonsterLabel.Text = string.Empty;
+                    return;
+                }
+
+                if (ItemInfo.Drops == null || ItemInfo.Drops.Count == 0)
+                {
+                    MonsterLabel.Text = "掉落: 无";
+                    return;
+                }
+
+                var names = new HashSet<string>();
+                foreach (var drop in ItemInfo.Drops)
+                {
+                    if (drop?.Monster?.MonsterName == null) continue;
+                    names.Add(drop.Monster.MonsterName);
+                }
+
+                MonsterLabel.Text = names.Count > 0 ? "掉落: " + string.Join(" ", names) : "掉落: 无";
+            }
+            catch (Exception)
+            {
+                MonsterLabel.Text = "掉落: 错误";
+            }
+        }
+
+        // Removed DropGrid and PopulateDropGrid to keep hover handling simple
 
         #region IDisposable
 
@@ -438,7 +540,6 @@ namespace Client.Scenes.Views
 
                 _ItemInfo = null;
                 ItemInfoChanged = null;
-                
 
                 if (ItemCell != null)
                 {
@@ -454,6 +555,14 @@ namespace Client.Scenes.Views
                         NameLabel.Dispose();
 
                     NameLabel = null;
+                }
+
+                if (MonsterLabel != null)
+                {
+                    if (!MonsterLabel.IsDisposed)
+                        MonsterLabel.Dispose();
+
+                    MonsterLabel = null;
                 }
 
                 if (CountLabelLabel != null)
@@ -488,6 +597,29 @@ namespace Client.Scenes.Views
                     ProgressLabel = null;
                 }
 
+                if (DateLabelLabel != null)
+                {
+                    if (!DateLabelLabel.IsDisposed)
+                        DateLabelLabel.Dispose();
+
+                    DateLabelLabel = null;
+                }
+
+                if (DateLabel != null)
+                {
+                    if (!DateLabel.IsDisposed)
+                        DateLabel.Dispose();
+
+                    DateLabel = null;
+                }
+
+                if (CheckButton != null)
+                {
+                    if (!CheckButton.IsDisposed)
+                        CheckButton.Dispose();
+
+                    CheckButton = null;
+                }
             }
 
         }

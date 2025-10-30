@@ -564,7 +564,7 @@ namespace Client.Scenes.Views
                     Parent = ExpandPanel,
                     AutoSize = false,
                     Outline = true,
-                    ForeColour = drop.Item.Rarity == Rarity.Common ? Color.Beige : (drop.Item.Rarity == Rarity.Superior ? Color.FromArgb(0, 180, 0) : Color.FromArgb(0, 255, 0)),
+                    ForeColour = drop.Item.Rarity == Rarity.Common ? Color.WhiteSmoke : (drop.Item.Rarity == Rarity.Superior ? Color.LightGreen : Color.Violet),
                     Location = new Point(x, panel_height),
                     DrawFormat = TextFormatFlags.WordEllipsis,
                     Size = new Size(85, DXLabel.GetSize(label.Text, label.Font, label.OutlineWeight).Height),

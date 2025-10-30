@@ -45,6 +45,44 @@ namespace Client.Scenes.Views
         }
         private bool _autoPath;
 
+        public bool IsLongDistanceMode { get; set; } = false;
+        
+        // ！ 改进4：模式状态机
+        private enum ShortDistanceMode
+        {
+            Mode1_ShortDistance,  // 模式1：短距离移动（寻找怪物）
+            Mode2_Pathfind,       // 模式2：寻路模式（卡住时的寻路方案）
+            Mode3_RandomJump      // 模式3：随机跳跃（模式2失败时的恢复）
+        }
+        
+        private ShortDistanceMode _currentShortDistanceMode = ShortDistanceMode.Mode1_ShortDistance;
+        
+        // ！ 追踪上一次的挂机状态，只在状态改变时清除路径
+        private bool _lastAutoAndroidState = false;
+        
+        // ！ 新增：用于跟踪是否应该清除AutoPath的标志
+        // 用来解决pathfinding中检测到怪物需要立即停止的问题
+        private bool _shouldClearAutoPath = false;
+        
+        // ！ 新增：后台常驻位置追踪和状态判断机制
+        private enum CharacterStuckState
+        {
+            Standing = 0,  // 静止不动
+            Moving = 1,    // 正常移动
+            Stuck = 2      // 卡住（在小范围内反复）
+        }
+        
+        private Point[] _positionHistory = new Point[3];  // 记录最近3个位置
+        private DateTime _lastPositionRecordTime = DateTime.MinValue;
+        private CharacterStuckState _currentCharacterState = CharacterStuckState.Moving;
+        private const double POSITION_RECORD_INTERVAL = 1.0; // 每1秒记录一次位置
+        
+        private DateTime _lastAutoStateChangeTime = DateTime.MinValue;
+        private const double STATE_CHANGE_DELAY = 1.0; // 1秒延迟
+        
+        // ！ 参数化短距离怪物检测距离
+        private const int SHORT_DISTANCE_DETECTION_RANGE = 9; // 战斗模式的怪物检测范围（格）
+
         public DateTime ProtectTime
         {
             get
@@ -203,6 +241,9 @@ namespace Client.Scenes.Views
             
             FLayer = new Floor { Parent = this, Size = Size };
             LLayer = new Light { Parent = this, Location = new Point(-GameScene.Game.Location.X, -GameScene.Game.Location.Y), Size = Size };
+            
+            // ！ 进入游戏时关闭自动挂机
+            Config.开始挂机 = false;
         }
 
         #region Methods
@@ -616,9 +657,21 @@ namespace Client.Scenes.Views
                     DXItemCell.SelectedCell = null;
                     return;
                 }
-                
-                DXItemAmountWindow window = new DXItemAmountWindow("掉落物品", cell.Item);
 
+                if (cell.Item.Count <= 1)
+                {
+                    // 只有1个，直接丢弃
+                    CEnvir.Enqueue(new C.ItemDrop
+                    {
+                        Link = new CellLinkInfo { GridType = cell.GridType, Slot = cell.Slot, Count = 1 }
+                    });
+                    cell.Locked = true;
+                    DXItemCell.SelectedCell = null;
+                    return;
+                }
+
+                // 多于1个，弹窗，默认最大值
+                DXItemAmountWindow window = new DXItemAmountWindow("掉落物品", cell.Item);
                 window.ConfirmButton.MouseClick += (o, a) =>
                 {
                     if (window.Amount <= 0) return;
@@ -630,7 +683,6 @@ namespace Client.Scenes.Views
 
                     cell.Locked = true;
                 };
-
                 DXItemCell.SelectedCell = null;
                 return;
             }
@@ -785,7 +837,29 @@ namespace Client.Scenes.Views
         {
             if (GameScene.Game.Observer) return;
 
-            if (User.Dead || (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type == BuffType.FrostBite)) return; //Para or Frozen??
+            // ！ 新增：统一的AutoPath清除机制
+            // 在每帧开始检查是否需要清除pathfinding
+            ClearAutoPathIfNeeded();
+
+            // ！ 修复：仅在挂机状态改变时清除路径，而不是每帧都清除
+            if (!Config.开始挂机 && _lastAutoAndroidState)
+            {
+                // 挂机从打开切换到关闭，此时才清除挂机路径
+                AutoPath = false;
+                if (CurrentPath != null)
+                {
+                    CurrentPath.Clear();
+                    CurrentPath = null;
+                }
+                // ！ 停止当前脚步
+                if (User.CurrentAction == MirAction.Moving)
+                {
+                    User.AttemptAction(new ObjectAction(MirAction.Standing, User.Direction, User.CurrentLocation));
+                }
+            }
+            _lastAutoAndroidState = Config.开始挂机; // 记录本帧状态
+
+            if (User == null || (User.Dead || (User.Poison & PoisonType.Paralysis) == PoisonType.Paralysis || User.Buffs.Any(x => x.Type == BuffType.DragonRepulse || x.Type == BuffType.FrostBite))) return; //Para or Frozen??
 
 
             if (User.MagicAction != null)
@@ -797,6 +871,71 @@ namespace Client.Scenes.Views
                 MapObject.User.AttemptAction(User.MagicAction);
                 User.MagicAction = null;
                 Mining = false;
+            }
+
+            // 新增：自动选怪和寻路逻辑（目测来自国服大补帖 ProcessInput2）
+            if (Config.开始挂机)
+            {
+                // ！ 新增：检查是否有近身怪物，优先攻击
+                // 这样即使在长距离pathfinding中也能快速响应近身怪物
+                MapObject closestMonster = null;
+                int closestDistance = int.MaxValue;
+                
+                foreach (MapObject obj in Objects)
+                {
+                    if (obj == null || obj.Dead || obj == User) continue;
+                    if (obj.Race != ObjectType.Monster || !string.IsNullOrEmpty(obj.PetOwner)) continue;
+                    
+                    int distance = Functions.Distance(User.CurrentLocation, obj.CurrentLocation);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestMonster = obj;
+                    }
+                }
+                
+                // 如果发现近身怪物（3格以内），立即停止pathfinding并切换到战斗
+                if (closestMonster != null && closestDistance < 4)
+                {
+                    GameScene.Game.TargetObject = closestMonster;
+                    _shouldClearAutoPath = true; // 标记需要清除pathfinding
+                }
+                // 否则按原逻辑选怪
+                else if (GameScene.Game.TargetObject == null || GameScene.Game.TargetObject.Dead || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, MapControl.User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
+                {
+                    MapObject mapObject = null;
+
+                    if (GameScene.Game.User.XunzhaoGuaiwuMoshi01)
+                        mapObject = LaoSelectMonster();
+                    else if (GameScene.Game.User.XunzhaoGuaiwuMoshi02)
+                        mapObject = SelectMonster();
+                    else if (!GameScene.Game.User.XunzhaoGuaiwuMoshi01 && !GameScene.Game.User.XunzhaoGuaiwuMoshi02)
+                        mapObject = LaoSelectMonster();
+
+                    int num;
+                    if (mapObject != null)
+                    {
+                        int objectId1 = (int)mapObject.ObjectID;
+                        uint? objectId2 = GameScene.Game.TargetObject?.ObjectID;
+                        int valueOrDefault = (int)objectId2.GetValueOrDefault();
+                        num = !(objectId1 == valueOrDefault & objectId2.HasValue) ? 1 : 0;
+                    }
+                    else
+                        num = 0;
+                    if (num != 0)
+                        GameScene.Game.TargetObject = mapObject;
+                    else
+                    {
+                        // ！ 改进：仅在1秒延迟后再执行下一次寻路计算，减少消耗
+                        if (CEnvir.Now >= _lastAutoStateChangeTime.AddSeconds(STATE_CHANGE_DELAY))
+                        {
+                            ChangeAutoFightLocation();
+                            _lastAutoStateChangeTime = CEnvir.Now;
+                        }
+                    }
+                }
+                else
+                    AndroidProcess();
             }
             
             if (MapObject.TargetObject != null && !MapObject.TargetObject.Dead && ((MapObject.TargetObject.Race == ObjectType.Monster && string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) || (CEnvir.Shift || Config.免SHIFT)))
@@ -813,7 +952,9 @@ namespace Client.Scenes.Views
                 //    return;
                 //}
                 bool flag = true;
-                if (Config.自动四花)
+                
+                // 修改：自动四花只在战斗状态下执行
+                if (Config.自动四花 && CEnvir.Now < User.CombatTime.AddSeconds(10))
                 {
                     if (!User.Buffs.Any(x =>
                     {
@@ -850,22 +991,24 @@ namespace Client.Scenes.Views
                 if (Config.开始挂机)
                 {
                     PathFinderTime = CEnvir.Now.AddSeconds(2.0);
-                    if (Config.自动躲避 && ((User.Class == MirClass.Wizard || User.Class == MirClass.Taoist) && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 18.0))
+                    // ！ 改进：使用"远程技能挂机"配置项替代职业判断
+                    // if (Config.自动躲避 && ((User.Class == MirClass.Wizard || User.Class == MirClass.Taoist) && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 18.0))
+                    if (Config.自动躲避 && (Config.是否远战挂机 && (double)Functions.Distance(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation) < 18.0))
                     {
                         MirDirection mirDirection1 = Functions.ShiftDirection(Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation), 4);
                         if (!CanMove(mirDirection1, 1))
                         {
                             MirDirection mirDirection2 = DirectionBest(mirDirection1, 1, MapObject.TargetObject.CurrentLocation);
-                            
+
                             if (mirDirection2 == mirDirection1)
                             {
                                 if (mirDirection1 != User.Direction)
                                     MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
 
-                                if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                                if (!Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                                     return;
 
-                                if (Config.是否开启挂机自动技能)
+                                if (Config.远战挂机是否使用技能)
                                     GameScene.Game.UseMagic(Config.挂机自动技能);
                                 return;
                             }
@@ -885,17 +1028,48 @@ namespace Client.Scenes.Views
 
                     //if (GameScene.Game.AutoPoison()) return;
 
-                    if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                    // ！ 改进：使用"远程技能挂机"配置项替代职业判断
+                    //  if ((User.Class == MirClass.Taoist || User.Class == MirClass.Wizard) && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
+                    if (Config.是否远战挂机 && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                     {
-                        if (Config.是否开启挂机自动技能)
+                        if (Config.远战挂机是否使用技能)
                             GameScene.Game.UseMagic(Config.挂机自动技能);
                         return;
                     }
                 }
 
-                if (Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation) == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                int targetDistance = Functions.Distance(MapObject.TargetObject.CurrentLocation, MapObject.User.CurrentLocation);
+                
+                // ！ 新增：如果距离为0（重叠），尝试向任意可移动方向走一步
+                if (targetDistance == 0 && GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
                 {
-                    if (Config.开始挂机 && (flag && User.Class == MirClass.Assassin && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10)))
+                    // 尝试所有8个方向，找到第一个可以移动的方向
+                    for (int i = 0; i < 8; i++)
+                    {
+                        MirDirection tryDirection = (MirDirection)i;
+                        if (CanMove(tryDirection, 1))
+                        {
+                            // 找到可移动的方向，执行移动
+                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, tryDirection, Functions.Move(MapObject.User.CurrentLocation, tryDirection, 1), new object[2]
+                            {
+                                1,
+                                MagicType.None
+                            }));
+                            return;
+                        }
+                    }
+                    // 如果所有方向都不能移动，至少改变朝向
+                    MirDirection faceDirection = Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation);
+                    if (faceDirection != User.Direction)
+                    {
+                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, faceDirection, MapObject.User.CurrentLocation));
+                    }
+                    return;
+                }
+                // 距离为1则执行操作
+                if (targetDistance == 1 && CEnvir.Now > User.AttackTime && User.Horse == HorseType.None)
+                {
+                    if (Config.开始挂机 && (flag && User.Class == MirClass.Assassin && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE)))
                         GameScene.Game.UseMagic(Config.挂机自动技能);
 
                     MapObject.User.AttemptAction(new ObjectAction(MirAction.Attack, Functions.DirectionFromPoint(MapObject.User.CurrentLocation, MapObject.TargetObject.CurrentLocation), MapObject.User.CurrentLocation, new object[3]
@@ -989,6 +1163,9 @@ namespace Client.Scenes.Views
 
                         if (MapObject.MouseObject != null && MapObject.MouseObject.Race != ObjectType.Item && !MapObject.MouseObject.Dead) break;
 
+                        // 新增：停止自动寻路（来自 ProcessInput2）
+                        if (AutoPath)
+                            AutoPath = false;
 
                         ClientUserItem weap = GameScene.Game.Equipment[(int) EquipmentSlot.Weapon];
                         
@@ -1025,20 +1202,40 @@ namespace Client.Scenes.Views
 
                         Mining = false;
 
+                        // 新增：停止自动寻路（来自 ProcessInput2）
+                        if (AutoPath)
+                            AutoPath = false;
+
                         if (MapObject.MouseObject is PlayerObject && MapObject.MouseObject != MapObject.User && CEnvir.Ctrl) 
                             break;
 
                         if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip) 
                             break;
                         
-                        if (Functions.InRange(MapLocation, MapObject.User.CurrentLocation, 2))
+                        int distanceToTarget = Functions.Distance(MapLocation, MapObject.User.CurrentLocation);
+                        
+                        // Shift+右键：只改变方向，不移动
+                        if (CEnvir.Shift)
                         {
                             if (direction != User.Direction)
                                 MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
-                            
                             return;
                         }
-
+                        
+                        // 距离为1格时：走一格
+                        if (distanceToTarget == 1)
+                        {
+                            if (!CanMove(direction, 1))
+                            {
+                                if (direction != User.Direction)
+                                    MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
+                                return;
+                            }
+                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction, 1), 1, MagicType.None));
+                            return;
+                        }
+                        
+                        // 其他情况：执行跑步
                         Run(direction);
 
                         return;
@@ -1066,6 +1263,13 @@ namespace Client.Scenes.Views
                 }
             }
 
+            // ！ 重要修复：先检查是否有 AutoPath，如果有则执行（不依赖 TargetObject）
+            if (AutoPath)
+            {
+                AutoWalkPath();
+                return;  // 执行完自动寻路后返回，不继续处理 TargetObject
+            }
+
             if (MapObject.TargetObject == null || MapObject.TargetObject.Dead) return;
 
             if ((MapObject.TargetObject.Race == ObjectType.Player || !string.IsNullOrEmpty(MapObject.TargetObject.PetOwner)) 
@@ -1081,18 +1285,30 @@ namespace Client.Scenes.Views
             {
                 best = DirectionBest(direction, 1, MapObject.TargetObject.CurrentLocation);
 
-                if (best == direction)
+                if (best != direction)
                 {
-                    if (direction != User.Direction)
-                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, direction, MapObject.User.CurrentLocation));
-                    
-                    return;
+                    direction = best;
                 }
-                direction = best;
+                // 如果 DirectionBest 也失败了，不要 return，让 Run() 方法用 FindWallBypass() 继续绕路
             }
 
+            // 修改：向目标移动时使用跑步而不是走路
             if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
-                MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction), 1, MagicType.None));
+                Run(direction, true);  // 启用绕墙逻辑，这样能左右晃绕过短墙
+
+            // 新增：ForceAttack、DigEarth 和 AutoWalkPath（来自未知的 ProcessInput2）
+            if (MapObject.TargetObject != null)
+            {
+                if (UpdateTarget < CEnvir.Now)
+                {
+                    UpdateTarget = CEnvir.Now.AddMilliseconds(200.0);
+                    TargetLocation = MapObject.TargetObject.CurrentLocation;
+                }
+                if (ForceAttack(TargetLocation))
+                    return;
+            }
+
+            DigEarth();
         }
 
         public void Run(MirDirection direction, bool bDetour = true)
@@ -1113,7 +1329,46 @@ namespace Client.Scenes.Views
                 MirDirection best = direction;
 
                 if (bDetour)
+                {
+                    // 骑马时的特殊处理：只有3步和1步，没有2步 
+                    if (User.Horse != HorseType.None)
+                    {
+                        // 骑马时：如果3步不能走，直接走1步
+                        if (i >= 3 && CanMove(direction, 3))
+                        {
+                            steps = 3;  // 保持3步
+                            break;
+                        }
+                        else if (i >= 1 && CanMove(direction, 1))
+                        {
+                            steps = 1;  // 回退到1步
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // 非骑马时的原有逻辑：优先多步，再回退到少步
+                        if (i >= 2 && CanMove(direction, 2))
+                        {
+                            steps = 4;
+                            break;
+                        }
+                        else if (i >= 1 && CanMove(direction, 1))
+                        {
+                            steps = 1;
+                            break;
+                        }
+                    }
+
+                    // 跑不了才尝试45度逃脱
                     best = MouseDirectionBest(direction, 1);
+
+                    // 如果45度还是挡住，尝试左右晃绕过短墙
+                    if (best == direction)
+                    {
+                        best = FindWallBypass(direction);
+                    }
+                }
 
                 if (best == direction)
                 {
@@ -1134,6 +1389,35 @@ namespace Client.Scenes.Views
             }
 
             MapObject.User.AttemptAction(new ObjectAction(MirAction.Moving, direction, Functions.Move(MapObject.User.CurrentLocation, direction, steps), steps, MagicType.None));
+        }
+
+        /// <summary>
+        /// 绕过短墙：优先选择能移动的左右方向
+        /// </summary>
+        private MirDirection FindWallBypass(MirDirection frontDir)
+        {
+            MirDirection leftDir = Functions.ShiftDirection(frontDir, -1);    // 左转45度
+            MirDirection rightDir = Functions.ShiftDirection(frontDir, 1);   // 右转45度
+
+            // 交替尝试左右，如果能移动就返回（让下一帧继续判断前方）
+            if (CanMove(leftDir, 1))
+                return leftDir;
+
+            if (CanMove(rightDir, 1))
+                return rightDir;
+
+            // 如果左右都挡住了，尝试更深的左右方向
+            MirDirection farLeftDir = Functions.ShiftDirection(frontDir, -2);
+            MirDirection farRightDir = Functions.ShiftDirection(frontDir, 2);
+
+            if (CanMove(farLeftDir, 1))
+                return farLeftDir;
+
+            if (CanMove(farRightDir, 1))
+                return farRightDir;
+
+            // 都不行，返回原方向
+            return frontDir;
         }
 
         public MirDirection MouseDirectionBest(MirDirection dir, int distance) //22.5 = 16
@@ -1400,10 +1684,12 @@ namespace Client.Scenes.Views
                 }
             }
 
-            if (bestDistance > 10.0 || newTarget == null)
+            // ！ 修复：扩大挂机视野范围从9格增加到25格，避免频繁寻路
+            if ((double)num1 > 25.0)
                 return null;
 
-            if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
+            // if (User.Class == MirClass.Assassin || User.Class == MirClass.Warrior)
+            if (!Config.是否远战挂机)
             {
                 MirDirection direction = Functions.DirectionFromPoint(newTarget.CurrentLocation, User.CurrentLocation);
                 var distance = Functions.Distance(newTarget.CurrentLocation, User.CurrentLocation);
@@ -1493,8 +1779,36 @@ namespace Client.Scenes.Views
 
         //                        if (CEnvir.Now <= GameScene.Game.PickUpTime) return;
 
-        //                        CEnvir.Enqueue(new C.PickUp());
-        //                        GameScene.Game.PickUpTime = CEnvir.Now.AddMilliseconds(250);
+                            if (num5 != 0)
+                                continue;
+                        }
+                        else
+                            continue;
+                    }
+                    int num7 = Functions.Distance(GameScene.Game.User.CurrentLocation, clientObjectData.Location);
+                    
+                    if (minob == null)
+                    {
+                        minob = clientObjectData;
+                        num1 = num7;
+                    }
+                    else
+                    {
+                        if (num7 < num1)
+                        {
+                            num1 = num7;
+                            minob = clientObjectData;
+                        }
+                        if ((User.Class == MirClass.Assassin || (uint)User.Class <= 0U) && Functions.InRange(clientObjectData.Location, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
+                        {
+                            List<Node> path = PathFinder.FindPath(User.CurrentLocation, Functions.PointNearTarget(User.CurrentLocation, clientObjectData.Location, 1));
+                            
+                            if (path != null && num7 + 25 >= path.Count)
+                                nodeList = path;
+                        }
+                    }
+                }
+            }
 
         //                        return;
         //                    }
@@ -1510,139 +1824,411 @@ namespace Client.Scenes.Views
         //                            Element.None
         //                        }));
 
-        //                        return;
-        //                    }
-        //                    if (CEnvir.Alt)
-        //                    {
-        //                        if (User.Horse != HorseType.None)
-        //                            return;
-
-        //                        MapObject.User.AttemptAction(new ObjectAction(MirAction.Harvest, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
-        //                        return;
-        //                    }
-
-
-        //                    if (AutoPath)
-        //                        AutoPath = false;
-
-        //                    if (MapObject.MouseObject == null || MapObject.MouseObject.Race == ObjectType.Item || MapObject.MouseObject.Dead)
-        //                    {
-        //                        ClientUserItem clientUserItem = GameScene.Game.Equipment[0];
-        //                        if (MapInfo.CanMine && clientUserItem != null && clientUserItem.Info.Effect == ItemEffect.PickAxe) //if (!haselementalhurricane && MapInfo.CanMine && clientUserItem != null && clientUserItem.Info.Effect == ItemEffect.PickAxe)
-        //                        {
-        //                            MiningPoint = Functions.Move(User.CurrentLocation, mirDirection1, 1);
-        //                            if (MiningPoint.X >= 0 && MiningPoint.Y >= 0 && (MiningPoint.X < Width && MiningPoint.Y < Height) && Cells[MiningPoint.X, MiningPoint.Y].Flag)
-        //                            {
-        //                                Mining = true;
-        //                                break;
-        //                            }
-        //                        }
-        //                        if (!CanMove(mirDirection1, 1))
-        //                        {
-        //                            MirDirection mirDirection2 = mirDirection1;
-        //                            if (bDetour)
-        //                                mirDirection2 = MouseDirectionBest(mirDirection1, 1);
-        //                            if (mirDirection2 == mirDirection1)
-        //                            {
-        //                                if (mirDirection1 == User.Direction)
-        //                                    return;
-        //                                Run(mirDirection1, bDetour);
-        //                                return;
-        //                            }
-        //                            mirDirection1 = mirDirection2;
-        //                        }
-        //                        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
-        //                            return;
-
-        //                        Walk(mirDirection1);
-        //                        return;
-        //                    }
-        //                    break;
-        //                case MouseButtons.Right:
-        //                    Mining = false;
-
-
-        //                    if (AutoPath)
-        //                        AutoPath = false;
-
-
-        //                    if ((!(MapObject.MouseObject is PlayerObject) || MapObject.MouseObject == MapObject.User || !CEnvir.Ctrl) && (GameScene.Game.MoveFrame && (MapControl.User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip))
-        //                    {
-        //                        if (Functions.InRange(MapLocation, MapObject.User.CurrentLocation, 1))
-        //                        {
-        //                            if (mirDirection1 == User.Direction)
-        //                                return;
-        //                            MapObject.User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, MapObject.User.CurrentLocation, Array.Empty<object>()));
-        //                            return;
-        //                        }
-        //                        Run(mirDirection1, bDetour);
-        //                        return;
-        //                    }
-        //                    break;
-        //            }
-        //        }
-
-        //        if (MapObject.TargetObject != null)
-        //        {
-        //            if (UpdateTarget < CEnvir.Now)
-        //            {
-        //                UpdateTarget = CEnvir.Now.AddMilliseconds(200.0);
-        //                TargetLocation = MapObject.TargetObject.CurrentLocation;
-        //            }
-        //            if (ForceAttack(TargetLocation))
-        //                return;
-        //        }
-
-        //        DigEarth();
-
-        //        if (!AutoPath) return;
-
-        //        AutoWalkPath();
-        //    }
-        //}
         public static bool CanAttackAction(MapObject target)
         {
             return target != null && !target.Dead && (target.Race == ObjectType.Monster && string.IsNullOrEmpty(target.PetOwner) || (CEnvir.Shift || Config.免SHIFT));
         }
+
+        // ！ 新增：统一的AutoPath清除入口
+        // 用于在以下情况清除pathfinding：
+        // 1. 接近目标怪物1格时
+        // 2. 进入战斗时
+        // 3. 长距离寻路中检测到怪物进入范围时
+        private void ClearAutoPathIfNeeded()
+        {
+            if (!_shouldClearAutoPath)
+                return;
+
+            _shouldClearAutoPath = false;
+            AutoPath = false;
+            if (CurrentPath != null)
+            {
+                CurrentPath.Clear();
+                CurrentPath = null;
+            }
+        }
+
+        // ！ 新增：后台常驻位置追踪和卡住状态判断
+        private void UpdateCharacterStuckState()
+        {
+            double timeSinceLastRecord = CEnvir.Now.Subtract(_lastPositionRecordTime).TotalSeconds;
+            
+            if (timeSinceLastRecord >= POSITION_RECORD_INTERVAL)
+            {
+                // 数组右移（丢弃最老的位置）
+                _positionHistory[2] = _positionHistory[1];
+                _positionHistory[1] = _positionHistory[0];
+                _positionHistory[0] = User.CurrentLocation;
+                _lastPositionRecordTime = CEnvir.Now;
+                
+                // 判断当前状态
+                // 如果当前位置和前两个位置都相同，则为 Standing
+                if (_positionHistory[0] == _positionHistory[1] && _positionHistory[1] == _positionHistory[2])
+                {
+                    _currentCharacterState = CharacterStuckState.Standing;
+                }
+                // 如果三个位置都在1格以内（距离 <= 1），则为 Stuck
+                else if (Functions.Distance(_positionHistory[0], _positionHistory[1]) <= 1 &&
+                         Functions.Distance(_positionHistory[1], _positionHistory[2]) <= 1)
+                {
+                    _currentCharacterState = CharacterStuckState.Stuck;
+                }
+                // 否则正常移动
+                else
+                {
+                    _currentCharacterState = CharacterStuckState.Moving;
+                }
+                
+                // ！ 每秒同时检查：是否有近身怪物需要优先攻击
+                CheckAndPrioritizeNearbyMonster();
+            }
+        }
+        
+        /// <summary>
+        /// ！ 新增：检查是否有更近的怪物需要优先攻击
+        /// 逻辑：总是选择距离最近的怪物，每秒判断一次
+        /// 如果当前目标距离为0（重叠），自动选择下一个最近的目标
+        /// </summary>
+        private void CheckAndPrioritizeNearbyMonster()
+        {
+            if (!Config.开始挂机)
+                return;
+            
+            // 检查当前目标是否与玩家重叠（距离为0）
+            if (GameScene.Game.TargetObject != null && !GameScene.Game.TargetObject.Dead)
+            {
+                int currentDistance = Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation);
+                
+                // 如果当前目标距离为0，清除目标以便选择新目标
+                if (currentDistance == 0)
+                {
+                    GameScene.Game.TargetObject = null;
+                }
+            }
+            
+            // 查找最近的怪物（排除距离为0的怪物）
+            MapObject nearestMonster = null;
+            int nearestDistance = int.MaxValue;
+            
+            foreach (MapObject obj in Objects)
+            {
+                if (obj == null || obj.Dead || obj == User) continue;
+                if (obj.Race != ObjectType.Monster || !string.IsNullOrEmpty(obj.PetOwner)) continue;
+                
+                int distance = Functions.Distance(User.CurrentLocation, obj.CurrentLocation);
+                
+                // 只选择距离大于0的怪物（避免重叠的怪物）
+                if (distance >= 1 && distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestMonster = obj;
+                }
+            }
+            
+            // 如果找到怪物，检查是否需要切换目标
+            if (nearestMonster != null && nearestDistance <= SHORT_DISTANCE_DETECTION_RANGE)
+            {
+                // 如果当前没有目标，或者新的目标更近，则切换
+                if (GameScene.Game.TargetObject == null ||
+                    GameScene.Game.TargetObject.Dead ||
+                    nearestDistance < Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation))
+                {
+                    GameScene.Game.TargetObject = nearestMonster;
+                }
+            }
+        }
+
+        // ！ 新增：计算怪物密度最高的区域，用于智能寻路
+        /// <summary>
+        /// 尝试生成一个有效的长距离寻路目标点
+        /// 采用逐步扩大范围搜索的策略，确保目标点是可以到达的
+        /// </summary>
+        private Point GenerateValidLongDistanceTarget(int minDistance = 20, int maxDistance = 40, int maxAttempts = 5)
+        {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                int distance = CEnvir.Random.Next(minDistance, maxDistance);
+                MirDirection dir = (MirDirection)CEnvir.Random.Next(8);
+                
+                Point targetPoint = Functions.Move(User.CurrentLocation, dir, distance);
+                
+                // 检查目标点是否在地图范围内
+                if (targetPoint.X < 0 || targetPoint.Y < 0 || targetPoint.X >= Width || targetPoint.Y >= Height)
+                    continue;
+                
+                // 检查该点是否可以通过寻路到达
+                List<Node> testPath = PathFinder.FindPath(User.CurrentLocation, targetPoint);
+                if (testPath != null && testPath.Count > 0)
+                {
+                    return targetPoint; // 找到有效目标
+                }
+            }
+            
+            // 如果多次尝试都失败，返回当前位置附近的点（会直接返回不设置 AutoPath）
+            return User.CurrentLocation;
+        }
+
+        public Point FindMonsterDenseArea()
+        {
+            Dictionary<Point, int> densityMap = new Dictionary<Point, int>();
+            Point userLoc = User.CurrentLocation;
+
+            // ！ 后台常驻：每秒更新一次位置历史和卡住状态
+            UpdateCharacterStuckState();
+<<<<<<< .mine
+        //                        }
+        //                        if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
+        //                            return;
+=======
+
+
+
+>>>>>>> .theirs
+
+            // 统计每个区域的怪物数量
+            foreach (ClientObjectData clientObjectData in GameScene.Game.DataDictionary.Values)
+            {
+                if (GameScene.Game.MapControl.MapInfo == null) continue;
+                if (clientObjectData.MapIndex != GameScene.Game.MapControl.MapInfo.Index) continue;
+                if (clientObjectData.ItemInfo != null) continue;
+                if (clientObjectData.MonsterInfo == null || clientObjectData.Dead) continue;
+                if (!string.IsNullOrEmpty(clientObjectData.PetOwner) || clientObjectData.MonsterInfo.AI < 0) continue;
+
+                float distance = (float)Functions.Distance(userLoc, clientObjectData.Location);
+                if (distance > 20.0f) continue; // 只考虑30格内的怪物
+
+                // 将怪物位置按5x5格区域分组统计密度
+                int gridX = clientObjectData.Location.X / 5;
+                int gridY = clientObjectData.Location.Y / 5;
+                Point gridKey = new Point(gridX, gridY);
+
+                if (!densityMap.ContainsKey(gridKey))
+                    densityMap[gridKey] = 0;
+                densityMap[gridKey]++;
+            }
+
+            // 找到密度最高的区域
+            Point bestGrid = Point.Empty;
+            int maxDensity = 0;
+
+            foreach (var kvp in densityMap)
+            {
+                if (kvp.Value > maxDensity)
+                {
+                    maxDensity = kvp.Value;
+                    bestGrid = kvp.Key;
+                }
+            }
+
+            if (maxDensity == 0) return Point.Empty; // 没有找到怪物
+
+            // 转换回实际坐标（取区域中心）
+            Point targetPoint = new Point(bestGrid.X * 5 + 2, bestGrid.Y * 5 + 2);
+
+            // 确保目标点在合理范围内（5-15格之间）
+            float distanceToTarget = (float)Functions.Distance(userLoc, targetPoint);
+            if (distanceToTarget < 5.0f)
+            {
+                // 太近了，往外推一点
+                MirDirection dir = Functions.DirectionFromPoint(userLoc, targetPoint);
+                targetPoint = Functions.Move(userLoc, dir, 8);
+            }
+            else if (distanceToTarget > 15.0f)
+            {
+                // 太远了，拉近一点
+                MirDirection dir = Functions.DirectionFromPoint(userLoc, targetPoint);
+                targetPoint = Functions.Move(userLoc, dir, 12);
+            }
+
+            return targetPoint;
+        }
+
         public void ChangeAutoFightLocation()
         {
+            // 仅在挂机模式下运行
+            if (!Config.开始挂机)
+                return;
+            
+            // 检查是否还在寻路中或没有到达下一次计算时间
             if (PathFinderTime >= CEnvir.Now || AutoPath)
                 return;
 
             int x = User.CurrentLocation.X;
             int y = User.CurrentLocation.Y;
-
-            if (Config.范围挂机)
+            Point monsterDenseArea = FindMonsterDenseArea();
+            int distanceToMonsters = monsterDenseArea.IsEmpty ? int.MaxValue : Functions.Distance(User.CurrentLocation, monsterDenseArea);
+            
+            // 首先判断远距离模式还是短距离模式
+            if (monsterDenseArea.IsEmpty)
             {
-                Random random1 = CEnvir.Random;
-                int minValue1 = (int)((long)Config.范围挂机坐标.X - Config.范围距离);
-                Point androidCoord = Config.范围挂机坐标;
-                int maxValue1 = (int)((long)androidCoord.X + Config.范围距离);
-                x = random1.Next(minValue1, maxValue1);
-                Random random2 = CEnvir.Random;
-                androidCoord = Config.范围挂机坐标;
-                int minValue2 = (int)((long)androidCoord.Y - Config.范围距离);
-                androidCoord = Config.范围挂机坐标;
-                int maxValue2 = (int)((long)androidCoord.Y + Config.范围距离);
-                y = random2.Next(minValue2, maxValue2);
-            }
-            else if (Config.是否开启随机保护)
-            {
-                DXItemCell dxItemCell = (GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(X => X?.Item?.Info.ItemName == "随机传送卷");
-                if (dxItemCell != null && dxItemCell.UseItem())
-                    ProtectTime = CEnvir.Now.AddSeconds(5.0);
+                // 没有怪物：长距离随机移动模式
+                IsLongDistanceMode = true;
+                _currentShortDistanceMode = ShortDistanceMode.Mode1_ShortDistance; // 重置短距离模式
+                
+                // ！ 改进：长距离寻路时检测怪物进入范围
+                // 如果怪物进入SHORT_DISTANCE_DETECTION_RANGE范围，标记清除pathfinding并返回
+                foreach (MapObject obj in Objects)
+                {
+                    if (obj == null || obj.Dead || obj == User) continue;
+                    if (obj.Race != ObjectType.Monster || !string.IsNullOrEmpty(obj.PetOwner)) continue;
+                    
+                    if (Functions.Distance(User.CurrentLocation, obj.CurrentLocation) <= SHORT_DISTANCE_DETECTION_RANGE)
+                    {
+                        // 发现怪物进入范围：立即清除pathfinding并返回
+                        if (AutoPath)
+                        {
+                            AutoPath = false;
+                            if (CurrentPath != null)
+                            {
+                                CurrentPath.Clear();
+                                CurrentPath = null;
+                            }
+                        }
+                        GameScene.Game.TargetObject = obj;
+                        return; // 立即返回，ProcessInput会处理这个怪物
+                    }
+                }
+                
+                if (Config.范围挂机)
+                {
+                    // ！ 改进：范围挂机使用有效的寻路目标
+                    Random random1 = CEnvir.Random;
+                    int minValue1 = (int)((long)Config.范围挂机坐标.X - Config.范围距离);
+                    Point androidCoord = Config.范围挂机坐标;
+                    int maxValue1 = (int)((long)androidCoord.X + Config.范围距离);
+                    x = random1.Next(minValue1, maxValue1);
+                    Random random2 = CEnvir.Random;
+                    androidCoord = Config.范围挂机坐标;
+                    int minValue2 = (int)((long)androidCoord.Y - Config.范围距离);
+                    androidCoord = Config.范围挂机坐标;
+                    int maxValue2 = (int)((long)androidCoord.Y + Config.范围距离);
+                    y = random2.Next(minValue2, maxValue2);
+                    PathFinderTime = CEnvir.Now.AddSeconds(8.0);
+                }
+                else if (Config.是否开启随机保护)
+                {
+                    DXItemCell dxItemCell = (GameScene.Game.InventoryBox.Grid.Grid).FirstOrDefault(X => X?.Item?.Info.ItemName == "随机传送卷");
+                    if (dxItemCell != null && dxItemCell.UseItem())
+                        ProtectTime = CEnvir.Now.AddSeconds(5.0);
+                    return;
+                }
+                else
+                {
+                    // ！ 改进：使用有效的长距离寻路目标
+                    Point validTarget = GenerateValidLongDistanceTarget(20, 40, 5);
+                    if (validTarget == User.CurrentLocation)
+                    {
+                        // 无法找到有效的寻路目标，推迟下一次尝试
+                        PathFinderTime = CEnvir.Now.AddSeconds(5.0);
+                        return;
+                    }
+                    x = validTarget.X;
+                    y = validTarget.Y;
+                    PathFinderTime = CEnvir.Now.AddSeconds(10.0);
+                }
             }
             else
             {
-                Point currentLocation = User.CurrentLocation;
-                x = CEnvir.Random.Next(currentLocation.X - 5, currentLocation.X + 5);
-                y = CEnvir.Random.Next(currentLocation.Y - 5, currentLocation.Y + 5);
+                // 有怪物：短距离模式
+                IsLongDistanceMode = false;
+                
+                // ！ 改进：进入短距离模式时，清除之前的长距离pathfinding点
+                // 这样可以安全地从长距离切换到短距离
+                if (AutoPath)
+                {
+                    AutoPath = false;
+                    if (CurrentPath != null)
+                    {
+                        CurrentPath.Clear();
+                        CurrentPath = null;
+                    }
+                }
+                
+                // ========== 根据怪物距离决定起始模式 ==========
+                // 5格以内：从模式1开始
+                // 5格以上：从模式2开始
+                if (_currentShortDistanceMode == ShortDistanceMode.Mode1_ShortDistance || 
+                    _currentShortDistanceMode == ShortDistanceMode.Mode2_Pathfind ||
+                    _currentShortDistanceMode == ShortDistanceMode.Mode3_RandomJump)
+                {
+                    // 已经在模式中，根据当前卡住状态判断是否切换
+                    if (_currentCharacterState == CharacterStuckState.Stuck || _currentCharacterState == CharacterStuckState.Standing)
+                    {
+                        // 卡住或站着了：进入恢复循环
+                        if (_currentShortDistanceMode == ShortDistanceMode.Mode1_ShortDistance)
+                        {
+                            // 模式1卡住，切换到模式2
+                            _currentShortDistanceMode = ShortDistanceMode.Mode2_Pathfind;
+                        }
+                        else if (_currentShortDistanceMode == ShortDistanceMode.Mode2_Pathfind)
+                        {
+                            // 模式2还是卡住，切换到模式3
+                            _currentShortDistanceMode = ShortDistanceMode.Mode3_RandomJump;
+                        }
+                        else if (_currentShortDistanceMode == ShortDistanceMode.Mode3_RandomJump)
+                        {
+                            // 模式3执行后，回到模式2继续寻路
+                            _currentShortDistanceMode = ShortDistanceMode.Mode2_Pathfind;
+                        }
+                    }
+                    else if (_currentCharacterState == CharacterStuckState.Moving)
+                    {
+                        // 正常移动，保持当前模式继续
+                        // 不做改变
+                    }
+                }
+                else
+                {
+                    // 首次进入短距离模式，根据距离决定起始模式
+                    if (distanceToMonsters <= 5)
+                    {
+                        _currentShortDistanceMode = ShortDistanceMode.Mode1_ShortDistance;
+                    }
+                    else
+                    {
+                        _currentShortDistanceMode = ShortDistanceMode.Mode2_Pathfind;
+                    }
+                }
+                
+                // ========== 执行当前模式的移动 ==========
+                switch (_currentShortDistanceMode)
+                {
+                    case ShortDistanceMode.Mode1_ShortDistance:
+                        // 模式1：短距离移动到怪物密集区
+                        x = monsterDenseArea.X;
+                        y = monsterDenseArea.Y;
+                        PathFinderTime = CEnvir.Now.AddSeconds(2.0);
+                        break;
+                        
+                    case ShortDistanceMode.Mode2_Pathfind:
+                        // 模式2：长距离寻路到目标密度区
+                        x = monsterDenseArea.X;
+                        y = monsterDenseArea.Y;
+                        PathFinderTime = CEnvir.Now.AddSeconds(2.0);
+                        break;
+                        
+                    case ShortDistanceMode.Mode3_RandomJump:
+                        // 模式3：随机跳跃8格范围内的点
+                        Point fallbackTarget = new Point(
+                            User.CurrentLocation.X + CEnvir.Random.Next(-8, 9),
+                            User.CurrentLocation.Y + CEnvir.Random.Next(-8, 9)
+                        );
+                        x = fallbackTarget.X;
+                        y = fallbackTarget.Y;
+                        PathFinderTime = CEnvir.Now.AddSeconds(2.0);
+                        break;
+                }
             }
 
+            // ！ 改进：验证 pathfinding 结果，只有有效路径才设置 AutoPath
             List<Node> path = PathFinder.FindPath(User.CurrentLocation, new Point(x, y));
 
             if (path == null || path.Count == 0)
+            {
+                // 无法到达目标，推迟下一次尝试
+                PathFinderTime = CEnvir.Now.AddSeconds(2.0);
                 return;
+            }
 
             CurrentPath = path;
             AutoPath = true;
@@ -1650,7 +2236,8 @@ namespace Client.Scenes.Views
 
         public void AndroidProcess()
         {
-            if (AutoPath)
+            // ！ 修改：长距离寻路时仍允许检查怪物，但不执行战斗逻辑
+            if (AutoPath && IsLongDistanceMode)
                 return;
 
             if (GameScene.Game.TargetObject == null || GameScene.Game.TargetObject.Dead)
@@ -1662,9 +2249,12 @@ namespace Client.Scenes.Views
                 if (!CanAttackAction(GameScene.Game.TargetObject))
                     return;
 
-                if (User.Class == MirClass.Wizard || User.Class == MirClass.Taoist)
+                // ！ 修复：所有职业都可以设置锁定施法目标，不再限制为法师道士
+                GameScene.Game.MagicObject = GameScene.Game.TargetObject;
+
+                // ！ 改进：使用"远程技能挂机"配置项替代职业判断
+                if (Config.是否远战挂机)
                 {
-                    GameScene.Game.MagicObject = GameScene.Game.TargetObject;
 
                     if (Config.自动躲避 && Functions.Distance(User.CurrentLocation, GameScene.Game.TargetObject.CurrentLocation) < 3)
                     {
@@ -1677,7 +2267,7 @@ namespace Client.Scenes.Views
                                 if (mirDirection1 != User.Direction)
                                     User.AttemptAction(new ObjectAction(MirAction.Standing, mirDirection1, User.CurrentLocation, Array.Empty<object>()));
 
-                                if (!Config.是否开启挂机自动技能 || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+                                if (!Config.远战挂机是否使用技能 || !Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                                     return;
 
                                 GameScene.Game.UseMagic(Config.挂机自动技能);
@@ -1697,13 +2287,38 @@ namespace Client.Scenes.Views
                         }
                     }
                 }
-                if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 10) && ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green))
-                    GameScene.Game.UseMagic(MagicType.PoisonDust);
 
-                if (Config.是否开启挂机自动技能 && (User.Class == MirClass.Taoist || User.Class == MirClass.Wizard))
+                // 本段逻辑实际由GameScene相似代码执行，注释掉以供参考👇
+                // 注：原本想要添加挂机自动施毒包括传染，结果发现这玩意已经写到了gamescene里去了。
+                // if (Config.自动上毒 && User.Class == MirClass.Taoist && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
+                // {
+                //     ClientUserMagic infectionMagic =   GameScene.Game.GetMagic(MagicType.Infection);
+                //     // if (infectionMagic != null && (GameScene.Game.TargetObject.Poison & PoisonType.Infection) != PoisonType.Infection)
+                //     // {
+                //     //     string debugMsg = $"[AutoPoison] Try Infection: TargetID={GameScene.Game.TargetObject?.ObjectID}, Poison={GameScene.Game.TargetObject?.Poison}, MagicType={infectionMagic.Info.Magic}, Name={infectionMagic.Info.Name}, Level={infectionMagic.Level}";
+                //     //     GameScene.Game.UseMagic(MagicType.Infection, GameScene.Game.TargetObject);
+                //     //     return;
+                //     // }
+                //     // 检查PoisonDust（红毒和绿毒）
+                //     // else 
+                //     if ((MapObject.TargetObject.Poison & PoisonType.Red) != PoisonType.Red || (MapObject.TargetObject.Poison & PoisonType.Green) != PoisonType.Green)
+                //     {
+                //         GameScene.Game.UseMagic(MagicType.PoisonDust);
+                //         return;
+                //     }
+                // }
+
+                // 自动施毒
+                // if (Config.自动上毒) GameScene.Game.AutoPoison();
+
+                if (Config.远战挂机是否使用技能 && Config.是否远战挂机)
                 {
-                    if (Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, 10))
+
+                    if (Functions.InRange(GameScene.Game.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                     {
+                        var autoMagic = GameScene.Game.GetMagic(Config.挂机自动技能);
+                        // string debugMsg = $"[AutoSkill] Config.挂机自动技能={Config.挂机自动技能}, MagicObj={(autoMagic == null ? "null" : ($"Type={autoMagic.Info.Magic}, Name={autoMagic.Info.Name}, Level={autoMagic.Level}"))}";
+                        // GameScene.Game.ReceiveChat(debugMsg, MessageType.Hint);
                         GameScene.Game.UseMagic(Config.挂机自动技能);
                         return;
                     }
@@ -1727,7 +2342,7 @@ namespace Client.Scenes.Views
 
         public bool ForceAttack(Point target)
         {
-            if (AutoPath || Config.开始挂机 && (User.Class == MirClass.Taoist || User.Class == MirClass.Wizard))
+            if (AutoPath || Config.开始挂机 && Config.是否远战挂机)
                 return false;
 
             bool flag = false;
@@ -1756,11 +2371,7 @@ namespace Client.Scenes.Views
 
                     if (GameScene.Game.MoveFrame && (User.Poison & PoisonType.WraithGrip) != PoisonType.WraithGrip)
                     {
-                        int num = Functions.Distance(target, MapObject.User.CurrentLocation);
-                        if (num == 2)
-                            Walk(direction);
-                        else if (num > 2)
-                            Run(direction, bDetour);
+                        Run(direction, bDetour);
                     }
                 }
             }
@@ -1799,9 +2410,27 @@ namespace Client.Scenes.Views
             if (CurrentPath == null || CurrentPath.Count == 0)
             {
                 AutoPath = false;
+                IsLongDistanceMode = false;
             }
             else
             {
+                // ！ 新增：长距离移动时检查怪物，如果发现怪物则中断寻路切换到战斗模式
+                if (IsLongDistanceMode && Config.开始挂机)
+                {
+                    Point monsterDenseArea = FindMonsterDenseArea();
+                    if (!monsterDenseArea.IsEmpty)
+                    {
+                        // 发现怪物，中断当前长距离寻路，切换到短距离怪物追踪
+                        AutoPath = false;
+                        IsLongDistanceMode = false;
+                        CurrentPath?.Clear();
+                        
+                        // 立即触发怪物追踪
+                        ChangeAutoFightLocation();
+                        return;
+                    }
+                }
+
                 if (!GameScene.Game.MoveFrame || (User.Poison & PoisonType.WraithGrip) == PoisonType.WraithGrip)
                     return;
                 Node node1 = CurrentPath.SingleOrDefault<Node>((Func<Node, bool>)(x => User.CurrentLocation == x.Location));
@@ -1817,7 +2446,11 @@ namespace Client.Scenes.Views
                 }
 
                 if (CurrentPath.Count <= 0)
+                {
+                    AutoPath = false;
+                    IsLongDistanceMode = false;
                     return;
+                }
 
                 MirDirection dir = Functions.DirectionFromPoint(User.CurrentLocation, CurrentPath.First<Node>().Location);
                 

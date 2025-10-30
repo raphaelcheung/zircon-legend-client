@@ -48,7 +48,7 @@ namespace Client.Scenes.Views
 
             UpdateLinks();
         }
-        public override bool NeedSaveSetting => false;
+        public override bool NeedSaveSetting => true;
 
         public override WindowType Type => WindowType.BeltBox;
         public override bool CustomSize => true;

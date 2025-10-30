@@ -260,7 +260,7 @@ namespace Client.Scenes.Views
                 Text = "Cl",
                 Hint = "职业",
             };
-            label.Location = new Point(300 - label.Size.Width, 20);
+            label.Location = new Point(300 - label.Size.Width, 21);
 
             label = new DXLabel
             {
@@ -342,7 +342,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(300, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -352,7 +352,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(300, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -362,7 +362,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(385, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -372,7 +372,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(470, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -382,7 +382,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(385, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -392,7 +392,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -403,7 +403,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(470, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -414,7 +414,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(567, 20),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -424,7 +424,7 @@ namespace Client.Scenes.Views
             {
                 AutoSize = false,
                 Parent = this,
-                Font = new Font("宋体", CEnvir.FontSize(10F)),
+                Font = new Font("宋体", CEnvir.FontSize(9F)),
                 Location = new Point(567, 40),
                 Size = new Size(60, 16),
                 DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
@@ -474,10 +474,11 @@ namespace Client.Scenes.Views
             AttackModeLabel = new DXLabel
             {
                 Parent = this,
-                ForeColour = Color.Cyan,
+                ForeColour = Color.White,
                 Outline = true,
                 OutlineColour = Color.Black,
-                DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
+                DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter,
+                Font = new Font("宋体", 8F)
             };
             AttackModeLabel.SizeChanged += (o, e) =>
             {
@@ -487,10 +488,11 @@ namespace Client.Scenes.Views
             PetModeLabel = new DXLabel
             {
                 Parent = this,
-                ForeColour = Color.Cyan,
+                ForeColour = Color.White,
                 Outline = true,
                 OutlineColour = Color.Black,
-                DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter
+                DrawFormat = TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter,
+                Font = new Font("宋体", 8F)
             };
             PetModeLabel.SizeChanged += (o, e) =>
             {

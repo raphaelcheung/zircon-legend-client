@@ -58,6 +58,9 @@ namespace Client.Models
 
         public ClientCompanionObject CompanionObject;
 
+    // When a pet is assigned to the player this records the time it was summoned/assigned
+        public DateTime SummonedTime { get; set; } = DateTime.MinValue;
+
 
         public MonsterImage Image;
 
@@ -92,6 +95,9 @@ namespace Client.Models
             Name = CompanionObject?.Name ?? MonsterInfo.MonsterName;
 
             PetOwner = info.PetOwner;
+            // Mark the summoned time for player's pets so we can avoid immediately buffing them
+            if (!string.IsNullOrEmpty(PetOwner) && GameScene.Game?.User != null && PetOwner == GameScene.Game.User.Name)
+                SummonedTime = CEnvir.Now;
             NameColour = info.NameColour;
             Extra = info.Extra;
             

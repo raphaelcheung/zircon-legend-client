@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using Client.Controls;
 using Client.Envir;
 using Client.Models;
@@ -23,6 +24,8 @@ namespace Client.Scenes.Views
         public Dictionary<object, DXControl> MapInfoObjects = new Dictionary<object, DXControl>();
 
         public static float ScaleX, ScaleY;
+
+        private Point _lastCoordinateHint = Point.Empty; // 记录上一次显示的坐标，避免频繁更新
 
         public override void OnOpacityChanged(float oValue, float nValue)
         {
@@ -89,6 +92,8 @@ namespace Client.Scenes.Views
             };
             GameScene.Game.MapControl.MapInfoChanged += MapControl_MapInfoChanged;
             Image.Moving += Image_Moving;
+            Image.MouseMove += Image_MouseMove;
+            Image.MouseLeave += Image_MouseLeave;
         }
 
         #region Methods
@@ -114,6 +119,34 @@ namespace Client.Scenes.Views
             Image.Location = new Point(x, y);
         }
 
+        private void Image_MouseMove(object sender, MouseEventArgs e)
+        {
+            // 计算鼠标在地图上的坐标并更新地图hint
+            int x = (int)((e.Location.X - Image.DisplayArea.X) / ScaleX);
+            int y = (int)((e.Location.Y - Image.DisplayArea.Y) / ScaleY);
+            
+            // 限制坐标在地图范围内
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x >= GameScene.Game.MapControl.Width) x = GameScene.Game.MapControl.Width - 1;
+            if (y >= GameScene.Game.MapControl.Height) y = GameScene.Game.MapControl.Height - 1;
+            
+            Point currentCoord = new Point(x, y);
+            
+            // 只有当坐标真正改变时才更新hint，避免频繁重绘
+            if (_lastCoordinateHint != currentCoord)
+            {
+                _lastCoordinateHint = currentCoord;
+                Image.Hint = $"({x}, {y})";
+            }
+        }
+
+        private void Image_MouseLeave(object sender, EventArgs e)
+        {
+            // 鼠标离开时保持hint不变，这是地图的常驻hint
+            // 不清除hint，因为这是地图本身的属性
+        }
+
         private void RefreshTitle()
         {
             TitleLabel.Text = $"{GameScene.Game.MapControl?.MapInfo?.Description ?? "???"} ({X}，{Y})";
@@ -132,6 +165,9 @@ namespace Client.Scenes.Views
 
             ScaleX = Image.Size.Width/(float) GameScene.Game.MapControl.Width;
             ScaleY = Image.Size.Height/(float) GameScene.Game.MapControl.Height;
+            
+            // 设置地图本身的hint为初始坐标
+            Image.Hint = "(0, 0)";
             
             foreach (NPCInfo ob in Globals.NPCInfoList.Binding)
                 Update(ob);
@@ -350,7 +386,19 @@ namespace Client.Scenes.Views
             {
                 if (MapObject.User.ObjectID == ob.ObjectID)
                 {
-                    colour = Color.Cyan;
+                    // 当前人物：6x6 magenta外框，内部2x2 cyan点，外框宽度2
+                    size = new Size(6, 6);
+                    
+                    new DXControl
+                    {
+                        Parent = control,
+                        Location = new Point(2, 2),
+                        BackColour = Color.Cyan,
+                        DrawTexture = true,
+                        Size = new Size(2, 2)
+                    };
+
+                    colour = Color.Magenta;
                 }
                 else if (GameScene.Game.Observer)
                 {

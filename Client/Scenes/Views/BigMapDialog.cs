@@ -58,6 +58,9 @@ namespace Client.Scenes.Views
             ScaleX = Image.Size.Width / (float)size.Width;
             ScaleY = Image.Size.Height / (float)size.Height;
 
+            // 设置地图本身的hint为初始坐标
+            Image.Hint = "(0, 0)";
+
             foreach (NPCInfo ob in Globals.NPCInfoList.Binding)
                 Update(ob);
 
@@ -92,6 +95,8 @@ namespace Client.Scenes.Views
         public DXControl Panel;
         
         public static float ScaleX, ScaleY;
+
+        private Point _lastCoordinateHint = Point.Empty; // 记录上一次显示的坐标，避免频繁更新
 
         public Dictionary<object, DXControl> MapInfoObjects = new Dictionary<object, DXControl>();
 
@@ -155,6 +160,8 @@ namespace Client.Scenes.Views
                 LibraryFile = LibraryFile.MiniMap,
             };
             Image.MouseClick += Image_MouseClick;
+            Image.MouseMove += Image_MouseMove;
+            Image.MouseLeave += Image_MouseLeave;
         }
 
         private void Image_MouseClick(object sender, MouseEventArgs e)
@@ -213,6 +220,35 @@ namespace Client.Scenes.Views
                 else
                     GameScene.Game.ReceiveChat("正在为你查找合适的线路，请稍等。。。", MessageType.System);
             }
+        }
+
+        private void Image_MouseMove(object sender, MouseEventArgs e)
+        {
+            // 计算鼠标在地图上的坐标并更新地图hint
+            int x = (int)((double)(e.Location.X - Image.DisplayArea.X) / (double)ScaleX);
+            int y = (int)((double)(e.Location.Y - Image.DisplayArea.Y) / (double)ScaleY);
+            
+            // 限制坐标在地图范围内
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            Size mapSize = GetMapSize(SelectedInfo?.FileName ?? "");
+            if (x >= mapSize.Width) x = mapSize.Width - 1;
+            if (y >= mapSize.Height) y = mapSize.Height - 1;
+            
+            Point currentCoord = new Point(x, y);
+            
+            // 只有当坐标真正改变时才更新hint，避免频繁重绘
+            if (_lastCoordinateHint != currentCoord)
+            {
+                _lastCoordinateHint = currentCoord;
+                Image.Hint = $"({x}, {y})";
+            }
+        }
+
+        private void Image_MouseLeave(object sender, EventArgs e)
+        {
+            // 鼠标离开时保持hint不变，这是地图的常驻hint
+            // 不清除hint，因为这是地图本身的属性
         }
         private void RefreshTitle()
         {
@@ -440,7 +476,19 @@ namespace Client.Scenes.Views
             {
                 if (MapObject.User.ObjectID == ob.ObjectID)
                 {
-                    colour = Color.Cyan;
+                    // 当前人物：6x6 magenta外框，内部2x2 cyan点，外框宽度2
+                    size = new Size(6, 6);
+                    
+                    new DXControl
+                    {
+                        Parent = control,
+                        Location = new Point(2, 2),
+                        BackColour = Color.Cyan,
+                        DrawTexture = true,
+                        Size = new Size(2, 2)
+                    };
+
+                    colour = Color.Magenta;
                     X = ob.Location.X;
                     Y = ob.Location.Y;
                     RefreshTitle();

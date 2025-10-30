@@ -38,7 +38,7 @@ namespace Client.Models
             {
                 itemInfo = Globals.ItemInfoList.Binding.First(x => x.Index == Item.AddedStats[Stat.ItemIndex]);
 
-                Title = "[碎片]";
+                Title = "※";
             }
 
             Name = Item.Count > 1 ? $"{itemInfo.ItemName} ({Item.Count})" : itemInfo.ItemName;
@@ -53,37 +53,77 @@ namespace Client.Models
                 case Rarity.Common:
                     if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        NameColour = Color.LightSkyBlue;
+                        NameColour = Color.LightSkyBlue; // 稍带蓝色的极浅天蓝
 
-                        Effects.Add(new MirEffect(110, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.DeepSkyBlue)
+                        Effects.Add(new MirEffect(110, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.LightSkyBlue)
                         {
                             Target = this,
                             Loop = true,
                             Blend = true,
-                            BlendRate = 0.5F,
+                            BlendRate = 0.2F,
                         });
                     }
-                    else NameColour = Color.White;
+                    else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置暗灰色
+                        NameColour = Color.DarkGray;
+                    else
+                        NameColour = Color.Gainsboro;
                     break;
                 case Rarity.Superior:
-                    NameColour = Color.PaleGreen;
-                    Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.PaleGreen)
+                    if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        Target = this,
-                        Loop = true,
-                        Blend = true,
-                        BlendRate = 0.5F,
-                    });
+                        NameColour = Color.Lime; // 亮绿色 RGB(0,255,0)
+                        Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Lime)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.4F,
+                        });
+                    }
+                    else if (Item.Info.Effect == ItemEffect.ItemPart) // 碎片设置灰绿色
+                    {
+                        NameColour = Color.DarkSeaGreen; // 更浅的灰绿色
+                    }
+                    else
+                    {
+                        NameColour = Color.LightGreen; // 亮浅绿
+                        Effects.Add(new MirEffect(100, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.LightGreen)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.2F,
+                        });
+                    }
                     break;
                 case Rarity.Elite:
-                    NameColour = Color.MediumPurple;
-                    Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.MediumPurple)
+                    if (Item.AddedStats.Values.Count > 0 && Item.Info.Effect != ItemEffect.ItemPart)
                     {
-                        Target = this,
-                        Loop = true,
-                        Blend = true,
-                        BlendRate = 0.5F,
-                    });
+                        NameColour = Color.Magenta; // 稀有物品有额外属性时：紫红
+
+                        Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Magenta)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.4F,
+                        });
+                    }
+                    else if (Item.Info.Effect == ItemEffect.ItemPart) 
+                    {
+                        NameColour = Color.MediumOrchid; // 灰色粉紫色碎片
+                    }
+                    else
+                    {
+                        NameColour = Color.Violet; // 亮浅紫
+                        Effects.Add(new MirEffect(120, 10, TimeSpan.FromMilliseconds(100), LibraryFile.ProgUse, 60, 60, Color.Violet)
+                        {
+                            Target = this,
+                            Loop = true,
+                            Blend = true,
+                            BlendRate = 0.2F,
+                        });
+                    }
                     break;
             }
 
@@ -213,6 +253,33 @@ namespace Client.Models
         public override void NameChanged()
         {
             base.NameChanged();
+
+            // 特殊处理：如果是碎片，让 TitleNameLabel 也使用和 NameLabel 相同的颜色
+            if (!string.IsNullOrEmpty(Title) && Title == "*")
+            {
+                if (!NameLabels.TryGetValue(Title, out List<DXLabel> titles))
+                    NameLabels[Title] = titles = new List<DXLabel>();
+
+                TitleNameLabel = titles.FirstOrDefault(x => x.ForeColour == NameColour && x.BackColour == Color.Empty);
+
+                if (TitleNameLabel == null)
+                {
+                    TitleNameLabel = new DXLabel
+                    {
+                        BackColour = Color.Empty,
+                        ForeColour = NameColour, // 使用与Name相同的颜色
+                        Outline = true,
+                        OutlineColour = Color.Black,
+                        OutlineWeight = 1,
+                        Text = Title,
+                        IsControl = false,
+                        IsVisible = true,
+                    };
+
+                    TitleNameLabel.Disposing += (o, e) => titles.Remove(TitleNameLabel);
+                    titles.Add(TitleNameLabel);
+                }
+            }
 
             if (string.IsNullOrEmpty(Name))
             {

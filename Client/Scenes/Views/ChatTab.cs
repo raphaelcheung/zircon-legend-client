@@ -41,7 +41,7 @@ namespace Client.Scenes.Views
 
             ScrollBar.VisibleSize = TextPanel.Size.Height;
             ScrollBar.Location = new Point(Size.Width - ScrollBar.Size.Width - ResizeBuffer, ResizeBuffer);
-            ScrollBar.Size = new Size(14, Size.Height - ResizeBuffer*2);
+            ScrollBar.Size = new Size(14, Size.Height - ResizeBuffer*2 - 15);  // 缩短滚动条高度 15px
 
             if (!IsResizing)
                 ResizeChat();
@@ -60,7 +60,7 @@ namespace Client.Scenes.Views
 
             if (Panel == null || CurrentTabControl == null || CurrentTabControl.SelectedTab != this) return;
 
-            float opacity = Panel.TransparentCheckBox?.Checked ?? false ? 0.5F : 1F;
+            float opacity = Panel.TransparentCheckBox?.Checked ?? false ? 0.2F : 1F;
 
             foreach (DXButton button in CurrentTabControl.TabButtons)
                 button.Opacity = opacity;
@@ -79,6 +79,7 @@ namespace Client.Scenes.Views
         {
             Opacity = 0.5F;
             DrawOtherBorder = true;
+            AllowResize = false;
 
 
             ScrollBar = new DXVScrollBar
@@ -415,7 +416,7 @@ namespace Client.Scenes.Views
 
                 if (CurrentTabControl.SelectedTab == this)
                     foreach (DXButton button in CurrentTabControl.TabButtons)
-                        button.Opacity = 0.5f;
+                        button.Opacity = 0.2f;
 
 
                 foreach (DXLabel label in History)
@@ -425,7 +426,7 @@ namespace Client.Scenes.Views
             {
                 ScrollBar.Visible = true;
                 DrawTexture = true;
-                AllowResize = true;
+                AllowResize = false; // 保持禁止调整大小
                 DrawOtherBorder = true;
 
                 if (CurrentTabControl.SelectedTab == this)
