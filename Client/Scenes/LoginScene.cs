@@ -339,7 +339,31 @@ namespace Client.Scenes
 
                 try
                 {
-                    AttemptConnect(Config.IPAddress, Config.Port, Config.Ipv4);
+                    IPAddress ipServer = null;
+                    if (IPAddress.TryParse(Config.IPAddress, out IPAddress ip))
+                        ipServer = ip;
+                    else
+                    {
+                        var result = Dns.GetHostEntry(Config.IPAddress);
+
+
+                        foreach (var ipaddr in result.AddressList)
+                        {
+                            if (ipaddr.AddressFamily == AddressFamily.InterNetwork
+                                || ipaddr.AddressFamily == AddressFamily.InterNetworkV6)
+                            {
+                                ipServer = ipaddr;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (ipServer != null)
+                        AttemptConnect(ipServer.ToString(), Config.Port, ipServer.AddressFamily == AddressFamily.InterNetwork);
+                    else
+                        AttemptConnect(Config.IPAddress, Config.Port, Config.Ipv4);
+
                     ConnectionTime = CEnvir.Now.AddSeconds(5);
                     ConnectionAttempt++;
                 }
