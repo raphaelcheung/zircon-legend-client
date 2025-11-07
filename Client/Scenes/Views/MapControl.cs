@@ -21,6 +21,8 @@ namespace Client.Scenes.Views
     {
         #region Properties
         private DateTime PathFinderTime;
+        // 增加自动技能间隔检测
+        private DateTime _nextAutoSkillTime = DateTime.MinValue;
 
         public static UserObject User => GameScene.Game.User;
         public PathFinder PathFinder { get; set; } = null;
@@ -1004,7 +1006,7 @@ namespace Client.Scenes.Views
                                     return;
 
                                 if (Config.远战挂机是否使用技能)
-                                    GameScene.Game.UseMagic(Config.挂机自动技能);
+                                    TryAutoSkill();
                                 return;
                             }
                             mirDirection1 = mirDirection2;
@@ -1028,7 +1030,7 @@ namespace Client.Scenes.Views
                     if (Config.是否远战挂机 && Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, SHORT_DISTANCE_DETECTION_RANGE))
                     {
                         if (Config.远战挂机是否使用技能)
-                            GameScene.Game.UseMagic(Config.挂机自动技能);
+                            TryAutoSkill();
                         return;
                     }
                 }
@@ -2456,6 +2458,29 @@ namespace Client.Scenes.Views
                         }));
                 }
             }
+        }
+
+        /// <summary>
+        /// 挂机技能方法改动
+        /// 当且仅当施法列队为空才将技能放入列队，避免打断其他动作
+        /// </summary>
+        private void TryAutoSkill()
+        {
+            if (Config.挂机自动技能 == MagicType.None) return;
+
+            if (CEnvir.Now < _nextAutoSkillTime) return;
+
+            // 如果队列不为空返回
+            if (MapObject.User.ActionQueue != null && MapObject.User.ActionQueue.Count > 0) return;
+
+            // 当有技能正在施法返回
+            if (MapObject.User.MagicAction != null) return;
+
+            // 只有当前未施法，并且队列为空时，才插入自动技能
+            GameScene.Game.UseMagic(Config.挂机自动技能);
+
+            // 增加施法延迟，增加容错量（游戏无施法加速默认是500ms，这里给600，100毫秒headroom不影响挂机效率但是增加大量的容错
+            _nextAutoSkillTime = CEnvir.Now.AddMilliseconds(600);
         }
         #endregion
 
