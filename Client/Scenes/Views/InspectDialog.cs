@@ -52,7 +52,7 @@ namespace Client.Scenes.Views
         {
             HasTitle = false;
             HasFooter = true;
-            SetClientSize(new Size(266, 371));
+            SetClientSize(new Size(266 + 12, 371 + 24));
 
 
 
@@ -85,11 +85,10 @@ namespace Client.Scenes.Views
             DXControl namePanel = new DXControl
             {
                 Parent = CharacterTab,
-                Size = new Size(150, 45),
+                Size = new Size(150, 50),
                 Border = true,
                 BorderColour = Color.FromArgb(198, 166, 99),
-                Location = new Point((CharacterTab.Size.Width - 150) / 2, 5),
-
+                Location = new Point((CharacterTab.Size.Width - 150) / 2, 10),
             };
             CharacterNameLabel = new DXLabel
             {
@@ -139,7 +138,7 @@ namespace Client.Scenes.Views
             DXItemCell cell;
             Grid[(int)EquipmentSlot.Weapon] = cell = new DXItemCell
             {
-                Location = new Point(95, 60),
+                Location = new Point(15, CharacterTab.Size.Height - 15 - 36 - 40),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -152,7 +151,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Armour] = cell = new DXItemCell
             {
-                Location = new Point(135, 60),
+                Location = new Point(CharacterTab.Size.Width / 2 - 38, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -165,7 +164,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Shield] = cell = new DXItemCell
             {
-                Location = new Point(175, 60),
+                Location = new Point(CharacterTab.Size.Width / 2 + 2, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -176,22 +175,22 @@ namespace Client.Scenes.Views
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 105);
 
-            Grid[(int)EquipmentSlot.Helmet] = cell = new DXItemCell
+            Grid[(int)EquipmentSlot.Shoes] = cell = new DXItemCell
             {
-                Location = new Point(215, 60),
+                Location = new Point(15, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
-                Slot = (int)EquipmentSlot.Helmet,
+                Slot = (int)EquipmentSlot.Shoes,
                 ItemGrid = Equipment,
                 GridType = GridType.Inspect,
                 ReadOnly = true,
             };
-            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 37);
+            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 36);
 
             Grid[(int)EquipmentSlot.Torch] = cell = new DXItemCell
             {
-                Location = new Point(215, 140),
+                Location = new Point(15 + 40, CharacterTab.Size.Height - 15 - 36 - 40),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -202,9 +201,35 @@ namespace Client.Scenes.Views
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 38);
 
+            Grid[(int)EquipmentSlot.Emblem] = cell = new DXItemCell
+            {
+                Location = new Point(15 + 40, CharacterTab.Size.Height - 15 - 36),
+                Parent = CharacterTab,
+                FixedBorder = true,
+                Border = true,
+                Slot = (int)EquipmentSlot.Emblem,
+                ItemGrid = Equipment,
+                GridType = GridType.Inspect,
+                ReadOnly = true,
+            };
+            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 104);
+
+            Grid[(int)EquipmentSlot.Helmet] = cell = new DXItemCell
+            {
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 160),
+                Parent = CharacterTab,
+                FixedBorder = true,
+                Border = true,
+                Slot = (int)EquipmentSlot.Helmet,
+                ItemGrid = Equipment,
+                GridType = GridType.Inspect,
+                ReadOnly = true,
+            };
+            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 37);
+
             Grid[(int)EquipmentSlot.Necklace] = cell = new DXItemCell
             {
-                Location = new Point(215, 180),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 120),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -217,7 +242,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.BraceletL] = cell = new DXItemCell
             {
-                Location = new Point(15, 220),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36 - 80),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -230,7 +255,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.BraceletR] = cell = new DXItemCell
             {
-                Location = new Point(215, 220),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 80),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -243,7 +268,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.RingL] = cell = new DXItemCell
             {
-                Location = new Point(15, 260),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36 - 40),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -256,7 +281,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.RingR] = cell = new DXItemCell
             {
-                Location = new Point(215, 260),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 40),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -267,35 +292,10 @@ namespace Client.Scenes.Views
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 31);
 
-            Grid[(int)EquipmentSlot.Emblem] = cell = new DXItemCell
-            {
-                Location = new Point(55, 300),
-                Parent = CharacterTab,
-                FixedBorder = true,
-                Border = true,
-                Slot = (int)EquipmentSlot.Emblem,
-                ItemGrid = Equipment,
-                GridType = GridType.Inspect,
-                ReadOnly = true,
-            };
-            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 104);
-
-            Grid[(int)EquipmentSlot.Shoes] = cell = new DXItemCell
-            {
-                Location = new Point(95, 300),
-                Parent = CharacterTab,
-                FixedBorder = true,
-                Border = true,
-                Slot = (int)EquipmentSlot.Shoes,
-                ItemGrid = Equipment,
-                GridType = GridType.Inspect,
-                ReadOnly = true,
-            };
-            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 36);
 
             Grid[(int)EquipmentSlot.Poison] = cell = new DXItemCell
             {
-                Location = new Point(135, 300),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -308,7 +308,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Amulet] = cell = new DXItemCell
             {
-                Location = new Point(175, 300),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -319,22 +319,10 @@ namespace Client.Scenes.Views
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 39);
 
-            Grid[(int)EquipmentSlot.Flower] = cell = new DXItemCell
-            {
-                Location = new Point(215, 300),
-                Parent = CharacterTab,
-                FixedBorder = true,
-                Border = true,
-                Slot = (int)EquipmentSlot.Flower,
-                ItemGrid = Equipment,
-                GridType = GridType.Inspect,
-                ReadOnly = true,
-            };
-            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 81);
 
             Grid[(int)EquipmentSlot.HorseArmour] = cell = new DXItemCell
             {
-                Location = new Point(215, 100),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 250),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -344,6 +332,19 @@ namespace Client.Scenes.Views
                 ReadOnly = true,
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 82);
+
+            Grid[(int)EquipmentSlot.Flower] = cell = new DXItemCell
+            {
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 210),
+                Parent = CharacterTab,
+                FixedBorder = true,
+                Border = true,
+                Slot = (int)EquipmentSlot.Flower,
+                ItemGrid = Equipment,
+                GridType = GridType.Inspect,
+                ReadOnly = true,
+            };
+            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 81);
 
 
             int y = 0;
@@ -398,16 +399,16 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "自然魔攻:"
+                Text = "攻速:"
             };
             label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
-            DisplayStats[Stat.MaxMC] = new DXLabel
+            DisplayStats[Stat.AttackSpeed] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
                 ForeColour = Color.White,
-                Text = "0-0"
+                Text = "0"
             };
 
             label = new DXLabel
@@ -425,13 +426,27 @@ namespace Client.Scenes.Views
                 Text = "0-0"
             };
 
+            label = new DXLabel
+            {
+                Parent = StatsTab,
+                Text = "自然魔攻:"
+            };
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
+
+            DisplayStats[Stat.MaxMC] = new DXLabel
+            {
+                Parent = StatsTab,
+                Location = new Point(label.Location.X + label.Size.Width - 5, y),
+                ForeColour = Color.White,
+                Text = "0-0"
+            };
 
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "准确率:"
+                Text = "准确度:"
             };
-            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
             DisplayStats[Stat.Accuracy] = new DXLabel
             {
@@ -441,15 +456,29 @@ namespace Client.Scenes.Views
                 Text = "0"
             };
 
-
             label = new DXLabel
             {
                 Parent = StatsTab,
                 Text = "敏捷度:"
             };
-            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
             DisplayStats[Stat.Agility] = new DXLabel
+            {
+                Parent = StatsTab,
+                Location = new Point(label.Location.X + label.Size.Width - 5, y),
+                ForeColour = Color.White,
+                Text = "0"
+            };
+
+            label = new DXLabel
+            {
+                Parent = StatsTab,
+                Text = "腕力:"
+            };
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
+
+            HandWeightLabel = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
@@ -475,35 +504,32 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "腕力:"
+                Text = "舒适度:"
             };
             label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
-            HandWeightLabel = new DXLabel
+            DisplayStats[Stat.Comfort] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
                 ForeColour = Color.White,
                 Text = "0"
             };
-
-
 
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "攻速:"
+                Text = "生命窃取:"
             };
             label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
-            DisplayStats[Stat.AttackSpeed] = new DXLabel
+            DisplayStats[Stat.LifeSteal] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
                 ForeColour = Color.White,
                 Text = "0"
             };
-
 
             label = new DXLabel
             {
@@ -523,43 +549,11 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "舒适度:"
+                Text = "力量:"
             };
             label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
-            DisplayStats[Stat.Comfort] = new DXLabel
-            {
-                Parent = StatsTab,
-                Location = new Point(label.Location.X + label.Size.Width - 5, y),
-                ForeColour = Color.White,
-                Text = "0"
-            };
-
-
-
-            label = new DXLabel
-            {
-                Parent = StatsTab,
-                Text = "生命窃取:"
-            };
-            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
-
-            DisplayStats[Stat.LifeSteal] = new DXLabel
-            {
-                Parent = StatsTab,
-                Location = new Point(label.Location.X + label.Size.Width - 5, y),
-                ForeColour = Color.White,
-                Text = "0"
-            };
-
-            label = new DXLabel
-            {
-                Parent = StatsTab,
-                Text = "金币增益:"
-            };
-            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
-
-            DisplayStats[Stat.GoldRate] = new DXLabel
+            DisplayStats[Stat.Strength] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
@@ -585,6 +579,36 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
+                Text = "暴击伤害:"
+            };
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
+
+            DisplayStats[Stat.CriticalDamage] = new DXLabel
+            {
+                Parent = StatsTab,
+                Location = new Point(label.Location.X + label.Size.Width - 5, y),
+                ForeColour = Color.White,
+                Text = "0"
+            };
+
+            label = new DXLabel
+            {
+                Parent = StatsTab,
+                Text = "金币增益:"
+            };
+            label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
+
+            DisplayStats[Stat.GoldRate] = new DXLabel
+            {
+                Parent = StatsTab,
+                Location = new Point(label.Location.X + label.Size.Width - 5, y),
+                ForeColour = Color.White,
+                Text = "0"
+            };
+
+            label = new DXLabel
+            {
+                Parent = StatsTab,
                 Text = "掉率增益:"
             };
             label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
@@ -600,11 +624,11 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "捡拾范围:"
+                Text = "经验增益:"
             };
             label.Location = new Point(offset + base_width - label.Size.Width, y += 20);
 
-            DisplayStats[Stat.PickUpRadius] = new DXLabel
+            DisplayStats[Stat.ExperienceRate] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
@@ -612,15 +636,14 @@ namespace Client.Scenes.Views
                 Text = "0"
             };
 
-
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "经验增益:"
+                Text = "捡拾范围:"
             };
             label.Location = new Point(offset + base_width * 3 - label.Size.Width, y);
 
-            DisplayStats[Stat.ExperienceRate] = new DXLabel
+            DisplayStats[Stat.PickUpRadius] = new DXLabel
             {
                 Parent = StatsTab,
                 Location = new Point(label.Location.X + label.Size.Width - 5, y),
@@ -634,9 +657,9 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "元素攻击:"
+                Text = "攻击元素:"
             };
-            label.Location = new Point(70 - label.Size.Width, 190);
+            label.Location = new Point(70 - label.Size.Width, 190 + 25);
 
             DXImageControl icon = new DXImageControl
             {
@@ -779,9 +802,9 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "强抵抗元素:"
+                Text = "元素抵抗:"
             };
-            label.Location = new Point(70 - label.Size.Width, 245);
+            label.Location = new Point(70 - label.Size.Width, 245 + 25);
 
 
             icon = new DXImageControl
@@ -944,9 +967,9 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = StatsTab,
-                Text = "弱抵抗元素:"
+                Text = "元素畏惧:"
             };
-            label.Location = new Point(70 - label.Size.Width, 300);
+            label.Location = new Point(70 - label.Size.Width, 300 + 25);
 
             icon = new DXImageControl
             {
@@ -1101,14 +1124,14 @@ namespace Client.Scenes.Views
             };
             #endregion
 
-
+            base_width = (HermitTab.Size.Width - 50) / 4;
 
             label = new DXLabel
             {
                 Parent = HermitTab,
                 Text = "物防:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 - label.Size.Width + 25, 15);
+            label.Location = new Point(offset + base_width - label.Size.Width, 15);
 
             HermitDisplayStats[Stat.MaxAC] = new DXLabel
             {
@@ -1123,7 +1146,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "魔防:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 * 2 - label.Size.Width + 25, 15);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, 15);
 
             HermitDisplayStats[Stat.MaxMR] = new DXLabel
             {
@@ -1138,7 +1161,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "破坏:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 - label.Size.Width + 25, 35);
+            label.Location = new Point(offset + base_width - label.Size.Width, 35);
 
             HermitDisplayStats[Stat.MaxDC] = new DXLabel
             {
@@ -1151,9 +1174,9 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = HermitTab,
-                Text = "自然魔攻:"
+                Text = "自然:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 * 2 - label.Size.Width + 25, 35);
+            label.Location = new Point(offset + base_width - label.Size.Width, 55);
 
             HermitDisplayStats[Stat.MaxMC] = new DXLabel
             {
@@ -1166,9 +1189,9 @@ namespace Client.Scenes.Views
             label = new DXLabel
             {
                 Parent = HermitTab,
-                Text = "精神魔攻:"
+                Text = "精神:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 * 3 - label.Size.Width + 25, 35);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, 55);
 
             HermitDisplayStats[Stat.MaxSC] = new DXLabel
             {
@@ -1183,7 +1206,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "生命:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 - label.Size.Width + 25, 55);
+            label.Location = new Point(offset + base_width - label.Size.Width, 75);
 
             HermitDisplayStats[Stat.Health] = new DXLabel
             {
@@ -1198,7 +1221,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "魔法:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 * 2 - label.Size.Width + 25, 55);
+            label.Location = new Point(offset + base_width * 3 - label.Size.Width, 75);
 
             HermitDisplayStats[Stat.Mana] = new DXLabel
             {
@@ -1216,7 +1239,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "元素攻击:"
             };
-            label.Location = new Point(50 - label.Size.Width, 90);
+            label.Location = new Point(70 - label.Size.Width, 90 + 20);
 
             icon = new DXImageControl
             {
@@ -1358,7 +1381,7 @@ namespace Client.Scenes.Views
                 Parent = HermitTab,
                 Text = "未使用修炼点:"
             };
-            label.Location = new Point(HermitTab.Size.Width / 4 * 2 - label.Size.Width + 25, 150);
+            label.Location = new Point(HermitTab.Size.Width / 4 * 2 - label.Size.Width + 25, 150 + 20);
 
             RemainingLabel = new DXLabel
             {
@@ -1389,8 +1412,8 @@ namespace Client.Scenes.Views
 
             if (!CEnvir.LibraryList.TryGetValue(LibraryFile.ProgUse, out library)) return;
 
-            int x = 130;
-            int y = 270;
+            int x = 110;
+            int y = 270 + 25;
 
             if (Grid[(int)EquipmentSlot.Armour].Item != null)
             {
