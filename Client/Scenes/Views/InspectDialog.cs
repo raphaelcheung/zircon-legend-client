@@ -138,7 +138,7 @@ namespace Client.Scenes.Views
             DXItemCell cell;
             Grid[(int)EquipmentSlot.Weapon] = cell = new DXItemCell
             {
-                Location = new Point(15, CharacterTab.Size.Height - 15 - 36 - 40),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 80, CharacterTab.Size.Height - 15 - 36 - 250),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -149,22 +149,9 @@ namespace Client.Scenes.Views
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 35);
 
-            Grid[(int)EquipmentSlot.Armour] = cell = new DXItemCell
-            {
-                Location = new Point(CharacterTab.Size.Width / 2 - 38, CharacterTab.Size.Height - 15 - 36),
-                Parent = CharacterTab,
-                FixedBorder = true,
-                Border = true,
-                Slot = (int)EquipmentSlot.Armour,
-                ItemGrid = Equipment,
-                GridType = GridType.Inspect,
-                ReadOnly = true,
-            };
-            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 34);
-
             Grid[(int)EquipmentSlot.Shield] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width / 2 + 2, CharacterTab.Size.Height - 15 - 36),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36 - 250),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -174,6 +161,19 @@ namespace Client.Scenes.Views
                 ReadOnly = true,
             };
             cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 105);
+
+            Grid[(int)EquipmentSlot.Armour] = cell = new DXItemCell
+            {
+                Location = new Point(15 + 80, CharacterTab.Size.Height - 15 - 36),
+                Parent = CharacterTab,
+                FixedBorder = true,
+                Border = true,
+                Slot = (int)EquipmentSlot.Armour,
+                ItemGrid = Equipment,
+                GridType = GridType.Inspect,
+                ReadOnly = true,
+            };
+            cell.BeforeDraw += (o, e) => Draw((DXItemCell)o, 34);
 
             Grid[(int)EquipmentSlot.Shoes] = cell = new DXItemCell
             {
@@ -190,7 +190,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Torch] = cell = new DXItemCell
             {
-                Location = new Point(15 + 40, CharacterTab.Size.Height - 15 - 36 - 40),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 170),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -216,7 +216,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Helmet] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 160),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 250),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -242,7 +242,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.BraceletL] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36 - 80),
+                Location = new Point(15, CharacterTab.Size.Height - 15 - 36 - 80),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -268,7 +268,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.RingL] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36 - 40),
+                Location = new Point(15, CharacterTab.Size.Height - 15 - 36 - 40),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -295,7 +295,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Poison] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 80, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -308,7 +308,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Amulet] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36 - 40, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -322,7 +322,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.HorseArmour] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 250),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 210),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -335,7 +335,7 @@ namespace Client.Scenes.Views
 
             Grid[(int)EquipmentSlot.Flower] = cell = new DXItemCell
             {
-                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36 - 210),
+                Location = new Point(CharacterTab.Size.Width - 15 - 36, CharacterTab.Size.Height - 15 - 36),
                 Parent = CharacterTab,
                 FixedBorder = true,
                 Border = true,
@@ -1412,8 +1412,8 @@ namespace Client.Scenes.Views
 
             if (!CEnvir.LibraryList.TryGetValue(LibraryFile.ProgUse, out library)) return;
 
-            int x = 110;
-            int y = 270 + 25;
+            int x = 120;
+            int y = 270 + 29;
 
             if (Grid[(int)EquipmentSlot.Armour].Item != null)
             {
