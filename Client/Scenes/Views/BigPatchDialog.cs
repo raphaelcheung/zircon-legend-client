@@ -44,6 +44,7 @@ namespace Client.Scenes.Views
         private ClientUserMagic SeismicSlam = null;  // 战士技能：天雷锤
 
         public DateTime AutoSkillsTime { get; set; } = DateTime.MinValue;
+        private bool _pausedAutoHangupForHeal = false;
 
         public override WindowType Type
         {
@@ -628,6 +629,15 @@ namespace Client.Scenes.Views
         private void AutoHealing()
         {
             //生命值低于一半时施展秒影后持续用群疗或治愈术直至恢复血量
+            // 如果临时暂停挂机，则血量恢复到50以上恢复挂机
+            if (_pausedAutoHangupForHeal)
+            {
+                if ((double)GameScene.Game.User.CurrentHP > (double)GameScene.Game.User.Stats[Stat.Health] * 0.5)
+                {
+                    Config.开始挂机 = true; // 恢复挂机，仅在暂停的情况下恢复
+                    _pausedAutoHangupForHeal = false;
+                }
+            }
             if (Config.自动施展秒影恢复血量)
             {
                 bool userDangers = GameScene.Game.User.CurrentHP < GameScene.Game.User.Stats[Stat.Health] / 2;
@@ -653,6 +663,24 @@ namespace Client.Scenes.Views
 
                 if (target == null) return;
 
+                // 如果目标是自己且生命低于50%，临时暂停挂机
+                if (target == GameScene.Game.User)
+                {
+                    double hpRatio = (double)GameScene.Game.User.CurrentHP / (double)GameScene.Game.User.Stats[Stat.Health];
+                    if (hpRatio < 0.5 && !_pausedAutoHangupForHeal)
+                    {
+                        if (Config.开始挂机)
+                        {
+                            // 挂机暂停
+                            GameScene.Game.ReceiveChat("血量低于50，隐身治疗，并暂停挂机（强制停止行为）", MessageType.Hint);
+                            Config.开始挂机 = false;
+                            _pausedAutoHangupForHeal = true;
+                            // 强制清理当前目标、寻路与动作队列，立即停止移动/攻击
+                            PerformHardPause();
+                        }
+                    }
+                }
+
                 if (GameScene.Game.User.Buffs.All(x => x.Type != BuffType.Transparency))
                 {
                     var invisibleMagic = GameScene.Game.GetMagic(MagicType.Transparency);
@@ -677,6 +705,41 @@ namespace Client.Scenes.Views
 
                     return;
                 }
+            }
+        }
+
+        // 强制停止玩家所有自动行为：清除目标、取消寻路、清空动作队列并设置站立动作
+        private void PerformHardPause()
+        {
+            try
+            {
+                // 清除目标相关引用
+                MapObject.TargetObject = null;
+                MapObject.MouseObject = null;
+                MapObject.MagicObject = null;
+
+                // 取消自动寻路并清空当前路径
+                if (GameScene.Game?.MapControl != null)
+                {
+                    GameScene.Game.MapControl.AutoPath = false;
+                    GameScene.Game.MapControl.CurrentPath = null;
+                }
+
+                // 清空玩家客户端动作队列并强制站立
+                if (MapObject.User != null)
+                {
+                    MapObject.User.ActionQueue.Clear();
+                    // 重置下次动作时间，防止短时间内再次触发移动
+                    MapObject.User.NextActionTime = CEnvir.Now;
+                    MapObject.User.SetAction(new ObjectAction(MirAction.Standing, MapObject.User.Direction, MapObject.User.CurrentLocation));
+                }
+
+                GameScene.Game.ReceiveChat("已强制停止挂机行为：目标/路径/动作队列已清除。", MessageType.Hint);
+            }
+            catch (Exception ex)
+            {
+                // 保守处理，避免因未预见的空引用导致循环错误
+                CEnvir.SaveError(ex.ToString());
             }
         }
         public bool CanAttack(Point pi)

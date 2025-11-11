@@ -307,10 +307,8 @@ namespace Client.Scenes.Views
             if (!MapInfoObjects.TryGetValue(ob, out control))
             {
                 if (ob.MapIndex != GameScene.Game.MapControl.MapInfo.Index) return;
-                if (ob.ItemInfo != null && ob.ItemInfo.Rarity == Rarity.Common) return;
+                if (ob.ItemInfo != null && ob.ItemInfo.Rarity <= Rarity.Superior) return;
                 if (ob.MonsterInfo != null && ob.Dead) return;
-
-
                 MapInfoObjects[ob] = control = new DXControl
                 {
                     DrawTexture = true,
@@ -318,7 +316,7 @@ namespace Client.Scenes.Views
                     Opacity = Opacity,
                     //MonsterInfo.AI < 0 ? Color.FromArgb(150, 200, 255) : Color.Red,
                 };
-
+                
 
             }
             else if (ob.MapIndex != GameScene.Game.MapControl.MapInfo.Index || (ob.MonsterInfo != null && ob.Dead) || (ob.ItemInfo != null && ob.ItemInfo.Rarity == Rarity.Common))
