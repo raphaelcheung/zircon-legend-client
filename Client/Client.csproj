@@ -295,7 +295,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PreBuildEvent>tasklist | findstr /i "Legend.exe" &amp;&amp; taskkill /f /im Legend.exe || exit /b 0</PreBuildEvent>
-    <PostBuildEvent>xcopy /Y "$(TargetPath)" "%USERPROFILE%\Mir3\DeployClient\Legend.exe"</PostBuildEvent>
+    <PostBuildEvent>xcopy /E /Y "$(TargetDir)*" "%USERPROFILE%\Mir3\DeployClient\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

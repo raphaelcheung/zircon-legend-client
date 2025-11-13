@@ -1,7 +1,11 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using Client.Controls;
+using Client.Envir;
 using Client.UserModels;
 using Library;
+using Library.SystemModels;
+using MirDB;
 
 //Cleaned
 namespace Client.Scenes.Views
@@ -46,21 +50,22 @@ namespace Client.Scenes.Views
             button = new DXButton
             {
                 ButtonType = ButtonType.Default,
-                Label = { Text = "全部重置" },
+                Label = { Text = "还原默认" },
                 Parent = this,
                 Size = new Size(80, DefaultHeight),
                 Location = new Point(ClientArea.Right - 80 - 10, Size.Height - 43),
             };
             button.MouseClick += (o, e) =>
             {
-                DXMessageBox box = new DXMessageBox("确定要重置所有聊天窗口吗", "聊天重置", DXMessageBoxButtons.YesNo);
+                DXMessageBox box = new DXMessageBox("确定要还原默认设置吗（重置后建议重启游戏）", "聊天重置", DXMessageBoxButtons.YesNo);
 
                 box.YesButton.MouseClick += (o1, e1) =>
                 {
                     for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                         ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
-                    CreateDefaultWindows();
+                    // 重置所有聊天设置为硬编码的默认值
+                    ResetToDefaults();
                 };
             };
 
@@ -84,23 +89,209 @@ namespace Client.Scenes.Views
             button = new DXButton
             {
                 ButtonType = ButtonType.Default,
-                Label = { Text = "全部重新载入" },
+                Label = { Text = "刷新聊天页" },
                 Parent = this,
                 Size = new Size(80, DefaultHeight),
                 Location = new Point(ClientArea.X + 85, Size.Height - 43),
             };
             button.MouseClick += (o, e) =>
             {
-                DXMessageBox box = new DXMessageBox("确定要重载所有聊天窗口吗", "聊天重载", DXMessageBoxButtons.YesNo);
+                DXMessageBox box = new DXMessageBox("确定要刷新所有聊天窗口吗（一并清除内容）", "刷新窗口", DXMessageBoxButtons.YesNo);
 
                 box.YesButton.MouseClick += (o1, e1) =>
                 {
+                    // 直接调用 LoadChatTabs()（方法内部会先清理旧的 ChatTabControl）
                     GameScene.Game.LoadChatTabs();
                 };
             };
         }
 
         #region Methods
+
+        public static List<ChatTabPageSetting> GetDefaultChatSettings()
+        {
+            List<ChatTabPageSetting> settings = new List<ChatTabPageSetting>();
+            
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "全部",
+                Transparent = false,
+                LocalChat = true,
+                Alert = true,
+                GlobalChat = true,
+                GroupChat = true,
+                GuildChat = true,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = true,
+                HintChat = true,
+                SystemChat = true,
+                GainsChat = true,
+                AnnouncementChat = true,
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "私聊",
+                Transparent = false,
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = false,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "队伍",
+                Transparent = false,
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = true,
+                GuildChat = false,
+                ObserverChat = true,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "行会",
+                Transparent = false,
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = true,
+                ObserverChat = false,
+                WhisperChat = true,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "公共",
+                Transparent = false,
+                LocalChat = true,
+                Alert = false,
+                GlobalChat = true,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = true,
+                WhisperChat = false,
+                ShoutChat = true,
+                HintChat = false,
+                SystemChat = false,
+                GainsChat = false,
+                AnnouncementChat = true
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "系统",
+                Transparent = false,
+                LocalChat = true,
+                Alert = true,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = false,
+                WhisperChat = false,
+                ShoutChat = false,
+                HintChat = false,
+                SystemChat = true,
+                GainsChat = false,
+                AnnouncementChat = false
+            });
+
+            settings.Add(new ChatTabPageSetting
+            {
+                Name = "提示",
+                Transparent = false,
+                LocalChat = false,
+                Alert = false,
+                GlobalChat = false,
+                GroupChat = false,
+                GuildChat = false,
+                ObserverChat = false,
+                WhisperChat = false,
+                ShoutChat = false,
+                HintChat = true,
+                SystemChat = false,
+                GainsChat = true,
+                AnnouncementChat = false,
+            });
+
+            return settings;
+        }
+
+        public static void ResetToDefaults()
+        {
+            // 删除已保存的设置（控制器与页面）
+            DBCollection<ChatTabControlSetting> controlSettings = CEnvir.Session.GetCollection<ChatTabControlSetting>();
+            DBCollection<ChatTabPageSetting> pageSettings = CEnvir.Session.GetCollection<ChatTabPageSetting>();
+
+            for (int i = pageSettings.Binding.Count - 1; i >= 0; i--)
+                pageSettings.Binding[i].Delete();
+
+            for (int i = controlSettings.Binding.Count - 1; i >= 0; i--)
+                controlSettings.Binding[i].Delete();
+
+            // 将默认设置写入数据库并持久化
+            List<ChatTabPageSetting> defaults = GetDefaultChatSettings();
+
+            ChatTabControlSetting cSetting = controlSettings.CreateNewObject();
+            cSetting.Resolution = Config.GameSize;
+            // 使用 ChatTextBox 的位置/大小作为默认控制器位置
+            cSetting.Location = new System.Drawing.Point(GameScene.Game.ChatTextBox.Location.X, GameScene.Game.ChatTextBox.Location.Y - 150);
+            cSetting.Size = new System.Drawing.Size(GameScene.Game.ChatTextBox.Size.Width, 150);
+
+            ChatTabPageSetting firstPage = null;
+            foreach (ChatTabPageSetting def in defaults)
+            {
+                ChatTabPageSetting pSetting = pageSettings.CreateNewObject();
+                pSetting.Parent = cSetting;
+
+                if (firstPage == null)
+                    cSetting.SelectedPage = pSetting;
+
+                pSetting.Name = def.Name;
+                pSetting.Transparent = def.Transparent;
+                pSetting.Alert = def.Alert;
+                pSetting.LocalChat = def.LocalChat;
+                pSetting.WhisperChat = def.WhisperChat;
+                pSetting.GroupChat = def.GroupChat;
+                pSetting.GuildChat = def.GuildChat;
+                pSetting.ShoutChat = def.ShoutChat;
+                pSetting.GlobalChat = def.GlobalChat;
+                pSetting.ObserverChat = def.ObserverChat;
+                pSetting.HintChat = def.HintChat;
+                pSetting.SystemChat = def.SystemChat;
+                pSetting.GainsChat = def.GainsChat;
+                pSetting.AnnouncementChat = def.AnnouncementChat;
+
+                firstPage = pSetting;
+            }
+
+            // 重新加载，这次会使用数据库中刚写入的默认设置
+            GameScene.Game.LoadChatTabs();
+        }
 
         public ChatTab AddNewTab()
         {
