@@ -947,155 +947,37 @@ namespace Client.Scenes
             for (int i = ChatTab.Tabs.Count - 1; i >= 0; i--)
                 ChatTab.Tabs[i].Panel.RemoveButton.InvokeMouseClick();
 
+            // Bugfix 确保旧的 ChatTabControl 已被销毁，避免 _LoadChatTabs 因为非空而早退
+            if (ChatTabControl != null)
+            {
+                try
+                {
+                    ChatTabControl.Dispose();
+                }
+                catch { }
+                ChatTabControl = null;
+            }
+
             // 先尝试从数据库读取已保存的聊天配置
             DBCollection<ChatTabPageSetting> savedSettings = CEnvir.Session.GetCollection<ChatTabPageSetting>();
             
-            List<ChatTabPageSetting> settings = new List<ChatTabPageSetting>();
+            List<ChatTabPageSetting> settings;
             
             // 如果数据库中有保存的设置，直接使用
             if (savedSettings.Binding.Count > 0)
             {
+                settings = new List<ChatTabPageSetting>();
                 settings.AddRange(savedSettings.Binding);
-                _LoadChatTabs(settings);
-                return;
             }
-            
-            // 否则使用默认设置
-            settings.Add(new ChatTabPageSetting
+            else
             {
-                Name = "全部",
-                Transparent = false,
-
-                LocalChat = true,
-                Alert = true,
-                GlobalChat = true,
-                GroupChat = true,
-                GuildChat = true,
-                ObserverChat = true,
-                WhisperChat = true,
-                ShoutChat = true,
-                HintChat = true,
-                SystemChat = true,
-                GainsChat = true,
-                AnnouncementChat = true,
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "私聊",
-                Transparent = false,
-
-                LocalChat = false,
-                Alert = false,
-                GlobalChat = false,
-                GroupChat = false,
-                GuildChat = false,
-                ObserverChat = true,
-                WhisperChat = true,
-                ShoutChat = false,
-                HintChat = false,
-                SystemChat = false,
-                GainsChat = false,
-                AnnouncementChat = false
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "队伍",
-                Transparent = false,
-
-                LocalChat = false,
-                Alert = false,
-                GlobalChat = false,
-                GroupChat = true,
-                GuildChat = false,
-                ObserverChat = true,
-                WhisperChat = true,
-                ShoutChat = false,
-                HintChat = false,
-                SystemChat = true,
-                GainsChat = false,
-                AnnouncementChat = false
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "行会",
-                Transparent = false,
-
-                LocalChat = false,
-                Alert = false,
-                GlobalChat = false,
-                GroupChat = false,
-                GuildChat = true,
-                ObserverChat = false,
-                WhisperChat = true,
-                ShoutChat = false,
-                HintChat = false,
-                SystemChat = true,
-                GainsChat = false,
-                AnnouncementChat = false
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "公共",
-                Transparent = false,
-
-                LocalChat = true,
-                Alert = false,
-                GlobalChat = true,
-                GroupChat = false,
-                GuildChat = false,
-                ObserverChat = true,
-                WhisperChat = false,
-                ShoutChat = true,
-                HintChat = false,
-                SystemChat = false,
-                GainsChat = false,
-                AnnouncementChat = true
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "系统",
-                Transparent = false,
-
-                LocalChat = true,
-                Alert = true,
-                GlobalChat = false,
-                GroupChat = false,
-                GuildChat = false,
-                ObserverChat = false,
-                WhisperChat = false,
-                ShoutChat = false,
-                HintChat = false,
-                SystemChat = true,
-                GainsChat = false,
-                AnnouncementChat = false
-            });
-
-            settings.Add(new ChatTabPageSetting
-            {
-                Name = "提示",
-                Transparent = false,
-
-                LocalChat = false,
-                Alert = false,
-                GlobalChat = false,
-                GroupChat = false,
-                GuildChat = false,
-                ObserverChat = false,
-                WhisperChat = false,
-                ShoutChat = false,
-                HintChat = true,
-                SystemChat = false,
-                GainsChat = true,
-                AnnouncementChat = false,
-            });
+                // 否则从 ChatOptionsDialog 获取默认设置
+                settings = ChatOptionsDialog.GetDefaultChatSettings();
+            }
 
             _LoadChatTabs(settings);
         }
+
         private void _LoadChatTabs(List<ChatTabPageSetting> controlSettings)
         {
             if (ConfigBox == null || ChatTabControl != null) return;
