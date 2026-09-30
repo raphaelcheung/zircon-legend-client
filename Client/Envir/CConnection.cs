@@ -1696,6 +1696,14 @@ namespace Client.Envir
         {
             foreach (ClientUserItem item in p.Items)
             {
+                // 客户端 System.db 里没有这个物品时 Info 为 null，
+                // 跳过提示但仍然把物品放入背包，避免后续登录时崩溃。
+                if (item.Info == null)
+                {
+                    item.New = true;
+                    continue;
+                }
+
                 ItemInfo displayInfo = item.Info;
 
                 if (item.Info.Effect == ItemEffect.Gold)
@@ -3775,6 +3783,12 @@ namespace Client.Envir
         {
             foreach (ClientUserItem item in p.Items)
             {
+                if (item.Info == null)
+                {
+                    item.New = true;
+                    continue;
+                }
+
                 ItemInfo displayInfo = item.Info;
 
                 if (item.Info.Effect == ItemEffect.Gold)

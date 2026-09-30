@@ -4534,18 +4534,23 @@ namespace Client.Scenes
         {
             foreach (ClientUserItem item in items)
             {
-                if (item.Info.Effect == ItemEffect.Experience) continue;
-                if ((item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem) continue;
-
-                if (item.Info.Effect == ItemEffect.Gold)
+                // 客户端数据缺失（System.db 与服务器不同步）时 Info 为 null，
+                // 仍然放入背包，只是不做堆叠/特殊处理，避免空引用崩溃。
+                if (item.Info != null)
                 {
-                    User.Gold += item.Count;
-                    DXSoundManager.Play(SoundIndex.GoldGained);
-                    continue;
+                    if (item.Info.Effect == ItemEffect.Experience) continue;
+                    if ((item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem) continue;
+
+                    if (item.Info.Effect == ItemEffect.Gold)
+                    {
+                        User.Gold += item.Count;
+                        DXSoundManager.Play(SoundIndex.GoldGained);
+                        continue;
+                    }
                 }
 
                 bool handled = false;
-                if (item.Info.StackSize > 1 && (item.Flags & UserItemFlags.Expirable) != UserItemFlags.Expirable)
+                if (item.Info != null && item.Info.StackSize > 1 && (item.Flags & UserItemFlags.Expirable) != UserItemFlags.Expirable)
                 {
                     foreach (DXItemCell cell in InventoryBox.Grid.Grid)
                     {
@@ -4586,18 +4591,21 @@ namespace Client.Scenes
         {
             foreach (ClientUserItem item in items)
             {
-                if (item.Info.Effect == ItemEffect.Experience) continue;
-                if ((item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem) continue;
-
-                if (item.Info.Effect == ItemEffect.Gold)
+                if (item.Info != null)
                 {
-                    User.Gold += item.Count;
-                    DXSoundManager.Play(SoundIndex.GoldGained);
-                    continue;
+                    if (item.Info.Effect == ItemEffect.Experience) continue;
+                    if ((item.Flags & UserItemFlags.QuestItem) == UserItemFlags.QuestItem) continue;
+
+                    if (item.Info.Effect == ItemEffect.Gold)
+                    {
+                        User.Gold += item.Count;
+                        DXSoundManager.Play(SoundIndex.GoldGained);
+                        continue;
+                    }
                 }
 
                 bool handled = false;
-                if (item.Info.StackSize > 1 && (item.Flags & UserItemFlags.Expirable) != UserItemFlags.Expirable)
+                if (item.Info != null && item.Info.StackSize > 1 && (item.Flags & UserItemFlags.Expirable) != UserItemFlags.Expirable)
                 {
                     foreach (DXItemCell cell in CompanionBox.InventoryGrid.Grid)
                     {

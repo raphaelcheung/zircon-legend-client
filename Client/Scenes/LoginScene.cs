@@ -91,6 +91,9 @@ namespace Client.Scenes
         public DXMessageBox ConnectionBox;
         public DXMessageBox CheckDbBox;
 
+        //数据库校验的开始时间，用于超时重试
+        private DateTime DbCheckTime;
+
         public DXButton ConfigButton;
         public DXConfigWindow ConfigBox;
         public LoginDialog LoginBox;
@@ -273,11 +276,30 @@ namespace Client.Scenes
 #endif
             if (CEnvir.DbVersionChecked) return true;
 
-            if (CEnvir.DbVersionChecking) return false;
+            if (CEnvir.DbVersionChecking)
+            {
+                // 服务器长时间无响应时重试，避免永久卡在“正在检查数据更新”。
+                // 正常下载 7MB 左右的数据不会超过这个时间；若连接已断，
+                // 会在 Disconnected() 里更早地重置状态。
+                if (DateTime.Now - DbCheckTime < TimeSpan.FromSeconds(30)) return false;
 
-            if (CheckDbBox != null) return false;
+                CEnvir.DbVersionChecking = false;
+                if (CheckDbBox != null)
+                {
+                    if (!CheckDbBox.IsDisposed) CheckDbBox.Dispose();
+                    CheckDbBox = null;
+                }
+            }
+
+            // 上一次校验异常中断遗留的提示框，先关闭再重新发起
+            if (CheckDbBox != null)
+            {
+                if (!CheckDbBox.IsDisposed) CheckDbBox.Dispose();
+                CheckDbBox = null;
+            }
 
             CEnvir.DbVersionChecking = true;
+            DbCheckTime = DateTime.Now;
             CheckDbBox = new DXMessageBox("正在检查数据更新...\n" +
                                  "请等待...", "数据更新中", DXMessageBoxButtons.None);
 
@@ -418,15 +440,14 @@ namespace Client.Scenes
                 ConnectionBox = null;
             }
 
-            if (!CEnvir.IsQuickGame)
-            {
-                if (!CheckDbVersion()) return;
+            // 无论是否 -QuickGame 自动登录，都要先同步服务器的 System.db，
+            // 否则客户端使用旧物品库，遇到服务器新物品时会因 Item.Info == null 而崩溃。
+            if (!CheckDbVersion()) return;
 
-                if (CheckDbBox != null)
-                {
-                    CheckDbBox.Dispose();
-                    CheckDbBox = null;
-                }
+            if (CheckDbBox != null)
+            {
+                CheckDbBox.Dispose();
+                CheckDbBox = null;
             }
 
 
@@ -523,6 +544,15 @@ namespace Client.Scenes
             ConnectionTime = DateTime.MinValue;
             ConnectingClient = null;
             CEnvir.IsQuickGame = false;
+
+            // 断线时重置数据库校验状态并关闭提示框，否则重连后 CheckDbVersion()
+            // 会一直返回 false，界面永远停在“正在检查数据更新”。
+            CEnvir.DbVersionChecking = false;
+            if (CheckDbBox != null)
+            {
+                if (!CheckDbBox.IsDisposed) CheckDbBox.Dispose();
+                CheckDbBox = null;
+            }
 
             if (LoginBox != null) LoginBox.LoginAttempted = false;
             if (AccountBox != null) AccountBox.CreateAttempted = false;

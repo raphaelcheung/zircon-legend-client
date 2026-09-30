@@ -597,7 +597,7 @@ namespace Client.Controls
 
             CEnvir.LibraryList.TryGetValue(LibraryFile.StoreItems, out Library);
 
-            if (Library != null && Item != null)
+            if (Library != null && Item?.Info != null)
             {
 
                 int drawIndex;
@@ -659,7 +659,7 @@ namespace Client.Controls
                     PresentTexture(image.Image, this, new Rectangle(DisplayArea.Right - 12, DisplayArea.Y + 1, image.Width, image.Height), Item.Count > 0 ? Color.White : Color.Gray, this);
 
                 image = InterfaceLibrary.CreateImage(103, ImageType.Image);
-                if (Item != null && GameScene.Game != null && image != null && Item.Info.Effect == ItemEffect.ItemPart)
+                if (Item != null && GameScene.Game != null && image != null && Item.Info != null && Item.Info.Effect == ItemEffect.ItemPart)
                     PresentTexture(image.Image, this, new Rectangle(DisplayArea.Right - 16, DisplayArea.Y + 1, image.Width, image.Height), Item.Count > 0 ? Color.White : Color.Gray, this);
             }
 
@@ -713,7 +713,7 @@ namespace Client.Controls
                 GameScene.Game.MouseItem = Item;
             }
 
-            CountLabel.Visible = ShowCountLabel && Item != null && (Item.Info.Effect != ItemEffect.Gold && Item.Info.Effect != ItemEffect.Experience)  && (Item.Info.StackSize > 1 || Item.Count > 1);
+            CountLabel.Visible = ShowCountLabel && Item != null && Item.Info != null && (Item.Info.Effect != ItemEffect.Gold && Item.Info.Effect != ItemEffect.Experience)  && (Item.Info.StackSize > 1 || Item.Count > 1);
             CountLabel.Text = Linked ? LinkedCount.ToString() : Item?.Count.ToString();
         }
         public void MoveItem()
